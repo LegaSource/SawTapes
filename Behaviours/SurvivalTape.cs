@@ -9,7 +9,6 @@ using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UIElements;
 
 namespace SawTapes.Behaviours
 {
@@ -35,7 +34,7 @@ namespace SawTapes.Behaviours
             {
                 PlaySawTapeServerRpc();
                 PlayerSTBehaviour playerBehaviour = playerHeldBy.GetComponent<PlayerSTBehaviour>();
-                if (!isGameEnded && playerBehaviour.isInGame && playerBehaviour.tileGame != null)
+                if (!isGameStarted && !isGameEnded && playerBehaviour.isInGame && playerBehaviour.tileGame != null)
                 {
                     StartCoroutine(SawGameBegin(playerBehaviour));
                 }
@@ -63,7 +62,10 @@ namespace SawTapes.Behaviours
             yield return new WaitUntil(() => sawRecording.isPlaying);
             yield return new WaitWhile(() => sawRecording.isPlaying);
 
-            sawTheme.volume *= 1.5f;
+            if (sawTheme != null)
+            {
+                sawTheme.volume *= 1.5f;
+            }
             HUDManager.Instance.StartCoroutine(HUDManagerPatch.StartChronoCoroutine(horde.GameDuration));
             StartSawGameServerRpc((int)playerBehaviour.playerProperties.playerClientId, horde.HordeName);
         }
@@ -93,6 +95,7 @@ namespace SawTapes.Behaviours
         public void StartSawGameServerRpc(int playerId, string hordeName)
         {
             Horde horde = SawTapes.hordes.FirstOrDefault(h => h.HordeName.Equals(hordeName));
+            StartGameClientRpc();
             StartCoroutine(StartSawGame(StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>(), horde));
         }
 
@@ -281,6 +284,7 @@ namespace SawTapes.Behaviours
                 }
             }
 
+            isGameStarted = false;
             playerBehaviour.campTime = 0;
             playerBehaviour.isInGame = false;
             playerBehaviour.tileGame = null;
