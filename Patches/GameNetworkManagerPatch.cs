@@ -11,7 +11,7 @@ namespace SawTapes.Patches
         [HarmonyPostfix]
         private static void StartGameNetworkManager()
         {
-            foreach (EnemyAI enemyAI in Resources.FindObjectsOfTypeAll<EnemyAI>().Distinct())
+            foreach (EnemyAI enemyAI in Resources.FindObjectsOfTypeAll<EnemyAI>().Where(e => e.enemyType != null).Distinct())
             {
                 SawTapes.allEnemies.Add(enemyAI);
             }
