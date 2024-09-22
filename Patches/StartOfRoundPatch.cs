@@ -1,7 +1,9 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
 using SawTapes.Behaviours;
+using SawTapes.Files;
 using SawTapes.Managers;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -23,6 +25,15 @@ namespace SawTapes.Patches
                     SawTapes.mls.LogInfo("Spawning SawTapesNetworkManager");
                 }
             }
+
+            // Remplir les objets pour le déroulement du mini-jeu
+            SawTapes.allEnemies.Clear();
+            foreach (EnemyType enemyType in Resources.FindObjectsOfTypeAll<EnemyType>().Where(e => e?.enemyPrefab != null && e.enemyPrefab.TryGetComponent<EnemyAI>(out var enemyAI) && enemyAI != null).Distinct())
+            {
+                SawTapes.allEnemies.Add(enemyType);
+            }
+            SurvivalGameFile.LoadJSON();
+            SubtitleFile.LoadJSON();
         }
 
         [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.OnDisable))]

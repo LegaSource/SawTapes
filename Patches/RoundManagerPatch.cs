@@ -118,10 +118,10 @@ namespace SawTapes.Patches
                     break;
                 }
             }
-            SawTapes.eligibleTiles.RemoveAll(t => !usedTiles.Contains(t));
+            SawTapes.eligibleTiles.RemoveWhere(t => !usedTiles.Contains(t));
         }
 
-        public static void SpawnItem(ref GameObject spawnPrefab, ref Vector3 position)
+        public static GrabbableObject SpawnItem(ref GameObject spawnPrefab, ref Vector3 position)
         {
             if (GameNetworkManager.Instance.localPlayerController.IsServer || GameNetworkManager.Instance.localPlayerController.IsHost)
             {
@@ -131,12 +131,14 @@ namespace SawTapes.Patches
                     GrabbableObject scrap = gameObject.GetComponent<GrabbableObject>();
                     scrap.fallTime = 0f;
                     gameObject.GetComponent<NetworkObject>().Spawn();
+                    return scrap;
                 }
                 catch (Exception arg)
                 {
                     SawTapes.mls.LogError($"Error in SpawnItem: {arg}");
                 }
             }
+            return null;
         }
     }
 }

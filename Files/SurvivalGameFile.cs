@@ -5,6 +5,7 @@ using SawTapes.Values;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace SawTapes.Files
 {
@@ -86,13 +87,13 @@ namespace SawTapes.Files
                 List<HordeMapping> hordesMapping = LoadHordes();
                 foreach (HordeMapping horde in hordesMapping)
                 {
-                    Dictionary<int, EnemyAI> enemiesSpawn = new Dictionary<int, EnemyAI>();
+                    Dictionary<int, EnemyType> enemiesSpawn = new Dictionary<int, EnemyType>();
                     foreach (EnemySpawnMapping enemySpawnMapping in horde.EnemiesSpawn)
                     {
-                        EnemyAI enemyAI = SawTapes.allEnemies.FirstOrDefault(e => e.enemyType.enemyName.Equals(enemySpawnMapping.Enemy));
-                        if (enemyAI != null)
+                        EnemyType enemyType = SawTapes.allEnemies.FirstOrDefault(e => e.enemyName.Equals(enemySpawnMapping.Enemy));
+                        if (enemyType != null)
                         {
-                            enemiesSpawn.Add(enemySpawnMapping.Time, enemyAI);
+                            enemiesSpawn.Add(enemySpawnMapping.Time, enemyType);
                         }
                         else
                         {

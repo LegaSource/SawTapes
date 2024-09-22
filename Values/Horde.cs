@@ -6,9 +6,9 @@ namespace SawTapes.Values
     {
         public string HordeName { get; internal set; }
         public int GameDuration { get; internal set; }
-        public Dictionary<int, EnemyAI> EnemiesSpawn { get; internal set; }
+        public Dictionary<int, EnemyType> EnemiesSpawn { get; internal set; }
 
-        public Horde(string hordeName, int gameDuration, Dictionary<int, EnemyAI> enemiesSpawn)
+        public Horde(string hordeName, int gameDuration, Dictionary<int, EnemyType> enemiesSpawn)
         {
             this.HordeName = hordeName;
             this.GameDuration = gameDuration;

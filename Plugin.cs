@@ -20,7 +20,7 @@ namespace SawTapes
     {
         private const string modGUID = "Lega.SawTapes";
         private const string modName = "Saw Tapes";
-        private const string modVersion = "1.0.3";
+        private const string modVersion = "1.0.4";
 
         private readonly Harmony harmony = new Harmony(modGUID);
         private readonly static AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "sawtapes"));
@@ -33,15 +33,19 @@ namespace SawTapes
         // Audios sources
         public static GameObject sawTheme;
         public static GameObject sawRecordingSurvival;
+        public static GameObject billyRecordingSurvival;
 
         // Particles
         public static GameObject spawnParticle;
         public static GameObject despawnParticle;
 
-        public static List<EnemyAI> allEnemies = new List<EnemyAI>();
-        public static List<Tile> eligibleTiles = new List<Tile>();
-        public static List<Room> rooms = new List<Room>();
-        public static List<Horde> hordes = new List<Horde>();
+        // Enemies
+        public static EnemyType billyEnemy;
+
+        public static HashSet<EnemyType> allEnemies = new HashSet<EnemyType>();
+        public static HashSet<Tile> eligibleTiles = new HashSet<Tile>();
+        public static HashSet<Room> rooms = new HashSet<Room>();
+        public static HashSet<Horde> hordes = new HashSet<Horde>();
 
         public void Awake()
         {
@@ -52,10 +56,10 @@ namespace SawTapes
             LoadManager();
             NetcodePatcher();
             LoadItems();
+            LoadEnemies();
             LoadParticles();
             LoadAudios();
 
-            harmony.PatchAll(typeof(GameNetworkManagerPatch));
             harmony.PatchAll(typeof(HUDManagerPatch));
             harmony.PatchAll(typeof(PlayerControllerBPatch));
             harmony.PatchAll(typeof(StartOfRoundPatch));
@@ -69,26 +73,6 @@ namespace SawTapes
         {
             Utilities.FixMixerGroups(managerPrefab);
             managerPrefab.AddComponent<SawTapesNetworkManager>();
-        }
-
-        public static void LoadItems()
-        {
-            customItems = new List<CustomItem>
-            {
-                new CustomItem(typeof(SurvivalTape), bundle.LoadAsset<Item>("Assets/SawTape/SawTapeItem.asset"), ConfigManager.survivalRarity.Value, null, true)
-            };
-
-            foreach (CustomItem customItem in customItems)
-            {
-                var script = customItem.Item.spawnPrefab.AddComponent(customItem.Type) as PhysicsProp;
-                script.grabbable = true;
-                script.grabbableToEnemies = true;
-                script.itemProperties = customItem.Item;
-
-                NetworkPrefabs.RegisterNetworkPrefab(customItem.Item.spawnPrefab);
-                Utilities.FixMixerGroups(customItem.Item.spawnPrefab);
-                Items.RegisterItem(customItem.Item);
-            }
         }
 
         private static void NetcodePatcher()
@@ -106,6 +90,35 @@ namespace SawTapes
                     }
                 }
             }
+        }
+
+        public static void LoadItems()
+        {
+            customItems = new List<CustomItem>
+            {
+                new CustomItem(typeof(SurvivalTape), bundle.LoadAsset<Item>("Assets/SawTape/SawTapeItem.asset"), true, ConfigManager.survivalRarity.Value, null, true),
+                new CustomItem(typeof(BillyPuppet), bundle.LoadAsset<Item>("Assets/BillyPuppet/BillyPuppetItem.asset"), false, 0, null, false)
+            };
+
+            foreach (CustomItem customItem in customItems)
+            {
+                var script = customItem.Item.spawnPrefab.AddComponent(customItem.Type) as PhysicsProp;
+                script.grabbable = true;
+                script.grabbableToEnemies = true;
+                script.itemProperties = customItem.Item;
+
+                NetworkPrefabs.RegisterNetworkPrefab(customItem.Item.spawnPrefab);
+                Utilities.FixMixerGroups(customItem.Item.spawnPrefab);
+                Items.RegisterItem(customItem.Item);
+            }
+        }
+
+        public static void LoadEnemies()
+        {
+            billyEnemy = bundle.LoadAsset<EnemyType>("Assets/BillyPuppet/BillyEnemy.asset");
+            billyEnemy.enemyPrefab.AddComponent<Billy>();
+            NetworkPrefabs.RegisterNetworkPrefab(billyEnemy.enemyPrefab);
+            Utilities.FixMixerGroups(billyEnemy.enemyPrefab);
         }
 
         public static void LoadParticles()
@@ -128,6 +141,10 @@ namespace SawTapes
             sawRecordingSurvival = bundle.LoadAsset<GameObject>("Assets/Audios/SawRecording_Survival.prefab");
             NetworkPrefabs.RegisterNetworkPrefab(sawRecordingSurvival);
             Utilities.FixMixerGroups(sawRecordingSurvival);
+
+            billyRecordingSurvival = bundle.LoadAsset<GameObject>("Assets/Audios/BillyRecording_Survival.prefab");
+            NetworkPrefabs.RegisterNetworkPrefab(billyRecordingSurvival);
+            Utilities.FixMixerGroups(billyRecordingSurvival);
         }
     }
 }

@@ -79,16 +79,6 @@ namespace SawTapes.Patches
             return false;
         }
 
-        [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.ChangeControlTipMultiple))]
-        [HarmonyPrefix]
-        private static void SawTapeToolTip(bool holdingItem, ref Item itemProperties)
-        {
-            if (holdingItem && itemProperties != null && itemProperties.itemName.Equals("Saw Tape"))
-            {
-                itemProperties.itemName = "tape";
-            }
-        }
-
         [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.HoldInteractionFill))]
         [HarmonyPostfix]
         private static void HoldInteraction(ref bool __result)

@@ -129,8 +129,7 @@ namespace SawTapes.Behaviours
 
         public IEnumerator SpawnEnemy(int enemySpawnKey, Tile tile, Horde horde, List<NetworkObject> spawnedEnemies)
         {
-            KeyValuePair<int, EnemyAI> enemySpawn = horde.EnemiesSpawn.FirstOrDefault(e => e.Key == enemySpawnKey);
-            if (enemySpawn.Value != null)
+            if (horde.EnemiesSpawn.TryGetValue(enemySpawnKey, out EnemyType enemyType) && enemyType != null)
             {
                 Vector3 spawnPosition = GetRandomNavMeshPositionInTile(ref tile);
                 PlaySpawnParticleClientRpc(spawnPosition, true);
@@ -138,7 +137,7 @@ namespace SawTapes.Behaviours
                 yield return new WaitUntil(() => !spawnParticle.isPlaying);
 
                 Destroy(spawnParticle.gameObject);
-                GameObject gameObject = Instantiate(enemySpawn.Value.enemyType.enemyPrefab, spawnPosition, Quaternion.identity);
+                GameObject gameObject = Instantiate(enemyType.enemyPrefab, spawnPosition, Quaternion.identity);
                 NetworkObject networkObject = gameObject.GetComponentInChildren<NetworkObject>();
                 networkObject.Spawn(true);
                 spawnedEnemies.Add(networkObject);
@@ -225,6 +224,7 @@ namespace SawTapes.Behaviours
                     spawnedEnemy.Despawn();
                 }
             }
+            SpawnBilly(ref playerBehaviour.playerProperties);
             UnlockDoorsClientRpc((int)playerBehaviour.playerProperties.playerClientId);
             SendEndGameClientRpc((int)playerBehaviour.playerProperties.playerClientId);
         }

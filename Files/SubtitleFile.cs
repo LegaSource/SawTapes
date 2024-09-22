@@ -10,6 +10,7 @@ namespace SawTapes.Files
     {
         public static string FilePath = Path.Combine(Paths.ConfigPath, "ST.subtitles.json");
         public static List<SubtitleMapping> survivalGameSubtitles;
+        public static List<SubtitleMapping> billySubtitles;
 
         public static string Get()
         {
@@ -75,6 +76,28 @@ namespace SawTapes.Files
                 "      // Let the game begin\n" +
                 "      \"text\": \"Que le jeu commence\"\n" +
                 "    }\n" +
+                "  ],\n" +
+                "  \"billy_announcement\": [\n" +
+                "    {\n" +
+                "      \"timestamp\": 0,\n" +
+                "      // Congratulations\n" +
+                "      \"text\": \"Félicitations\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 1.37,\n" +
+                "      // you've survived\n" +
+                "      \"text\": \"vous avez survécu\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 2.71,\n" +
+                "      // Today, you have emerged from this trial changed\n" +
+                "      \"text\": \"Aujourd'hui, vous êtes sorti de cette épreuve changé\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 6.13,\n" +
+                "      // But remember... life is made of choices\n" +
+                "      \"text\": \"Mais rappelez-vous… la vie est faite de choix\"\n" +
+                "    }\n" +
                 "  ]\n" +
                 "}";
         }
@@ -89,6 +112,7 @@ namespace SawTapes.Files
             using (var reader = new StreamReader(Path.Combine(Paths.ConfigPath, FilePath)))
             {
                 survivalGameSubtitles = LoadSurvivalGameSubtitles();
+                billySubtitles = LoadBillyAnnouncementSubtitles();
             }
         }
 
@@ -96,6 +120,12 @@ namespace SawTapes.Files
         {
             string json = File.ReadAllText(FilePath);
             return JObject.Parse(json)["survival_game"].ToObject<List<SubtitleMapping>>();
+        }
+
+        public static List<SubtitleMapping> LoadBillyAnnouncementSubtitles()
+        {
+            string json = File.ReadAllText(FilePath);
+            return JObject.Parse(json)["billy_announcement"].ToObject<List<SubtitleMapping>>();
         }
     }
 }

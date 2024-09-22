@@ -42,29 +42,6 @@ namespace SawTapes.Patches
                         playerBehaviour.isInGame = true;
                         playerBehaviour.tileGame = __instance;
 
-                        /*foreach (Doorway doorway in __instance.UsedDoorways)
-                        {
-                            DoorLock doorLock = Object.FindObjectsOfType<DoorLock>()
-                                .Where(d => Vector3.Distance(d.transform.position, doorway.transform.position) < 5f)
-                                .OrderBy(d => Vector3.Distance(d.transform.position, doorway.transform.position))
-                                .FirstOrDefault();
-
-                            if (doorLock != null && doorLock.isDoorOpened)
-                            {
-                                if (doorLock.gameObject.TryGetComponent<AnimatedObjectTrigger>(out var triggerAnimation))
-                                {
-                                    triggerAnimation.TriggerAnimationNonPlayer(playSecondaryAudios: true, overrideBool: true);
-                                    if (!triggerAnimation.boolValue)
-                                    {
-                                        doorLock.CloseDoorNonPlayerServerRpc();
-                                    }
-                                }
-                            }
-                            if (!DoorLockPatch.blockedDoors.ContainsKey(doorLock))
-                            {
-                                DoorLockPatch.blockedDoors.Add(doorLock, __instance);
-                            }
-                        }*/
                         foreach (DoorLock doorLock in tileBehaviour.doorLocks)
                         {
                             if (doorLock.isDoorOpened && doorLock.gameObject.TryGetComponent<AnimatedObjectTrigger>(out var triggerAnimation))
