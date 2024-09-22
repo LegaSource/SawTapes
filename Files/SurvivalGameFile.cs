@@ -5,7 +5,6 @@ using SawTapes.Values;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEngine;
 
 namespace SawTapes.Files
 {
@@ -20,6 +19,7 @@ namespace SawTapes.Files
                 "    {\n" +
                 "      \"horde_name\": \"Horde1\",\n" +
                 "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Bunker Spider\", \"time\": 10 },\n" +
@@ -31,6 +31,7 @@ namespace SawTapes.Files
                 "    {\n" +
                 "      \"horde_name\": \"Horde2\",\n" +
                 "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
@@ -38,38 +39,55 @@ namespace SawTapes.Files
                 "        { \"enemy\": \"Spring\", \"time\": 40 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 45 }\n" +
                 "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde3\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 40 }\n" +
+                "      ]\n" +
                 "    }\n" +
                 "  ],\n" +
                 "  \"rooms\": [\n" +
                 "    {\n" +
                 "      \"room_name\": \"4x4BigStairTile\",\n" +
                 "      \"door_name\": \"SteelDoorMapSpawn\",\n" +
+                "      \"weight\": 2,\n" +
                 "      \"hordes\": [\"Horde1\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"4x4ServerRoomTile\",\n" +
                 "      \"door_name\": \"SteelDoorMapSpawn\",\n" +
+                "      \"weight\": 1,\n" +
                 "      \"hordes\": [\"Horde1\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"MediumRoomHallway1B\",\n" +
                 "      \"door_name\": \"SteelDoorMapSpawn\",\n" +
+                "      \"weight\": 2,\n" +
                 "      \"hordes\": [\"Horde1\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"LibraryTile\",\n" +
                 "      \"door_name\": \"FancyDoorMapSpawn\",\n" +
+                "      \"weight\": 3,\n" +
                 "      \"hordes\": [\"Horde2\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"HallwayTileTypeB\",\n" +
                 "      \"door_name\": \"FancyDoorMapSpawn\",\n" +
-                "      \"hordes\": [\"Horde2\"]\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde3\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"HallwayTileTypeC\",\n" +
                 "      \"door_name\": \"FancyDoorMapSpawn\",\n" +
-                "      \"hordes\": [\"Horde2\"]\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde3\"]\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}";
@@ -100,7 +118,7 @@ namespace SawTapes.Files
                             SawTapes.mls.LogWarning($"The enemy {enemySpawnMapping.Enemy} could not be found from the ST.survival_game.json file.");
                         }
                     }
-                    SawTapes.hordes.Add(new Horde(horde.HordeName, horde.GameDuration, enemiesSpawn));
+                    SawTapes.hordes.Add(new Horde(horde.HordeName, horde.GameDuration, horde.BillyValue, enemiesSpawn));
                 }
 
                 List<RoomMapping> roomsMapping = LoadRooms();
@@ -119,7 +137,7 @@ namespace SawTapes.Files
                             SawTapes.mls.LogWarning($"The horde {hordeName} could not be found from the file configuration.");
                         }
                     }
-                    SawTapes.rooms.Add(new Room(room.RoomName, room.DoorName, hordes));
+                    SawTapes.rooms.Add(new Room(room.RoomName, room.DoorName, room.Weight, hordes));
                 }
             }
         }

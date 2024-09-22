@@ -31,7 +31,10 @@ namespace SawTapes.Patches
                 doorway.ConnectedDoorway.ConnectorPrefabWeights.RemoveAll(d => !d.GameObject.name.Equals(room.DoorName));
                 if (!SawTapes.eligibleTiles.Contains(doorway.tile))
                 {
-                    SawTapes.eligibleTiles.Add(doorway.tile);
+                    for (int i = 0; i < room.Weight; i++)
+                    {
+                        SawTapes.eligibleTiles.Add(doorway.tile);
+                    }
                 }
             }
         }

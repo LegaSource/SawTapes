@@ -2,7 +2,6 @@
 using GameNetcodeStuff;
 using HarmonyLib;
 using SawTapes.Behaviours;
-using System.Linq;
 using UnityEngine;
 
 namespace SawTapes.Patches

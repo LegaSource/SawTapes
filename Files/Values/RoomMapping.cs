@@ -11,6 +11,9 @@ namespace SawTapes.Files.Values
         [JsonProperty("door_name")]
         public string DoorName { get; internal set; }
 
+        [JsonProperty("weight")]
+        public int Weight { get; internal set; }
+
         [JsonProperty("hordes")]
         public List<string> Hordes { get; internal set; }
     }

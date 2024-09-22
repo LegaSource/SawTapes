@@ -124,7 +124,7 @@ namespace SawTapes.Behaviours
                 yield return new WaitForSeconds(1f);
                 timePassed++;
             }
-            EndGame(spawnedEnemies, playerBehaviour);
+            EndGame(spawnedEnemies, playerBehaviour, horde.BillyValue);
         }
 
         public IEnumerator SpawnEnemy(int enemySpawnKey, Tile tile, Horde horde, List<NetworkObject> spawnedEnemies)
@@ -209,7 +209,7 @@ namespace SawTapes.Behaviours
             }
         }
 
-        public void EndGame(List<NetworkObject> spawnedEnemies, PlayerSTBehaviour playerBehaviour)
+        public void EndGame(List<NetworkObject> spawnedEnemies, PlayerSTBehaviour playerBehaviour, int billyValue)
         {
             foreach (NetworkObject spawnedEnemy in spawnedEnemies.Where(s => s.IsSpawned))
             {
@@ -224,7 +224,10 @@ namespace SawTapes.Behaviours
                     spawnedEnemy.Despawn();
                 }
             }
-            SpawnBilly(ref playerBehaviour.playerProperties);
+            if (!playerBehaviour.playerProperties.isPlayerDead)
+            {
+                StartCoroutine(SpawnBillyCoroutine(playerBehaviour.playerProperties, billyValue));
+            }
             UnlockDoorsClientRpc((int)playerBehaviour.playerProperties.playerClientId);
             SendEndGameClientRpc((int)playerBehaviour.playerProperties.playerClientId);
         }
@@ -235,10 +238,7 @@ namespace SawTapes.Behaviours
             if (obj.TryGet(out var networkObject))
             {
                 GrabbableObject grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
-                if (grabbableObject != null)
-                {
-                    grabbableObject.DestroyObjectInHand(null);
-                }
+                grabbableObject?.DestroyObjectInHand(null);
             }
         }
 
@@ -277,11 +277,6 @@ namespace SawTapes.Behaviours
             {
                 SawTapes.eligibleTiles.Remove(playerBehaviour.tileGame);
                 isGameEnded = true;
-
-                if (player == GameNetworkManager.Instance.localPlayerController)
-                {
-                    HUDManager.Instance.DisplayTip("Information", "Congratulations, you survived!");
-                }
             }
 
             isGameStarted = false;
