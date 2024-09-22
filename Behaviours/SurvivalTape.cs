@@ -57,7 +57,7 @@ namespace SawTapes.Behaviours
         public IEnumerator SawGameBegin(PlayerSTBehaviour playerBehaviour)
         {
             Room room = SawTapes.rooms.FirstOrDefault(r => playerBehaviour.tileGame.name.Contains(r.RoomName));
-            Horde horde = room.Hordes[new System.Random().Next(room.Hordes.Count)];
+            Horde horde = room.Hordes.Where(h => h.MinHour <= TimeOfDay.Instance.hour && h.MaxHour >= TimeOfDay.Instance.hour).ToArray()[new System.Random().Next(room.Hordes.Count)];
 
             yield return new WaitUntil(() => sawRecording.isPlaying);
             yield return new WaitWhile(() => sawRecording.isPlaying);

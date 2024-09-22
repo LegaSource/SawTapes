@@ -20,6 +20,8 @@ namespace SawTapes.Files
                 "      \"horde_name\": \"Horde1\",\n" +
                 "      \"game_duration\": 60,\n" +
                 "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Bunker Spider\", \"time\": 10 },\n" +
@@ -32,6 +34,8 @@ namespace SawTapes.Files
                 "      \"horde_name\": \"Horde2\",\n" +
                 "      \"game_duration\": 60,\n" +
                 "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
@@ -44,6 +48,8 @@ namespace SawTapes.Files
                 "      \"horde_name\": \"Horde3\",\n" +
                 "      \"game_duration\": 60,\n" +
                 "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Blob\", \"time\": 10 },\n" +
@@ -118,7 +124,7 @@ namespace SawTapes.Files
                             SawTapes.mls.LogWarning($"The enemy {enemySpawnMapping.Enemy} could not be found from the ST.survival_game.json file.");
                         }
                     }
-                    SawTapes.hordes.Add(new Horde(horde.HordeName, horde.GameDuration, horde.BillyValue, enemiesSpawn));
+                    SawTapes.hordes.Add(new Horde(horde.HordeName, horde.GameDuration, horde.BillyValue, horde.MinHour, horde.MaxHour, enemiesSpawn));
                 }
 
                 List<RoomMapping> roomsMapping = LoadRooms();

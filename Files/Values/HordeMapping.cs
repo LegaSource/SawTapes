@@ -11,6 +11,12 @@ namespace SawTapes.Files.Values
         [JsonProperty("game_duration")]
         public int GameDuration { get; internal set; }
 
+        [JsonProperty("min_hour")]
+        public int MinHour { get; internal set; }
+
+        [JsonProperty("max_hour")]
+        public int MaxHour { get; internal set; }
+
         [JsonProperty("billy_value")]
         public int BillyValue { get; internal set; }
 

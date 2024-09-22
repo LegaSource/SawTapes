@@ -29,17 +29,7 @@ namespace SawTapes.Patches
 
             if (ConfigManager.isSubtitles.Value)
             {
-                /*GameObject subtitle = UnityEngine.Object.Instantiate(__instance.weightCounterAnimator.gameObject, __instance.weightCounterAnimator.transform.parent);
-                subtitle.transform.localPosition = new Vector3(0f, -125f, 0f);
-                subtitle.name = "SubtitleUI";
-
-                subtitleText = subtitle.GetComponentInChildren<TextMeshProUGUI>();
-                subtitleText.text = "";
-                subtitleText.alignment = TextAlignmentOptions.Center;
-                subtitleText.name = "Subtitle";*/
-
                 GameObject subtitle = new GameObject("SubtitleUI");
-                //UnityEngine.Object.Instantiate(__instance.weightCounterAnimator.gameObject, __instance.weightCounterAnimator.transform.parent);
                 subtitle.transform.localPosition = new Vector3(0f, -125f, 0f);
                 subtitle.AddComponent<RectTransform>();
 
