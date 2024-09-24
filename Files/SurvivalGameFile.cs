@@ -114,7 +114,8 @@ namespace SawTapes.Files
                     Dictionary<int, EnemyType> enemiesSpawn = new Dictionary<int, EnemyType>();
                     foreach (EnemySpawnMapping enemySpawnMapping in horde.EnemiesSpawn)
                     {
-                        EnemyType enemyType = SawTapes.allEnemies.FirstOrDefault(e => e.enemyName.Equals(enemySpawnMapping.Enemy));
+                        EnemyType enemyType = SawTapes.allEnemies.FirstOrDefault(e => !e.ToString().Contains("Outside") && e.enemyName.Equals(enemySpawnMapping.Enemy))
+                            ?? SawTapes.allEnemies.FirstOrDefault(e => e.enemyName.Equals(enemySpawnMapping.Enemy));
                         if (enemyType != null)
                         {
                             enemiesSpawn.Add(enemySpawnMapping.Time, enemyType);

@@ -107,18 +107,24 @@ namespace SawTapes.Behaviours
             {
                 if (playerBehaviour.playerProperties.isPlayerDead)
                 {
-                    yield break;
+                    break;
                 }
                 StartCoroutine(SpawnEnemy(timePassed, playerBehaviour.tileGame, horde, spawnedEnemies));
                 bool isFirst = true;
                 foreach (NetworkObject spawnedEnemy in spawnedEnemies.Where(s => s.IsSpawned))
                 {
-                    SetEnemyFocusClientRpc((int)playerBehaviour.playerProperties.playerClientId, spawnedEnemy);
-                    // Vérification si le joueur campe - on vérifie si le path est accessible avec un seul ennemi
-                    if (ConfigManager.killPlayerWhoCamp.Value && isFirst)
+                    EnemyAI enemyAI = spawnedEnemy.GetComponentInChildren<EnemyAI>();
+                    if (enemyAI != null
+                        && enemyAI.thisNetworkObject != null
+                        && !enemyAI.isEnemyDead)
                     {
-                        KillPlayerWhoCampClientRpc((int)playerBehaviour.playerProperties.playerClientId, spawnedEnemy);
-                        isFirst = false;
+                        SetEnemyFocusClientRpc((int)playerBehaviour.playerProperties.playerClientId, spawnedEnemy);
+                        // Vérification si le joueur campe - on vérifie si le path est accessible avec un seul ennemi
+                        if (ConfigManager.killPlayerWhoCamp.Value && isFirst)
+                        {
+                            KillPlayerWhoCampClientRpc((int)playerBehaviour.playerProperties.playerClientId, spawnedEnemy);
+                            isFirst = false;
+                        }
                     }
                 }
                 yield return new WaitForSeconds(1f);
@@ -167,12 +173,7 @@ namespace SawTapes.Behaviours
             PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[playerId];
             if (enemyObject.TryGet(out NetworkObject networkObject) && networkObject.IsSpawned)
             {
-                EnemyAI enemyAI = networkObject.GetComponentInChildren<EnemyAI>();
-                if (enemyAI != null
-                    && enemyAI.thisNetworkObject != null)
-                {
-                    enemyAI.SetMovingTowardsTargetPlayer(player);
-                }
+                networkObject.GetComponentInChildren<EnemyAI>().SetMovingTowardsTargetPlayer(player);
             }
         }
 
@@ -183,9 +184,7 @@ namespace SawTapes.Behaviours
             if (playerBehaviour.playerProperties == GameNetworkManager.Instance.localPlayerController && enemyObject.TryGet(out NetworkObject networkObject) && networkObject.IsSpawned)
             {
                 EnemyAI enemyAI = networkObject.GetComponentInChildren<EnemyAI>();
-                if (enemyAI != null
-                    && enemyAI.thisNetworkObject != null
-                    && !enemyAI.agent.CalculatePath(playerBehaviour.playerProperties.transform.position, enemyAI.path1))
+                if (!enemyAI.agent.CalculatePath(playerBehaviour.playerProperties.transform.position, enemyAI.path1))
                 {
                     if (wasCampingLastSecond)
                     {
@@ -286,7 +285,7 @@ namespace SawTapes.Behaviours
             if (player == GameNetworkManager.Instance.localPlayerController && sawTheme != null)
             {
                 sawTheme.Stop();
-                Destroy(sawTheme);
+                Destroy(sawTheme.gameObject);
             }
         }
 
