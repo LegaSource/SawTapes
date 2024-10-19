@@ -20,7 +20,7 @@ namespace SawTapes
     {
         private const string modGUID = "Lega.SawTapes";
         private const string modName = "Saw Tapes";
-        private const string modVersion = "1.0.6";
+        private const string modVersion = "1.0.7";
 
         private readonly Harmony harmony = new Harmony(modGUID);
         private readonly static AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "sawtapes"));
@@ -36,6 +36,7 @@ namespace SawTapes
         public static GameObject billyRecordingSurvival;
 
         // Particles
+        public static GameObject tapeParticle;
         public static GameObject spawnParticle;
         public static GameObject despawnParticle;
 
@@ -66,6 +67,8 @@ namespace SawTapes
             harmony.PatchAll(typeof(DungeonPatch));
             harmony.PatchAll(typeof(TilePatch));
             harmony.PatchAll(typeof(DoorLockPatch));
+            harmony.PatchAll(typeof(ManualCameraRendererPatch));
+            harmony.PatchAll(typeof(ShipTeleporterPatch));
             harmony.PatchAll(typeof(RoundManagerPatch));
         }
 
@@ -123,11 +126,15 @@ namespace SawTapes
 
         public static void LoadParticles()
         {
-            spawnParticle = bundle.LoadAsset<GameObject>("Assets/ParticleSystem/SpawnParticle.prefab");
+            tapeParticle = bundle.LoadAsset<GameObject>("Assets/Particles/TapeParticle.prefab");
+            NetworkPrefabs.RegisterNetworkPrefab(tapeParticle);
+            Utilities.FixMixerGroups(tapeParticle);
+
+            spawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/SpawnParticle.prefab");
             NetworkPrefabs.RegisterNetworkPrefab(spawnParticle);
             Utilities.FixMixerGroups(spawnParticle);
 
-            despawnParticle = bundle.LoadAsset<GameObject>("Assets/ParticleSystem/DespawnParticle.prefab");
+            despawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/DespawnParticle.prefab");
             NetworkPrefabs.RegisterNetworkPrefab(despawnParticle);
             Utilities.FixMixerGroups(despawnParticle);
         }

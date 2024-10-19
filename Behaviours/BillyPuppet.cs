@@ -49,6 +49,7 @@ namespace SawTapes.Behaviours
             if (IsServer && billy?.thisNetworkObject && billy.thisNetworkObject.IsSpawned)
             {
                 billy.thisNetworkObject.Despawn();
+                billy = null;
             }
         }
     }

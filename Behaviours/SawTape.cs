@@ -1,4 +1,5 @@
 ﻿using GameNetcodeStuff;
+using SawTapes.Managers;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -9,7 +10,18 @@ namespace SawTapes.Behaviours
     {
         public bool isGameStarted = false;
         public bool isGameEnded = false;
+        public AudioSource sawRecording;
         public AudioSource sawTheme;
+        public GameObject particleEffect;
+
+        public override void GrabItem()
+        {
+            base.GrabItem();
+            if (particleEffect != null)
+            {
+                SawTapesNetworkManager.Instance.EnableParticleServerRpc(GetComponent<NetworkObject>(), false);
+            }
+        }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {

@@ -1,5 +1,6 @@
 ﻿using DunGen;
 using HarmonyLib;
+using SawTapes.Behaviours;
 using SawTapes.Managers;
 using SawTapes.Values;
 using System;
@@ -91,7 +92,7 @@ namespace SawTapes.Patches
                         randomScrapSpawn.transform.position = roundManager.GetRandomNavMeshPositionInBoxPredictable(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, roundManager.navHit, roundManager.AnomalyRandom) + Vector3.up * item.verticalOffset;
                     }
                     Vector3 position = randomScrapSpawn.transform.position + Vector3.up * 0.5f;
-                    SpawnItem(ref item.spawnPrefab, ref position);
+                    GrabbableObject grabbableObject = SpawnItem(ref item.spawnPrefab, ref position);
 
                     // Ajout des infos pour les portes et entrées/sorties liées dans le Tile - permet d'éviter le freeze lors de l'accès à une salle de jeu
                     Vector3[] doorsPos = doorLocks.Select(d => d.transform.position).ToArray();
@@ -112,7 +113,7 @@ namespace SawTapes.Patches
                             }
                         }
                     }
-                    SawTapesNetworkManager.Instance.AddTileInfosClientRpc(tile.transform.position, doorsPos, entranceTeleports.ToArray());
+                    SawTapesNetworkManager.Instance.AddTileInfosClientRpc(tile.transform.position, doorsPos, entranceTeleports.ToArray(), grabbableObject.GetComponent<NetworkObject>());
 
                     usedTiles.Add(tile);
                     break;
@@ -131,6 +132,12 @@ namespace SawTapes.Patches
                     GrabbableObject scrap = gameObject.GetComponent<GrabbableObject>();
                     scrap.fallTime = 0f;
                     gameObject.GetComponent<NetworkObject>().Spawn();
+
+                    if (scrap is SawTape)
+                    {
+                        SawTapesNetworkManager.Instance.SpawnTapeParticleClientRpc(scrap.GetComponent<NetworkObject>());
+                    }
+
                     return scrap;
                 }
                 catch (Exception arg)

@@ -2,6 +2,7 @@
 using GameNetcodeStuff;
 using HarmonyLib;
 using SawTapes.Behaviours;
+using SawTapes.Managers;
 using UnityEngine;
 
 namespace SawTapes.Patches
@@ -40,6 +41,8 @@ namespace SawTapes.Patches
                     {
                         playerBehaviour.isInGame = true;
                         playerBehaviour.tileGame = __instance;
+                        SawTapesNetworkManager.Instance.TapeSearchServerRpc((int)playerBehaviour.playerProperties.playerClientId);
+                        SawTapesNetworkManager.Instance.UpdateMapCameraServerRpc();
 
                         foreach (DoorLock doorLock in tileBehaviour.doorLocks)
                         {

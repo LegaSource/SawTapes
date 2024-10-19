@@ -1,7 +1,4 @@
-﻿using DunGen;
-using SawTapes.Behaviours;
-using SawTapes.Patches;
-using System.Linq;
+﻿using SawTapes.Patches;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -23,44 +20,73 @@ namespace SawTapes.Managers
         }
 
         [ClientRpc]
-        public void AddTileInfosClientRpc(Vector3 tilePos, Vector3[] doorsPos, NetworkObjectReference[] entrancesObj)
+        public void SpawnTapeParticleClientRpc(NetworkObjectReference obj)
         {
-            Tile tile = FindObjectsOfType<Tile>().FirstOrDefault(t => t.transform.position == tilePos);
-            if (tile != null)
+            if (obj.TryGet(out var networkObject))
             {
-                TileSTBehaviour tileBehaviour = tile.GetComponent<TileSTBehaviour>() ?? tile.gameObject.AddComponent<TileSTBehaviour>();
-                foreach (Vector3 doorPos in doorsPos)
-                {
-                    DoorLock doorLock = FindObjectsOfType<DoorLock>().FirstOrDefault(t => t.transform.position == doorPos);
-                    if (doorLock != null)
-                    {
-                        tileBehaviour.doorLocks.Add(doorLock);
-                    }
-                    else
-                    {
-                        SawTapes.mls.LogWarning("DoorLock not found during the creation of the game room");
-                    }
-                }
-                foreach (NetworkObjectReference entranceObj in entrancesObj)
-                {
-                    if (entranceObj.TryGet(out var networkObject))
-                    {
-                        EntranceTeleport entranceTeleport = networkObject.GetComponent<EntranceTeleport>();
-                        if (entranceTeleport != null)
-                        {
-                            tileBehaviour.entranceTeleports.Add(entranceTeleport);
-                        }
-                        else
-                        {
-                            SawTapes.mls.LogWarning("EntranceTeleport not found during the creation of the game room");
-                        }
-                    }
-                }
+                GrabbableObject grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
+                TapeSTManager.SpawnTapeParticle(ref grabbableObject);
             }
-            else
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void TapeSearchServerRpc(int playerId)
+        {
+            if (TapeSTManager.tapeSearchCoroutine != null)
             {
-                SawTapes.mls.LogWarning("Tile not found during the creation of the game room");
+                StopCoroutine(TapeSTManager.tapeSearchCoroutine);
             }
+            TapeSTManager.tapeSearchCoroutine = StartCoroutine(TapeSTManager.TapeSearchCoroutine(playerId));
+        }
+
+        [ClientRpc]
+        public void UnlockDoorsClientRpc(int playerId)
+        {
+            TileSTManager.UnlockDoors(playerId);
+        }
+
+        [ClientRpc]
+        public void ChangeTapePositionClientRpc(NetworkObjectReference obj, Vector3 position)
+        {
+            if (obj.TryGet(out var networkObject))
+            {
+                GrabbableObject grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
+                TapeSTManager.ChangeTapePosition(ref grabbableObject, position);
+            }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void EnableParticleServerRpc(NetworkObjectReference obj, bool enable)
+        {
+            EnableParticleClientRpc(obj, enable);
+        }
+
+        [ClientRpc]
+        private void EnableParticleClientRpc(NetworkObjectReference obj, bool enable)
+        {
+            if (obj.TryGet(out var networkObject))
+            {
+                GrabbableObject grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
+                TapeSTManager.EnableParticle(grabbableObject, enable);
+            }
+        }
+
+        [ClientRpc]
+        public void AddTileInfosClientRpc(Vector3 tilePos, Vector3[] doorsPos, NetworkObjectReference[] entrancesObj, NetworkObjectReference obj)
+        {
+            TileSTManager.AddTileInfos(tilePos, doorsPos, entrancesObj, obj);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void UpdateMapCameraServerRpc()
+        {
+            UpdateMapCameraClientRpc();
+        }
+
+        [ClientRpc]
+        private void UpdateMapCameraClientRpc()
+        {
+            MapCameraSTManager.UpdateMapCamera(ref StartOfRound.Instance.mapScreen);
         }
     }
 }

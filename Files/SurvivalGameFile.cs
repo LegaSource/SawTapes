@@ -56,9 +56,37 @@ namespace SawTapes.Files
                 "        { \"enemy\": \"Blob\", \"time\": 20 },\n" +
                 "        { \"enemy\": \"Clay Surgeon\", \"time\": 40 }\n" +
                 "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde4\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 40 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde5\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
+                "      ]\n" +
                 "    }\n" +
                 "  ],\n" +
                 "  \"rooms\": [\n" +
+                "    // Facility\n" +
                 "    {\n" +
                 "      \"room_name\": \"4x4BigStairTile\",\n" +
                 "      \"door_name\": \"SteelDoorMapSpawn\",\n" +
@@ -77,6 +105,7 @@ namespace SawTapes.Files
                 "      \"weight\": 2,\n" +
                 "      \"hordes\": [\"Horde1\"]\n" +
                 "    },\n" +
+                "    // Haunted Mansion\n" +
                 "    {\n" +
                 "      \"room_name\": \"LibraryTile\",\n" +
                 "      \"door_name\": \"FancyDoorMapSpawn\",\n" +
@@ -92,6 +121,58 @@ namespace SawTapes.Files
                 "    {\n" +
                 "      \"room_name\": \"HallwayTileTypeC\",\n" +
                 "      \"door_name\": \"FancyDoorMapSpawn\",\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde3\"]\n" +
+                "    },\n" +
+                "    // Guardia Fortress\n" +
+                "    {\n" +
+                "      \"room_name\": \"GFC_FlagRoom\",\n" +
+                "      \"door_name\": \"GuardiaDoorSpawn\",\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde4\"]\n" +
+                "    },\n" +
+                "    // Nali Haven\n" +
+                "    {\n" +
+                "      \"room_name\": \"NHBigLibrary\",\n" +
+                "      \"door_name\": \"HavenDoorSpawn\",\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde2\"]\n" +
+                "    },\n" +
+                "    // StarlancerWarehouse\n" +
+                "    {\n" +
+                "      \"room_name\": \"MegaPowerCore\",\n" +
+                "      \"door_name\": \"SciFiDoorSpawn\",\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde5\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"RoomOfVerticality\",\n" +
+                "      \"door_name\": \"SciFiDoorSpawn\",\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde4\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"MegaEnergyStorage\",\n" +
+                "      \"door_name\": \"SciFiDoorSpawn\",\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde2\"]\n" +
+                "    },\n" +
+                "    // Devil Mansion\n" +
+                "    {\n" +
+                "      \"room_name\": \"SM_ServQuarters_V2_FINAL_24x16 Tile\",\n" +
+                "      \"door_name\": \"CN_Door180_Spawner_Prefab\",\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde2\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"SM_Kitchen_V4_FINAL_24x16 Tile\",\n" +
+                "      \"door_name\": \"CN_Door180_Spawner_Prefab\",\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde5\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"SM_Library_V1_FINAL_24x16 Tile\",\n" +
+                "      \"door_name\": \"CN_Door180_Spawner_Prefab\",\n" +
                 "      \"weight\": 1,\n" +
                 "      \"hordes\": [\"Horde3\"]\n" +
                 "    }\n" +

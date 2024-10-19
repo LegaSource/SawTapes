@@ -1,6 +1,7 @@
 ﻿using DunGen;
 using GameNetcodeStuff;
 using SawTapes.Files;
+using SawTapes.Managers;
 using SawTapes.Patches;
 using SawTapes.Values;
 using System.Collections;
@@ -14,7 +15,6 @@ namespace SawTapes.Behaviours
 {
     internal class SurvivalTape : SawTape
     {
-        public AudioSource sawRecording;
         public ParticleSystem spawnParticle;
         public ParticleSystem despawnParticle;
         public bool wasCampingLastSecond = false;
@@ -57,7 +57,17 @@ namespace SawTapes.Behaviours
         public IEnumerator SawGameBegin(PlayerSTBehaviour playerBehaviour)
         {
             Room room = SawTapes.rooms.FirstOrDefault(r => playerBehaviour.tileGame.name.Contains(r.RoomName));
-            Horde horde = room.Hordes.Where(h => h.MinHour <= TimeOfDay.Instance.hour && h.MaxHour >= TimeOfDay.Instance.hour).ToArray()[new System.Random().Next(room.Hordes.Count)];
+
+            Horde horde;
+            List<Horde> validHordes = room.Hordes.Where(h => h.MinHour <= TimeOfDay.Instance.hour && h.MaxHour >= TimeOfDay.Instance.hour).ToList();
+            if (validHordes.Count > 0)
+            {
+                horde = validHordes[new System.Random().Next(validHordes.Count)];
+            }
+            else
+            {
+                horde = room.Hordes[new System.Random().Next(room.Hordes.Count)];
+            }
 
             yield return new WaitUntil(() => sawRecording.isPlaying);
             yield return new WaitWhile(() => sawRecording.isPlaying);
@@ -152,7 +162,7 @@ namespace SawTapes.Behaviours
 
         public Vector3 GetRandomNavMeshPositionInTile(ref Tile tile)
         {
-            float padding = 2.0f;
+            float padding = 3.0f;
             float randomX = Random.Range(tile.Bounds.min.x + padding, tile.Bounds.max.x - padding);
             float randomY = Random.Range(tile.Bounds.min.y, tile.Bounds.max.y);
             float randomZ = Random.Range(tile.Bounds.min.z + padding, tile.Bounds.max.z - padding);
@@ -223,11 +233,15 @@ namespace SawTapes.Behaviours
                     spawnedEnemy.Despawn();
                 }
             }
-            if (!playerBehaviour.playerProperties.isPlayerDead)
+            if (playerBehaviour.playerProperties.isPlayerDead)
+            {
+                SawTapesNetworkManager.Instance.EnableParticleServerRpc(GetComponent<NetworkObject>(), true);
+            }
+            else
             {
                 StartCoroutine(SpawnBillyCoroutine(playerBehaviour.playerProperties, billyValue));
             }
-            UnlockDoorsClientRpc((int)playerBehaviour.playerProperties.playerClientId);
+            SawTapesNetworkManager.Instance.UnlockDoorsClientRpc((int)playerBehaviour.playerProperties.playerClientId);
             SendEndGameClientRpc((int)playerBehaviour.playerProperties.playerClientId);
         }
 
@@ -238,31 +252,6 @@ namespace SawTapes.Behaviours
             {
                 GrabbableObject grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
                 grabbableObject?.DestroyObjectInHand(null);
-            }
-        }
-
-        [ClientRpc]
-        public void UnlockDoorsClientRpc(int playerId)
-        {
-            PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
-            if (playerBehaviour != null)
-            {
-                foreach (DoorLock doorLock in playerBehaviour.tileGame.GetComponent<TileSTBehaviour>()?.doorLocks)
-                {
-                    if (!doorLock.isLocked)
-                    {
-                        if (doorLock.gameObject.TryGetComponent<AnimatedObjectTrigger>(out var triggerAnimation))
-                        {
-                            triggerAnimation.TriggerAnimationNonPlayer(playSecondaryAudios: false, overrideBool: true);
-                            doorLock.OpenDoorAsEnemyServerRpc();
-                        }
-                    }
-                    DoorLockPatch.blockedDoors.Remove(doorLock);
-                }
-                foreach (EntranceTeleport entranceTeleport in playerBehaviour.tileGame.GetComponent<TileSTBehaviour>()?.entranceTeleports)
-                {
-                    HUDManagerPatch.blockedEntrances.Remove(entranceTeleport);
-                }
             }
         }
 

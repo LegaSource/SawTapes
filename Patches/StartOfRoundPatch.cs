@@ -49,11 +49,7 @@ namespace SawTapes.Patches
         {
             foreach (PlayerControllerB player in __instance.allPlayerScripts)
             {
-                if (player.isPlayerControlled && player.GetComponent<PlayerSTBehaviour>() == null)
-                {
-                    PlayerSTBehaviour playerBehaviour = player.gameObject.AddComponent<PlayerSTBehaviour>();
-                    playerBehaviour.playerProperties = player;
-                }
+                PlayerSTManager.AddPlayerBehaviour(player);
             }
         }
     }
