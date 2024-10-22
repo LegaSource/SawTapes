@@ -29,5 +29,14 @@ namespace SawTapes.Managers
             }
             return false;
         }
+
+        public static void ResetPlayerGame(ref PlayerSTBehaviour playerBehaviour)
+        {
+            TileSTBehaviour tileSTBehaviour = playerBehaviour.tileGame?.GetComponent<TileSTBehaviour>();
+            TileSTManager.UnlockDoors(ref tileSTBehaviour);
+            playerBehaviour.campTime = 0;
+            playerBehaviour.isInGame = false;
+            playerBehaviour.tileGame = null;
+        }
     }
 }

@@ -34,9 +34,16 @@ namespace SawTapes.Behaviours
             {
                 PlaySawTapeServerRpc();
                 PlayerSTBehaviour playerBehaviour = playerHeldBy.GetComponent<PlayerSTBehaviour>();
-                if (!isGameStarted && !isGameEnded && playerBehaviour.isInGame && playerBehaviour.tileGame != null)
+                if (!isGameStarted && !isGameEnded)
                 {
-                    StartCoroutine(SawGameBegin(playerBehaviour));
+                    if (playerBehaviour.isInGame && playerBehaviour.tileGame != null)
+                    {
+                        StartCoroutine(SawGameBegin(playerBehaviour));
+                    }
+                    else
+                    {
+                        HUDManager.Instance.DisplayTip("Information", "You are not the tested player, the game can't start");
+                    }
                 }
             }
         }
@@ -241,7 +248,6 @@ namespace SawTapes.Behaviours
             {
                 StartCoroutine(SpawnBillyCoroutine(playerBehaviour.playerProperties, billyValue));
             }
-            SawTapesNetworkManager.Instance.UnlockDoorsClientRpc((int)playerBehaviour.playerProperties.playerClientId);
             SendEndGameClientRpc((int)playerBehaviour.playerProperties.playerClientId);
         }
 
@@ -268,9 +274,7 @@ namespace SawTapes.Behaviours
             }
 
             isGameStarted = false;
-            playerBehaviour.campTime = 0;
-            playerBehaviour.isInGame = false;
-            playerBehaviour.tileGame = null;
+            PlayerSTManager.ResetPlayerGame(ref playerBehaviour);
             if (player == GameNetworkManager.Instance.localPlayerController && sawTheme != null)
             {
                 sawTheme.Stop();

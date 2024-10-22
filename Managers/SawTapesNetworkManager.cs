@@ -1,4 +1,5 @@
-﻿using SawTapes.Patches;
+﻿using SawTapes.Behaviours;
+using SawTapes.Patches;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -42,7 +43,8 @@ namespace SawTapes.Managers
         [ClientRpc]
         public void UnlockDoorsClientRpc(int playerId)
         {
-            TileSTManager.UnlockDoors(playerId);
+            TileSTBehaviour tileSTBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>().tileGame?.GetComponent<TileSTBehaviour>();
+            TileSTManager.UnlockDoors(ref tileSTBehaviour);
         }
 
         [ClientRpc]

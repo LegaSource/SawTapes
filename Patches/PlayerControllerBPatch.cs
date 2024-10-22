@@ -1,5 +1,6 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
+using SawTapes.Behaviours;
 using SawTapes.Managers;
 
 namespace SawTapes.Patches
@@ -18,6 +19,14 @@ namespace SawTapes.Patches
         private static bool TeleportPlayer(ref PlayerControllerB __instance)
         {
             return !PlayerSTManager.PreventTeleportPlayer(ref __instance);
+        }
+
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.KillPlayerClientRpc))]
+        [HarmonyPostfix]
+        private static void PlayerDeath(ref PlayerControllerB __instance, int playerId)
+        {
+            PlayerSTBehaviour playerBehaviour = __instance.playersManager.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
+            PlayerSTManager.ResetPlayerGame(ref playerBehaviour);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using DunGen;
+using GameNetcodeStuff;
 using SawTapes.Behaviours;
 using SawTapes.Patches;
 using System.Linq;
@@ -9,9 +10,8 @@ namespace SawTapes.Managers
 {
     internal class TileSTManager
     {
-        public static void UnlockDoors(int playerId)
+        public static void UnlockDoors(ref TileSTBehaviour tileSTBehaviour)
         {
-            TileSTBehaviour tileSTBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>().tileGame.GetComponent<TileSTBehaviour>();
             if (tileSTBehaviour != null)
             {
                 foreach (DoorLock doorLock in tileSTBehaviour.doorLocks)
@@ -90,6 +90,87 @@ namespace SawTapes.Managers
             {
                 SawTapes.mls.LogWarning("Tile not found during the creation of the game room");
             }
+        }
+
+        public static void LogTileDebugInfo(ref Tile tile, ref Collider collider)
+        {
+            if (ConfigManager.isDebug.Value)
+            {
+                PlayerControllerB player = collider.GetComponent<PlayerControllerB>();
+                if (player != null)
+                {
+                    SawTapes.mls.LogDebug($"Enter in the {tile.name} tile");
+                    SawTapes.mls.LogDebug("Names of the different possible connections for each doorway:");
+                    foreach (Doorway doorway in tile.UsedDoorways)
+                    {
+                        SawTapes.mls.LogDebug("---");
+                        if (doorway.ConnectedDoorway.ConnectorPrefabWeights.Any())
+                        {
+                            foreach (GameObjectWeight connectorPrefab in doorway.ConnectedDoorway.ConnectorPrefabWeights)
+                            {
+                                SawTapes.mls.LogDebug("- " + connectorPrefab.GameObject.name);
+                            }
+                        }
+                        else
+                        {
+                            SawTapes.mls.LogDebug("- None");
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void HandleTileBehaviour(ref Tile tile, ref Collider collider)
+        {
+            if (SawTapes.eligibleTiles.Contains(tile))
+            {
+                PlayerSTBehaviour playerBehaviour = collider.GetComponentInChildren<PlayerSTBehaviour>();
+                if (playerBehaviour != null)
+                {
+                    TileSTBehaviour tileBehaviour = tile.GetComponent<TileSTBehaviour>();
+                    if (tileBehaviour != null && !IsPlayerInGame(tile))
+                    {
+                        if (ConfigManager.isInfoInGame.Value && GameNetworkManager.Instance.localPlayerController == playerBehaviour.playerProperties)
+                        {
+                            HUDManager.Instance.DisplayTip("Information", "You've been locked in, find the tape to get out");
+                        }
+
+                        playerBehaviour.isInGame = true;
+                        playerBehaviour.tileGame = tile;
+                        SawTapesNetworkManager.Instance.TapeSearchServerRpc((int)playerBehaviour.playerProperties.playerClientId);
+                        SawTapesNetworkManager.Instance.UpdateMapCameraServerRpc();
+
+                        foreach (DoorLock doorLock in tileBehaviour.doorLocks)
+                        {
+                            if (doorLock.isDoorOpened && doorLock.gameObject.TryGetComponent<AnimatedObjectTrigger>(out var triggerAnimation))
+                            {
+                                triggerAnimation.TriggerAnimationNonPlayer(playSecondaryAudios: true, overrideBool: true);
+                                if (!triggerAnimation.boolValue)
+                                {
+                                    doorLock.CloseDoorNonPlayerServerRpc();
+                                }
+                            }
+                            if (!DoorLockPatch.blockedDoors.ContainsKey(doorLock))
+                            {
+                                DoorLockPatch.blockedDoors.Add(doorLock, tile);
+                            }
+                        }
+                        foreach (EntranceTeleport entranceTeleport in tileBehaviour.entranceTeleports)
+                        {
+                            if (!HUDManagerPatch.blockedEntrances.ContainsKey(entranceTeleport))
+                            {
+                                HUDManagerPatch.blockedEntrances.Add(entranceTeleport, tile);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public static bool IsPlayerInGame(Tile tile)
+        {
+            PlayerSTBehaviour playerSTBehaviour;
+            return StartOfRound.Instance.allPlayerScripts.Any(p => (playerSTBehaviour = p.GetComponent<PlayerSTBehaviour>()) != null && playerSTBehaviour.isInGame && playerSTBehaviour.tileGame == tile);
         }
     }
 }

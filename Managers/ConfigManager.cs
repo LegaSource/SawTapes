@@ -6,6 +6,7 @@ namespace SawTapes
     {
         // GLOBAL
         public static ConfigEntry<bool> isDebug;
+        public static ConfigEntry<bool> isInfoInGame;
         public static ConfigEntry<bool> isSawTheme;
         public static ConfigEntry<bool> isSubtitles;
         // SURVIVAL GAME
@@ -16,6 +17,7 @@ namespace SawTapes
         internal static void Load()
         {
             isDebug = SawTapes.configFile.Bind<bool>("_Global_", "Enable debugging", false, "Is debugging enabled?");
+            isInfoInGame = SawTapes.configFile.Bind<bool>("_Global_", "Enable Saw theme", true, "Display a tip when the player enters the mini-game to inform them to find the tape");
             isSawTheme = SawTapes.configFile.Bind<bool>("_Global_", "Enable Saw theme", true, "Is Saw theme enabled?");
             isSubtitles = SawTapes.configFile.Bind<bool>("_Global_", "Enable subtitles", false, "Is subtitles enabled?");
             // SURVIVAL GAME

@@ -37,7 +37,6 @@ namespace SawTapes.Managers
                     {
                         if (playerBehaviour.playerProperties.isPlayerDead)
                         {
-                            SawTapesNetworkManager.Instance.UnlockDoorsClientRpc((int)playerBehaviour.playerProperties.playerClientId);
                             break;
                         }
 
