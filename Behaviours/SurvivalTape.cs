@@ -1,6 +1,7 @@
 ﻿using DunGen;
 using GameNetcodeStuff;
 using SawTapes.Files;
+using SawTapes.Files.Values;
 using SawTapes.Managers;
 using SawTapes.Patches;
 using SawTapes.Values;
@@ -126,20 +127,24 @@ namespace SawTapes.Behaviours
                 {
                     break;
                 }
-                StartCoroutine(SpawnEnemy(timePassed, playerBehaviour.tileGame, horde, spawnedEnemies));
+                if (horde.EnemiesSpawn.TryGetValue(timePassed, out EnemyType enemyType) && enemyType != null)
+                {
+                    StartCoroutine(SpawnEnemy(enemyType, playerBehaviour, spawnedEnemies));
+                }
                 bool isFirst = true;
                 foreach (NetworkObject spawnedEnemy in spawnedEnemies.Where(s => s.IsSpawned))
                 {
                     EnemyAI enemyAI = spawnedEnemy.GetComponentInChildren<EnemyAI>();
                     if (enemyAI != null
                         && enemyAI.thisNetworkObject != null
+                        && enemyAI.thisNetworkObject.IsSpawned
                         && !enemyAI.isEnemyDead)
                     {
                         SetEnemyFocusClientRpc((int)playerBehaviour.playerProperties.playerClientId, spawnedEnemy);
                         // Vérification si le joueur campe - on vérifie si le path est accessible avec un seul ennemi
-                        if (ConfigManager.killPlayerWhoCamp.Value && isFirst)
+                        if (ConfigManager.penalizePlayerWhoCamp.Value && isFirst)
                         {
-                            KillPlayerWhoCampClientRpc((int)playerBehaviour.playerProperties.playerClientId, spawnedEnemy);
+                            PenalizePlayerWhoCamp(playerBehaviour, enemyAI, spawnedEnemies);
                             isFirst = false;
                         }
                     }
@@ -150,78 +155,48 @@ namespace SawTapes.Behaviours
             EndGame(spawnedEnemies, playerBehaviour, horde.BillyValue);
         }
 
-        public IEnumerator SpawnEnemy(int enemySpawnKey, Tile tile, Horde horde, List<NetworkObject> spawnedEnemies)
+        public IEnumerator SpawnEnemy(EnemyType enemyType, PlayerSTBehaviour playerBehaviour, List<NetworkObject> spawnedEnemies)
         {
-            if (horde.EnemiesSpawn.TryGetValue(enemySpawnKey, out EnemyType enemyType) && enemyType != null)
-            {
-                Vector3 spawnPosition = GetRandomNavMeshPositionInTile(ref tile);
-                PlaySpawnParticleClientRpc(spawnPosition, true);
+            Vector3 spawnPosition = TileSTManager.GetRandomNavMeshPositionInTile(ref playerBehaviour);
+            PlaySpawnParticleClientRpc(spawnPosition, true);
 
-                yield return new WaitUntil(() => !spawnParticle.isPlaying);
+            yield return new WaitUntil(() => !spawnParticle.isPlaying);
 
-                Destroy(spawnParticle.gameObject);
-                GameObject gameObject = Instantiate(enemyType.enemyPrefab, spawnPosition, Quaternion.identity);
-                NetworkObject networkObject = gameObject.GetComponentInChildren<NetworkObject>();
-                networkObject.Spawn(true);
-                spawnedEnemies.Add(networkObject);
-            }
-        }
-
-        public Vector3 GetRandomNavMeshPositionInTile(ref Tile tile)
-        {
-            float padding = 3.0f;
-            float randomX = Random.Range(tile.Bounds.min.x + padding, tile.Bounds.max.x - padding);
-            float randomY = Random.Range(tile.Bounds.min.y, tile.Bounds.max.y);
-            float randomZ = Random.Range(tile.Bounds.min.z + padding, tile.Bounds.max.z - padding);
-
-            Vector3 randomPosition = new Vector3(randomX, randomY, randomZ);
-
-            // Vérifier si la position est valide sur le NavMesh
-            if (NavMesh.SamplePosition(randomPosition, out NavMeshHit navHit, Mathf.Max(tile.Bounds.size.x, tile.Bounds.size.z), 1))
-            {
-                return navHit.position;
-            }
-            return randomPosition;
+            Destroy(spawnParticle.gameObject);
+            GameObject gameObject = Instantiate(enemyType.enemyPrefab, spawnPosition, Quaternion.identity);
+            NetworkObject networkObject = gameObject.GetComponentInChildren<NetworkObject>();
+            networkObject.Spawn(true);
+            spawnedEnemies.Add(networkObject);
         }
 
         [ClientRpc]
         public void SetEnemyFocusClientRpc(int playerId, NetworkObjectReference enemyObject)
         {
             PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[playerId];
-            if (enemyObject.TryGet(out NetworkObject networkObject) && networkObject.IsSpawned)
+            if (enemyObject.TryGet(out NetworkObject networkObject))
             {
                 networkObject.GetComponentInChildren<EnemyAI>().SetMovingTowardsTargetPlayer(player);
             }
         }
 
-        [ClientRpc]
-        public void KillPlayerWhoCampClientRpc(int playerId, NetworkObjectReference enemyObject)
+        public void PenalizePlayerWhoCamp(PlayerSTBehaviour playerBehaviour, EnemyAI enemy, List<NetworkObject> spawnedEnemies)
         {
-            PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
-            if (playerBehaviour.playerProperties == GameNetworkManager.Instance.localPlayerController && enemyObject.TryGet(out NetworkObject networkObject) && networkObject.IsSpawned)
+            if (!enemy.agent.CalculatePath(playerBehaviour.playerProperties.transform.position, enemy.path1))
             {
-                EnemyAI enemyAI = networkObject.GetComponentInChildren<EnemyAI>();
-                if (!enemyAI.agent.CalculatePath(playerBehaviour.playerProperties.transform.position, enemyAI.path1))
+                if (wasCampingLastSecond)
                 {
-                    if (wasCampingLastSecond)
+                    playerBehaviour.campTime++;
+                    if (playerBehaviour.campTime == ConfigManager.campDuration.Value)
                     {
-                        playerBehaviour.campTime++;
-
-                        if (playerBehaviour.campTime == ConfigManager.campDuration.Value)
-                        {
-                            playerBehaviour.playerProperties.KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
-                        }
-                        else if (playerBehaviour.campTime % 5 == 0)
-                        {
-                            HUDManager.Instance.DisplayTip("Information", "You must move or there will be consequences!");
-                        }
+                        EnemyType enemyType = SawTapes.allEnemies.FirstOrDefault(e => !e.ToString().Contains("Outside") && e.enemyName.Equals("Nutcracker"));
+                        StartCoroutine(SpawnEnemy(enemyType, playerBehaviour, spawnedEnemies));
                     }
-                    wasCampingLastSecond = true;
                 }
-                else
-                {
-                    wasCampingLastSecond = false;
-                }
+                wasCampingLastSecond = true;
+            }
+            else
+            {
+                wasCampingLastSecond = false;
             }
         }
 

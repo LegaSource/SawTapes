@@ -17,7 +17,7 @@ namespace SawTapes.Files
             return "{\n" +
                 "  \"hordes\": [\n" +
                 "    {\n" +
-                "      \"horde_name\": \"Horde1\",\n" +
+                "      \"horde_name\": \"Horde1_FacilitySize\",\n" +
                 "      \"game_duration\": 60,\n" +
                 "      \"billy_value\": 120,\n" +
                 "      \"min_hour\": 1,\n" +
@@ -31,7 +31,37 @@ namespace SawTapes.Files
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"horde_name\": \"Horde2\",\n" +
+                "      \"horde_name\": \"Horde2_FacilitySize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde3_FacilitySize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde1_HauntedMansionLibrarySize\",\n" +
                 "      \"game_duration\": 60,\n" +
                 "      \"billy_value\": 120,\n" +
                 "      \"min_hour\": 1,\n" +
@@ -40,25 +70,351 @@ namespace SawTapes.Files
                 "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
                 "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Spring\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"horde_name\": \"Horde3\",\n" +
+                "      \"horde_name\": \"Horde2_HauntedMansionLibrarySize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde3_HauntedMansionLibrarySize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde4_HauntedMansionLibrarySize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde1_HauntedMansionTileTypeSize\",\n" +
                 "      \"game_duration\": 60,\n" +
                 "      \"billy_value\": 120,\n" +
                 "      \"min_hour\": 1,\n" +
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Blob\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Blob\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 20 },\n" +
                 "        { \"enemy\": \"Clay Surgeon\", \"time\": 40 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"horde_name\": \"Horde4\",\n" +
+                "      \"horde_name\": \"Horde2_HauntedMansionTileTypeSize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 40 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde3_HauntedMansionTileTypeSize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde4_HauntedMansionTileTypeSize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde5_HauntedMansionTileTypeSize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde1_MediumLibrarySize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde2_MediumLibrarySize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde3_MediumLibrarySize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde1_WarehouseSizeWithCover\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde2_WarehouseSizeWithCover\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde3_WarehouseSizeWithCover\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde4_WarehouseSizeWithCover\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde1_WarehouseSizeWithoutCover\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde2_WarehouseSizeWithoutCover\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 40 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde3_WarehouseSizeWithoutCover\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde4_WarehouseSizeWithoutCover\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde1_DoubleDoorTile\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde2_DoubleDoorTile\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 40 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde3_DoubleDoorTile\",\n" +
                 "      \"game_duration\": 60,\n" +
                 "      \"billy_value\": 120,\n" +
                 "      \"min_hour\": 1,\n" +
@@ -66,22 +422,49 @@ namespace SawTapes.Files
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Spring\", \"time\": 40 }\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"horde_name\": \"Horde5\",\n" +
+                "      \"horde_name\": \"Horde4_DoubleDoorTile\",\n" +
                 "      \"game_duration\": 60,\n" +
                 "      \"billy_value\": 120,\n" +
                 "      \"min_hour\": 1,\n" +
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
-                "        { \"enemy\": \"Spring\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Spring\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Bunker Spider\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde1_Chizra\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 50 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde2_Chizra\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 35 }\n" +
                 "      ]\n" +
                 "    }\n" +
                 "  ],\n" +
@@ -89,92 +472,195 @@ namespace SawTapes.Files
                 "    // Facility\n" +
                 "    {\n" +
                 "      \"room_name\": \"4x4BigStairTile\",\n" +
-                "      \"door_name\": \"SteelDoorMapSpawn\",\n" +
+                "      \"doors_names\": [\"SteelDoorMapSpawn\"],\n" +
                 "      \"weight\": 2,\n" +
-                "      \"hordes\": [\"Horde1\"]\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"4x4ServerRoomTile\",\n" +
-                "      \"door_name\": \"SteelDoorMapSpawn\",\n" +
+                "      \"doors_names\": [\"SteelDoorMapSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde1\"]\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"MediumRoomHallway1B\",\n" +
-                "      \"door_name\": \"SteelDoorMapSpawn\",\n" +
+                "      \"doors_names\": [\"SteelDoorMapSpawn\"],\n" +
                 "      \"weight\": 2,\n" +
-                "      \"hordes\": [\"Horde1\"]\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
                 "    },\n" +
                 "    // Haunted Mansion\n" +
                 "    {\n" +
                 "      \"room_name\": \"LibraryTile\",\n" +
-                "      \"door_name\": \"FancyDoorMapSpawn\",\n" +
-                "      \"weight\": 3,\n" +
-                "      \"hordes\": [\"Horde2\"]\n" +
+                "      \"doors_names\": [\"FancyDoorMapSpawn\"],\n" +
+                "      \"weight\": 4,\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionLibrarySize\", \"Horde2_HauntedMansionLibrarySize\", \"Horde3_HauntedMansionLibrarySize\", \"Horde4_HauntedMansionLibrarySize\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"HallwayTileTypeB\",\n" +
-                "      \"door_name\": \"FancyDoorMapSpawn\",\n" +
+                "      \"doors_names\": [\"FancyDoorMapSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde3\"]\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionTileTypeSize\", \"Horde2_HauntedMansionTileTypeSize\", \"Horde3_HauntedMansionTileTypeSize\", \"Horde4_HauntedMansionTileTypeSize\", \"Horde5_HauntedMansionTileTypeSize\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"HallwayTileTypeC\",\n" +
-                "      \"door_name\": \"FancyDoorMapSpawn\",\n" +
+                "      \"doors_names\": [\"FancyDoorMapSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde3\"]\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionTileTypeSize\", \"Horde2_HauntedMansionTileTypeSize\", \"Horde3_HauntedMansionTileTypeSize\", \"Horde4_HauntedMansionTileTypeSize\", \"Horde5_HauntedMansionTileTypeSize\"]\n" +
                 "    },\n" +
                 "    // Guardia Fortress\n" +
                 "    {\n" +
                 "      \"room_name\": \"GFC_FlagRoom\",\n" +
-                "      \"door_name\": \"GuardiaDoorSpawn\",\n" +
-                "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde4\"]\n" +
+                "      \"doors_names\": [\"GuardiaDoorSpawn\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\"]\n" +
                 "    },\n" +
                 "    // Nali Haven\n" +
                 "    {\n" +
                 "      \"room_name\": \"NHBigLibrary\",\n" +
-                "      \"door_name\": \"HavenDoorSpawn\",\n" +
+                "      \"doors_names\": [\"HavenDoorSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde2\"]\n" +
+                "      \"hordes\": [\"Horde1_MediumLibrarySize\", \"Horde2_MediumLibrarySize\", \"Horde3_MediumLibrarySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"NHEntryRoom2\",\n" +
+                "      \"doors_names\": [\"HavenDoorSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\"]\n" +
+                "    },\n" +
+                "    // Skaarj Outpost\n" +
+                "    {\n" +
+                "      \"room_name\": \"USKObservationalHall\",\n" +
+                "      \"doors_names\": [\"SkaarjDoubleDoorSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionTileTypeSize\", \"Horde2_HauntedMansionTileTypeSize\", \"Horde3_HauntedMansionTileTypeSize\", \"Horde4_HauntedMansionTileTypeSize\", \"Horde5_HauntedMansionTileTypeSize\"]\n" +
+                "    },\n" +
+                "    // Chizra Temple\n" +
+                "    {\n" +
+                "      \"room_name\": \"UCHIZDeathPit\",\n" +
+                "      \"doors_names\": [\"ChizraDoorSpawn\"],\n" +
+                "      \"weight\": 3,\n" +
+                "      \"hordes\": [\"Horde1_Chizra\", \"Horde2_Chizra\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"UCHIZ6FiresPool\",\n" +
+                "      \"doors_names\": [\"ChizraDoorSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_MediumLibrarySize\", \"Horde2_MediumLibrarySize\", \"Horde3_MediumLibrarySize\"]\n" +
+                "    },\n" +
+                "    // Gothic Monastery\n" +
+                "    {\n" +
+                "      \"room_name\": \"GMFountainHall\",\n" +
+                "      \"doors_names\": [\"GothicDoorSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"GMStep8Way\",\n" +
+                "      \"doors_names\": [\"GothicDoorSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionTileTypeSize\", \"Horde2_HauntedMansionTileTypeSize\", \"Horde3_HauntedMansionTileTypeSize\", \"Horde4_HauntedMansionTileTypeSize\", \"Horde5_HauntedMansionTileTypeSize\"]\n" +
                 "    },\n" +
                 "    // StarlancerWarehouse\n" +
                 "    {\n" +
                 "      \"room_name\": \"MegaPowerCore\",\n" +
-                "      \"door_name\": \"SciFiDoorSpawn\",\n" +
+                "      \"doors_names\": [\"SciFiDoorSpawn\"],\n" +
                 "      \"weight\": 2,\n" +
-                "      \"hordes\": [\"Horde5\"]\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"RoomOfVerticality\",\n" +
-                "      \"door_name\": \"SciFiDoorSpawn\",\n" +
+                "      \"doors_names\": [\"SciFiDoorSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde4\"]\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"MegaEnergyStorage\",\n" +
-                "      \"door_name\": \"SciFiDoorSpawn\",\n" +
+                "      \"doors_names\": [\"SciFiDoorSpawn\"],\n" +
                 "      \"weight\": 2,\n" +
-                "      \"hordes\": [\"Horde2\"]\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithCover\", \"Horde2_WarehouseSizeWithCover\", \"Horde3_WarehouseSizeWithCover\", \"Horde4_WarehouseSizeWithCover\"]\n" +
                 "    },\n" +
                 "    // Devil Mansion\n" +
                 "    {\n" +
                 "      \"room_name\": \"SM_ServQuarters_V2_FINAL_24x16 Tile\",\n" +
-                "      \"door_name\": \"CN_Door180_Spawner_Prefab\",\n" +
+                "      \"doors_names\": [\"CN_Door180_Spawner_Prefab\"],\n" +
                 "      \"weight\": 2,\n" +
-                "      \"hordes\": [\"Horde2\"]\n" +
+                "      \"hordes\": [\"Horde1_DoubleDoorTile\", \"Horde2_DoubleDoorTile\", \"Horde3_DoubleDoorTile\", \"Horde4_DoubleDoorTile\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"SM_Kitchen_V4_FINAL_24x16 Tile\",\n" +
-                "      \"door_name\": \"CN_Door180_Spawner_Prefab\",\n" +
+                "      \"doors_names\": [\"CN_Door180_Spawner_Prefab\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde5\"]\n" +
+                "      \"hordes\": [\"Horde1_MediumLibrarySize\", \"Horde2_MediumLibrarySize\", \"Horde3_MediumLibrarySize\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"SM_Library_V1_FINAL_24x16 Tile\",\n" +
-                "      \"door_name\": \"CN_Door180_Spawner_Prefab\",\n" +
+                "      \"doors_names\": [\"CN_Door180_Spawner_Prefab\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde3\"]\n" +
+                "      \"hordes\": [\"Horde1_MediumLibrarySize\", \"Horde2_MediumLibrarySize\", \"Horde3_MediumLibrarySize\"]\n" +
+                "    },\n" +
+                "    // Storehouse\n" +
+                "    {\n" +
+                "      \"room_name\": \"appyroom\",\n" +
+                "      \"doors_names\": [\"ConnectorDoor\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_DoubleDoorTile\", \"Horde2_DoubleDoorTile\", \"Horde3_DoubleDoorTile\", \"Horde4_DoubleDoorTile\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"TypicalRoom\",\n" +
+                "      \"doors_names\": [\"ConnectorDoor\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "    },\n" +
+                "    // Niven Reactor\n" +
+                "    {\n" +
+                "      \"room_name\": \"NIVC_DoubleReactorCore\",\n" +
+                "      \"doors_names\": [\"NIV_DoorSpawn\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionTileTypeSize\", \"Horde2_HauntedMansionTileTypeSize\", \"Horde3_HauntedMansionTileTypeSize\", \"Horde4_HauntedMansionTileTypeSize\", \"Horde5_HauntedMansionTileTypeSize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"NIVC_MegaConnectorRoom\",\n" +
+                "      \"doors_names\": [\"NIV_DoorSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "    },\n" +
+                "    // The Rubber Rooms\n" +
+                "    {\n" +
+                "      \"room_name\": \"RubberRRRRRRRRRRoom\",\n" +
+                "      \"doors_names\": [\"DoorFrameDoor\"],\n" +
+                "      \"weight\": 4,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "    },\n" +
+                "    // Toy Store\n" +
+                "    {\n" +
+                "      \"room_name\": \"StRoom3\",\n" +
+                "      \"doors_names\": [\"AtDoorFrameDoor\", \"StDoorFrameDoorInterior\"],\n" +
+                "      \"weight\": 4,\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithCover\", \"Horde2_WarehouseSizeWithCover\", \"Horde3_WarehouseSizeWithCover\", \"Horde4_WarehouseSizeWithCover\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"StRoom\",\n" +
+                "      \"doors_names\": [\"AtDoorFrameDoor\", \"StDoorFrameDoorInterior\"],\n" +
+                "      \"weight\": 3,\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithCover\", \"Horde2_WarehouseSizeWithCover\", \"Horde3_WarehouseSizeWithCover\", \"Horde4_WarehouseSizeWithCover\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"StRoom1\",\n" +
+                "      \"doors_names\": [\"AtDoorFrameDoor\", \"StDoorFrameDoorInterior\"],\n" +
+                "      \"weight\": 3,\n" +
+                "      \"hordes\": [\"Horde1_MediumLibrarySize\", \"Horde2_MediumLibrarySize\", \"Horde3_MediumLibrarySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"StEndRoom\",\n" +
+                "      \"doors_names\": [\"AtDoorFrameDoor\", \"StDoorFrameDoorInterior\"],\n" +
+                "      \"weight\": 3,\n" +
+                "      \"hordes\": [\"Horde1_MediumLibrarySize\", \"Horde2_MediumLibrarySize\", \"Horde3_MediumLibrarySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"StRoom2\",\n" +
+                "      \"doors_names\": [\"AtDoorFrameDoor\", \"StDoorFrameDoorInterior\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionTileTypeSize\", \"Horde2_HauntedMansionTileTypeSize\", \"Horde3_HauntedMansionTileTypeSize\", \"Horde4_HauntedMansionTileTypeSize\", \"Horde5_HauntedMansionTileTypeSize\"]\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}";
@@ -225,7 +711,7 @@ namespace SawTapes.Files
                             SawTapes.mls.LogWarning($"The horde {hordeName} could not be found from the file configuration.");
                         }
                     }
-                    SawTapes.rooms.Add(new Room(room.RoomName, room.DoorName, room.Weight, hordes));
+                    SawTapes.rooms.Add(new Room($"{room.RoomName}(Clone)", room.DoorsNames, room.Weight, hordes));
                 }
             }
         }

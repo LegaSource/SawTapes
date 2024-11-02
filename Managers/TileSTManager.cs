@@ -5,6 +5,7 @@ using SawTapes.Patches;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace SawTapes.Managers
 {
@@ -138,7 +139,7 @@ namespace SawTapes.Managers
                         playerBehaviour.isInGame = true;
                         playerBehaviour.tileGame = tile;
                         SawTapesNetworkManager.Instance.TapeSearchServerRpc((int)playerBehaviour.playerProperties.playerClientId);
-                        SawTapesNetworkManager.Instance.UpdateMapCameraServerRpc();
+                        MapCameraSTManager.UpdateMapCamera(ref StartOfRound.Instance.mapScreen);
 
                         foreach (DoorLock doorLock in tileBehaviour.doorLocks)
                         {
@@ -171,6 +172,24 @@ namespace SawTapes.Managers
         {
             PlayerSTBehaviour playerSTBehaviour;
             return StartOfRound.Instance.allPlayerScripts.Any(p => (playerSTBehaviour = p.GetComponent<PlayerSTBehaviour>()) != null && playerSTBehaviour.isInGame && playerSTBehaviour.tileGame == tile);
+        }
+
+        public static Vector3 GetRandomNavMeshPositionInTile(ref PlayerSTBehaviour playerBehaviour)
+        {
+            float padding = 3.0f;
+            float heightTolerance = 1.0f;
+            float randomX = Random.Range(playerBehaviour.tileGame.Bounds.min.x + padding, playerBehaviour.tileGame.Bounds.max.x - padding);
+            float randomY = Random.Range(playerBehaviour.playerProperties.transform.position.y + heightTolerance, playerBehaviour.playerProperties.transform.position.y - heightTolerance);
+            float randomZ = Random.Range(playerBehaviour.tileGame.Bounds.min.z + padding, playerBehaviour.tileGame.Bounds.max.z - padding);
+
+            Vector3 randomPosition = new Vector3(randomX, randomY, randomZ);
+
+            // Vérifier si la position est valide sur le NavMesh
+            if (NavMesh.SamplePosition(randomPosition, out NavMeshHit navHit, Mathf.Max(playerBehaviour.tileGame.Bounds.size.x, playerBehaviour.tileGame.Bounds.size.z), 1))
+            {
+                return navHit.position;
+            }
+            return randomPosition;
         }
     }
 }

@@ -25,10 +25,11 @@ namespace SawTapes.Patches
             Room room = SawTapes.rooms.FirstOrDefault(r => doorway.tile.name.Contains(r.RoomName));
             if (room != null
                 && doorway.ConnectorPrefabWeights.HasAnyViableEntries()
-                && doorway.ConnectedDoorway.ConnectorPrefabWeights.HasAnyViableEntries())
+                && doorway.ConnectedDoorway.ConnectorPrefabWeights.HasAnyViableEntries()
+                && doorway.ConnectorPrefabWeights.Any(d => room.DoorsNames.Contains(d.GameObject?.name)))
             {
-                doorway.ConnectorPrefabWeights.RemoveAll(d => !d.GameObject.name.Equals(room.DoorName));
-                doorway.ConnectedDoorway.ConnectorPrefabWeights.RemoveAll(d => !d.GameObject.name.Equals(room.DoorName));
+                doorway.ConnectorPrefabWeights.RemoveAll(d => !room.DoorsNames.Contains(d.GameObject.name));
+                doorway.ConnectedDoorway.ConnectorPrefabWeights.RemoveAll(d => !room.DoorsNames.Contains(d.GameObject.name));
                 if (!SawTapes.eligibleTiles.Contains(doorway.tile))
                 {
                     for (int i = 0; i < room.Weight; i++)

@@ -78,17 +78,5 @@ namespace SawTapes.Managers
         {
             TileSTManager.AddTileInfos(tilePos, doorsPos, entrancesObj, obj);
         }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void UpdateMapCameraServerRpc()
-        {
-            UpdateMapCameraClientRpc();
-        }
-
-        [ClientRpc]
-        private void UpdateMapCameraClientRpc()
-        {
-            MapCameraSTManager.UpdateMapCamera(ref StartOfRound.Instance.mapScreen);
-        }
     }
 }

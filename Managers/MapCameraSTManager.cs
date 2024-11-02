@@ -6,7 +6,7 @@ namespace SawTapes.Managers
     {
         public static void UpdateMapCamera(ref ManualCameraRenderer mapScreen)
         {
-            if (mapScreen.targetedPlayer != null)
+            if (StartOfRound.Instance.shipHasLanded && mapScreen.targetedPlayer != null)
             {
                 PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.mapScreen.targetedPlayer.GetComponent<PlayerSTBehaviour>();
                 if (playerBehaviour.isInGame)
