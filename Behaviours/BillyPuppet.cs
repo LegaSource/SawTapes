@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SawTapes.Behaviours
 {
-    internal class BillyPuppet : PhysicsProp
+    public class BillyPuppet : PhysicsProp
     {
         public Billy billy;
         public AudioSource billyLaugh;
@@ -31,16 +31,10 @@ namespace SawTapes.Behaviours
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void BillyLaughServerRpc()
-        {
-            BillyLaughClientRpc();
-        }
+        private void BillyLaughServerRpc() => BillyLaughClientRpc();
 
         [ClientRpc]
-        private void BillyLaughClientRpc()
-        {
-            billyLaugh.Play();
-        }
+        private void BillyLaughClientRpc() => billyLaugh.Play();
 
         public override void GrabItem()
         {

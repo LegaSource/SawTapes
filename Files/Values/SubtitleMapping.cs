@@ -2,7 +2,7 @@
 
 namespace SawTapes.Files.Values
 {
-    internal class SubtitleMapping
+    public class SubtitleMapping
     {
         public string GameName { get; internal set; }
 

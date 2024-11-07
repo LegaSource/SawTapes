@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SawTapes.Behaviours
 {
-    internal class Billy : EnemyAI
+    public class Billy : EnemyAI
     {
         public bool isMoving = false;
         public BillyPuppet billyPuppet;
@@ -35,10 +35,7 @@ namespace SawTapes.Behaviours
             updatePositionThreshold = 99999;
         }
 
-        public void StartFollowingPlayer()
-        {
-            isMoving = true;
-        }
+        public void StartFollowingPlayer() => isMoving = true;
 
         public override void Update()
         {
@@ -58,7 +55,7 @@ namespace SawTapes.Behaviours
                 isMoving = false;
 
                 StopMovingClientRpc();
-                StartCoroutine(BillyAnnouncement());
+                StartCoroutine(BillyAnnouncementCoroutine());
             }
         }
 
@@ -89,7 +86,7 @@ namespace SawTapes.Behaviours
             }
         }
 
-        public IEnumerator BillyAnnouncement()
+        public IEnumerator BillyAnnouncementCoroutine()
         {
             BillyAnnouncementClientRpc();
 
@@ -98,13 +95,16 @@ namespace SawTapes.Behaviours
 
             if (billyPuppet == null)
             {
-                Item item = SawTapes.customItems.FirstOrDefault(c => c.Item.itemName.Equals("Billy Puppet"))?.Item;
+                /*Item item = SawTapes.customItems.FirstOrDefault(c => c.Item.itemName.Equals("Billy Puppet"))?.Item;
                 if (item != null)
                 {
                     Vector3 position = transform.position;
-                    billyPuppet = RoundManagerPatch.SpawnItem(ref item.spawnPrefab, ref position) as BillyPuppet;
+                    billyPuppet = RoundManagerPatch.SpawnItem(ref item.spawnPrefab, position) as BillyPuppet;
                     SpawnBillyClientRpc(billyPuppet.GetComponent<NetworkObject>());
-                }
+                }*/
+                Vector3 position = transform.position;
+                billyPuppet = RoundManagerPatch.SpawnItem(ref SawTapes.billyPuppetObj, position) as BillyPuppet;
+                SpawnBillyClientRpc(billyPuppet.GetComponent<NetworkObject>());
             }
         }
 
@@ -112,7 +112,7 @@ namespace SawTapes.Behaviours
         private void BillyAnnouncementClientRpc()
         {
             billyRecording.Play();
-            if (ConfigManager.isSubtitles.Value) StartCoroutine(ShowSubtitles());
+            if (ConfigManager.isSubtitles.Value) StartCoroutine(ShowSubtitlesCoroutine());
         }
 
         [ClientRpc]
@@ -134,7 +134,7 @@ namespace SawTapes.Behaviours
             }
         }
 
-        public IEnumerator ShowSubtitles()
+        public IEnumerator ShowSubtitlesCoroutine()
         {
             while (billyRecording.isPlaying)
             {

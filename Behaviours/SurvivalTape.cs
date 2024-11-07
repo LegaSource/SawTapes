@@ -1,161 +1,79 @@
-﻿using DunGen;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using SawTapes.Files;
-using SawTapes.Files.Values;
 using SawTapes.Managers;
-using SawTapes.Patches;
 using SawTapes.Values;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace SawTapes.Behaviours
 {
-    internal class SurvivalTape : SawTape
+    public class SurvivalTape : SawTape
     {
         public ParticleSystem spawnParticle;
         public ParticleSystem despawnParticle;
         public bool wasCampingLastSecond = false;
+        public Horde activeHorde;
+        List<NetworkObject> spawnedEnemies = new List<NetworkObject>();
 
         public override void Start()
         {
             base.Start();
-            GameObject audioObject = Instantiate(SawTapes.sawRecordingSurvival, transform.position, Quaternion.identity);
-            sawRecording = audioObject.GetComponent<AudioSource>();
-            audioObject.transform.SetParent(transform);
+            InstantiateAndAttachAudio(SawTapes.sawRecordingSurvival);
+            subtitlesGame = SubtitleFile.survivalGameSubtitles;
         }
 
-        public override void ItemActivate(bool used, bool buttonDown = true)
-        {
-            base.ItemActivate(used, buttonDown);
-            if (buttonDown && playerHeldBy != null && !sawRecording.isPlaying)
-            {
-                PlaySawTapeServerRpc();
-                PlayerSTBehaviour playerBehaviour = playerHeldBy.GetComponent<PlayerSTBehaviour>();
-                if (!isGameStarted && !isGameEnded)
-                {
-                    if (playerBehaviour.isInGame && playerBehaviour.tileGame != null)
-                    {
-                        StartCoroutine(SawGameBegin(playerBehaviour));
-                    }
-                    else
-                    {
-                        HUDManager.Instance.DisplayTip("Information", "You are not the tested player, the game can't start");
-                    }
-                }
-            }
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void PlaySawTapeServerRpc()
-        {
-            PlaySawTapeClientRpc();
-        }
-
-        [ClientRpc]
-        public void PlaySawTapeClientRpc()
-        {
-            sawRecording.Play();
-            if (ConfigManager.isSubtitles.Value) StartCoroutine(ShowSubtitles());
-        }
-
-        public IEnumerator SawGameBegin(PlayerSTBehaviour playerBehaviour)
+        public override void ExecutePreGameAction(PlayerSTBehaviour playerBehaviour)
         {
             Room room = SawTapes.rooms.FirstOrDefault(r => playerBehaviour.tileGame.name.Contains(r.RoomName));
 
-            Horde horde;
             List<Horde> validHordes = room.Hordes.Where(h => h.MinHour <= TimeOfDay.Instance.hour && h.MaxHour >= TimeOfDay.Instance.hour).ToList();
             if (validHordes.Count > 0)
             {
-                horde = validHordes[new System.Random().Next(validHordes.Count)];
+                activeHorde = validHordes[new System.Random().Next(validHordes.Count)];
             }
             else
             {
-                horde = room.Hordes[new System.Random().Next(room.Hordes.Count)];
+                activeHorde = room.Hordes[new System.Random().Next(room.Hordes.Count)];
             }
-
-            yield return new WaitUntil(() => sawRecording.isPlaying);
-            yield return new WaitWhile(() => sawRecording.isPlaying);
-
-            if (sawTheme != null)
-            {
-                sawTheme.volume *= 1.5f;
-            }
-            HUDManager.Instance.StartCoroutine(HUDManagerPatch.StartChronoCoroutine(horde.GameDuration));
-            StartSawGameServerRpc((int)playerBehaviour.playerProperties.playerClientId, horde.HordeName);
+            gameDuration = activeHorde.GameDuration;
+            billyValue = activeHorde.BillyValue;
         }
 
-        public IEnumerator ShowSubtitles()
+        public override bool DoGame(PlayerSTBehaviour playerBehaviour, int iterator)
         {
-            while (sawRecording.isPlaying)
+            if (playerBehaviour.playerProperties.isPlayerDead)
             {
-                string subtitleText = SubtitleFile.survivalGameSubtitles.Where(s => s.Timestamp <= sawRecording.time).OrderByDescending(s => s.Timestamp).FirstOrDefault()?.Text;
-                if (!string.IsNullOrEmpty(subtitleText))
-                {
-                    if (Vector3.Distance(GameNetworkManager.Instance.localPlayerController.transform.position, transform.position) <= 25)
-                    {
-                        HUDManagerPatch.subtitleText.text = subtitleText;
-                    }
-                    else
-                    {
-                        HUDManagerPatch.subtitleText.text = "";
-                    }
-                }
-                yield return null;
+                return false;
             }
-            HUDManagerPatch.subtitleText.text = "";
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void StartSawGameServerRpc(int playerId, string hordeName)
-        {
-            Horde horde = SawTapes.hordes.FirstOrDefault(h => h.HordeName.Equals(hordeName));
-            StartGameClientRpc();
-            StartCoroutine(StartSawGame(StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>(), horde));
-        }
-
-        public IEnumerator StartSawGame(PlayerSTBehaviour playerBehaviour, Horde horde)
-        {
-            List<NetworkObject> spawnedEnemies = new List<NetworkObject>();
-            int timePassed = 0;
-            while (timePassed < horde.GameDuration)
+            if (activeHorde.EnemiesSpawn.TryGetValue(iterator, out EnemyType enemyType) && enemyType != null)
             {
-                if (playerBehaviour.playerProperties.isPlayerDead)
+                StartCoroutine(SpawnEnemyCoroutine(enemyType, playerBehaviour, spawnedEnemies));
+            }
+            bool isFirst = true;
+            foreach (NetworkObject spawnedEnemy in spawnedEnemies.Where(s => s.IsSpawned))
+            {
+                EnemyAI enemyAI = spawnedEnemy.GetComponentInChildren<EnemyAI>();
+                if (enemyAI != null
+                    && enemyAI.thisNetworkObject != null
+                    && enemyAI.thisNetworkObject.IsSpawned
+                    && !enemyAI.isEnemyDead)
                 {
-                    break;
-                }
-                if (horde.EnemiesSpawn.TryGetValue(timePassed, out EnemyType enemyType) && enemyType != null)
-                {
-                    StartCoroutine(SpawnEnemy(enemyType, playerBehaviour, spawnedEnemies));
-                }
-                bool isFirst = true;
-                foreach (NetworkObject spawnedEnemy in spawnedEnemies.Where(s => s.IsSpawned))
-                {
-                    EnemyAI enemyAI = spawnedEnemy.GetComponentInChildren<EnemyAI>();
-                    if (enemyAI != null
-                        && enemyAI.thisNetworkObject != null
-                        && enemyAI.thisNetworkObject.IsSpawned
-                        && !enemyAI.isEnemyDead)
+                    SetEnemyFocusClientRpc((int)playerBehaviour.playerProperties.playerClientId, spawnedEnemy);
+                    // Vérification si le joueur campe - on vérifie si le path est accessible avec un seul ennemi
+                    if (ConfigManager.penalizePlayerWhoCamp.Value && isFirst)
                     {
-                        SetEnemyFocusClientRpc((int)playerBehaviour.playerProperties.playerClientId, spawnedEnemy);
-                        // Vérification si le joueur campe - on vérifie si le path est accessible avec un seul ennemi
-                        if (ConfigManager.penalizePlayerWhoCamp.Value && isFirst)
-                        {
-                            PenalizePlayerWhoCamp(playerBehaviour, enemyAI, spawnedEnemies);
-                            isFirst = false;
-                        }
+                        PenalizePlayerWhoCamp(playerBehaviour, enemyAI, spawnedEnemies);
+                        isFirst = false;
                     }
                 }
-                yield return new WaitForSeconds(1f);
-                timePassed++;
             }
-            EndGame(spawnedEnemies, playerBehaviour, horde.BillyValue);
+            return true;
         }
 
-        public IEnumerator SpawnEnemy(EnemyType enemyType, PlayerSTBehaviour playerBehaviour, List<NetworkObject> spawnedEnemies)
+        public IEnumerator SpawnEnemyCoroutine(EnemyType enemyType, PlayerSTBehaviour playerBehaviour, List<NetworkObject> spawnedEnemies)
         {
             Vector3 spawnPosition = TileSTManager.GetRandomNavMeshPositionInTile(ref playerBehaviour);
             PlaySpawnParticleClientRpc(spawnPosition, true);
@@ -163,9 +81,7 @@ namespace SawTapes.Behaviours
             yield return new WaitUntil(() => !spawnParticle.isPlaying);
 
             Destroy(spawnParticle.gameObject);
-            GameObject gameObject = Instantiate(enemyType.enemyPrefab, spawnPosition, Quaternion.identity);
-            NetworkObject networkObject = gameObject.GetComponentInChildren<NetworkObject>();
-            networkObject.Spawn(true);
+            NetworkObject networkObject = EnemySTManager.SpawnEnemy(enemyType, spawnPosition);
             spawnedEnemies.Add(networkObject);
         }
 
@@ -189,7 +105,7 @@ namespace SawTapes.Behaviours
                     if (playerBehaviour.campTime == ConfigManager.campDuration.Value)
                     {
                         EnemyType enemyType = SawTapes.allEnemies.FirstOrDefault(e => !e.ToString().Contains("Outside") && e.enemyName.Equals("Nutcracker"));
-                        StartCoroutine(SpawnEnemy(enemyType, playerBehaviour, spawnedEnemies));
+                        StartCoroutine(SpawnEnemyCoroutine(enemyType, playerBehaviour, spawnedEnemies));
                     }
                 }
                 wasCampingLastSecond = true;
@@ -200,7 +116,7 @@ namespace SawTapes.Behaviours
             }
         }
 
-        public void EndGame(List<NetworkObject> spawnedEnemies, PlayerSTBehaviour playerBehaviour, int billyValue)
+        public override bool ExecutePreEndGameAction(PlayerSTBehaviour playerBehaviour)
         {
             foreach (NetworkObject spawnedEnemy in spawnedEnemies.Where(s => s.IsSpawned))
             {
@@ -208,53 +124,14 @@ namespace SawTapes.Behaviours
                 if (enemyAI != null && !enemyAI.isEnemyDead)
                 {
                     PlaySpawnParticleClientRpc(spawnedEnemy.transform.position, false);
-                    if (enemyAI is NutcrackerEnemyAI nutcrackerEnemyAI)
+                    if (enemyAI is NutcrackerEnemyAI nutcrackerEnemyAI && nutcrackerEnemyAI.gun != null)
                     {
-                        DestroyObjectClientRpc(nutcrackerEnemyAI.gun.GetComponent<NetworkObject>());
+                        SawTapesNetworkManager.Instance.DestroyObjectClientRpc(nutcrackerEnemyAI.gun.GetComponent<NetworkObject>());
                     }
                     spawnedEnemy.Despawn();
                 }
             }
-            if (playerBehaviour.playerProperties.isPlayerDead)
-            {
-                SawTapesNetworkManager.Instance.EnableParticleServerRpc(GetComponent<NetworkObject>(), true);
-            }
-            else
-            {
-                StartCoroutine(SpawnBillyCoroutine(playerBehaviour.playerProperties, billyValue));
-            }
-            SendEndGameClientRpc((int)playerBehaviour.playerProperties.playerClientId);
-        }
-
-        [ClientRpc]
-        public void DestroyObjectClientRpc(NetworkObjectReference obj)
-        {
-            if (obj.TryGet(out var networkObject))
-            {
-                GrabbableObject grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
-                grabbableObject?.DestroyObjectInHand(null);
-            }
-        }
-
-        [ClientRpc]
-        public void SendEndGameClientRpc(int playerId)
-        {
-            PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[playerId];
-            PlayerSTBehaviour playerBehaviour = player.GetComponent<PlayerSTBehaviour>();
-
-            if (!player.isPlayerDead)
-            {
-                SawTapes.eligibleTiles.Remove(playerBehaviour.tileGame);
-                isGameEnded = true;
-            }
-
-            isGameStarted = false;
-            PlayerSTManager.ResetPlayerGame(ref playerBehaviour);
-            if (player == GameNetworkManager.Instance.localPlayerController && sawTheme != null)
-            {
-                sawTheme.Stop();
-                Destroy(sawTheme.gameObject);
-            }
+            return !playerBehaviour.playerProperties.isPlayerDead;
         }
 
         [ClientRpc]

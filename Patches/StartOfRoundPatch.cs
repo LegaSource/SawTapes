@@ -1,6 +1,5 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using SawTapes.Behaviours;
 using SawTapes.Files;
 using SawTapes.Managers;
 using System.Linq;
@@ -38,10 +37,7 @@ namespace SawTapes.Patches
 
         [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.OnDisable))]
         [HarmonyPostfix]
-        public static void OnDisable()
-        {
-            SawTapesNetworkManager.Instance = null;
-        }
+        public static void OnDisable() => SawTapesNetworkManager.Instance = null;
 
         [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.OnPlayerConnectedClientRpc))]
         [HarmonyPostfix]

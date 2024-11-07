@@ -12,7 +12,9 @@ namespace SawTapes.Patches
     {
         public static TextMeshProUGUI chronoText;
         public static TextMeshProUGUI subtitleText;
+        public static bool isChronoEnded = false;
         public static Dictionary<EntranceTeleport, Tile> blockedEntrances = new Dictionary<EntranceTeleport, Tile>();
+        public static bool isFlashFilterUsed = false;
 
         [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.Start))]
         [HarmonyPostfix]
@@ -61,9 +63,10 @@ namespace SawTapes.Patches
 
             chronoText.text = $"{minutes:D2}:{seconds:D2}";
 
-            if (GameNetworkManager.Instance.localPlayerController.isPlayerDead || (minutes == 0 && seconds == 0))
+            if (GameNetworkManager.Instance.localPlayerController.isPlayerDead || isChronoEnded || (minutes == 0 && seconds == 0))
             {
                 chronoText.text = "";
+                isChronoEnded = false;
                 return true;
             }
             return false;
@@ -98,5 +101,9 @@ namespace SawTapes.Patches
             }
             return false;
         }
+
+        [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SetScreenFilters))]
+        [HarmonyPrefix]
+        private static bool UpdateScreenFilters() => !isFlashFilterUsed;
     }
 }

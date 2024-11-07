@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SawTapes.Files.Values
 {
-    internal class RoomMapping
+    public class RoomMapping
     {
         [JsonProperty("room_name")]
         public string RoomName { get; internal set; }

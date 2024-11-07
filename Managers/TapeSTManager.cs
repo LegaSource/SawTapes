@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SawTapes.Managers
 {
-    internal class TapeSTManager
+    public class TapeSTManager
     {
         public static Coroutine tapeSearchCoroutine;
 

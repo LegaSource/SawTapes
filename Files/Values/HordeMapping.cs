@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SawTapes.Files.Values
 {
-    internal class HordeMapping
+    public class HordeMapping
     {
         [JsonProperty("horde_name")]
         public string HordeName { get; internal set; }

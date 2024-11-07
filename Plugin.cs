@@ -12,6 +12,7 @@ using SawTapes.Managers;
 using SawTapes.Behaviours;
 using DunGen;
 using SawTapes.Values;
+using System;
 
 namespace SawTapes
 {
@@ -20,7 +21,7 @@ namespace SawTapes
     {
         private const string modGUID = "Lega.SawTapes";
         private const string modName = "Saw Tapes";
-        private const string modVersion = "1.0.9";
+        private const string modVersion = "1.1.0";
 
         private readonly Harmony harmony = new Harmony(modGUID);
         private readonly static AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "sawtapes"));
@@ -28,23 +29,35 @@ namespace SawTapes
         public static ConfigFile configFile;
 
         public static GameObject managerPrefab = NetworkPrefabs.CreateNetworkPrefab("SawTapesNetworkManager");
-        public static List<CustomItem> customItems = new List<CustomItem>();
+
+        // Items
+        public static List<SawTapeValue> sawTapeValues = new List<SawTapeValue>();
+        public static GameObject billyPuppetObj;
+        public static GameObject reverseBearTrapObj;
+        public static GameObject sawKeyObj;
+        public static GameObject pursuerEyeObj;
 
         // Audios sources
         public static GameObject sawTheme;
         public static GameObject sawRecordingSurvival;
+        public static GameObject sawRecordingHunting;
         public static GameObject billyRecordingSurvival;
+        public static GameObject steamAudio;
 
         // Particles
         public static GameObject tapeParticle;
         public static GameObject spawnParticle;
         public static GameObject despawnParticle;
+        public static GameObject steamParticle;
 
         // Enemies
         public static EnemyType billyEnemy;
 
+        // Shaders
+        public static Material wallhackShader;
+
         public static HashSet<EnemyType> allEnemies = new HashSet<EnemyType>();
-        public static HashSet<Tile> eligibleTiles = new HashSet<Tile>();
+        public static List<Tile> eligibleTiles = new List<Tile>();
         public static HashSet<Room> rooms = new HashSet<Room>();
         public static HashSet<Horde> hordes = new HashSet<Horde>();
 
@@ -60,6 +73,7 @@ namespace SawTapes
             LoadEnemies();
             LoadParticles();
             LoadAudios();
+            LoadShaders();
 
             harmony.PatchAll(typeof(HUDManagerPatch));
             harmony.PatchAll(typeof(PlayerControllerBPatch));
@@ -70,6 +84,7 @@ namespace SawTapes
             harmony.PatchAll(typeof(ManualCameraRendererPatch));
             harmony.PatchAll(typeof(ShipTeleporterPatch));
             harmony.PatchAll(typeof(RoundManagerPatch));
+            harmony.PatchAll(typeof(EnemyAIPatch));
         }
 
         public static void LoadManager()
@@ -95,63 +110,83 @@ namespace SawTapes
             }
         }
 
-        public static void LoadItems()
+        public void LoadItems()
         {
-            customItems = new List<CustomItem>
+            sawTapeValues = new List<SawTapeValue>
             {
-                new CustomItem(typeof(SurvivalTape), bundle.LoadAsset<Item>("Assets/SawTape/SawTapeItem.asset"), true, ConfigManager.survivalRarity.Value, null, true),
-                new CustomItem(typeof(BillyPuppet), bundle.LoadAsset<Item>("Assets/BillyPuppet/BillyPuppetItem.asset"), false, 0, null, false)
+                new SawTapeValue(typeof(SurvivalTape), bundle.LoadAsset<Item>("Assets/SawTape/SurvivalTapeItem.asset"), ConfigManager.survivalRarity.Value, true),
+                new SawTapeValue(typeof(HuntingTape), bundle.LoadAsset<Item>("Assets/SawTape/HuntingTapeItem.asset"), ConfigManager.huntingRarity.Value, false)
             };
 
-            foreach (CustomItem customItem in customItems)
+            foreach (SawTapeValue sawTapeValue in sawTapeValues)
             {
-                var script = customItem.Item.spawnPrefab.AddComponent(customItem.Type) as PhysicsProp;
-                script.grabbable = true;
-                script.grabbableToEnemies = true;
-                script.itemProperties = customItem.Item;
-
-                NetworkPrefabs.RegisterNetworkPrefab(customItem.Item.spawnPrefab);
-                Utilities.FixMixerGroups(customItem.Item.spawnPrefab);
-                Items.RegisterItem(customItem.Item);
+                RegisterItem(sawTapeValue.Type, sawTapeValue.Item);
             }
+            billyPuppetObj = RegisterItem(typeof(BillyPuppet), bundle.LoadAsset<Item>("Assets/BillyPuppet/BillyPuppetItem.asset"));
+            reverseBearTrapObj = RegisterItem(typeof(ReverseBearTrap), bundle.LoadAsset<Item>("Assets/ReverseBearTrap/ReverseBearTrapItem.asset"));
+            sawKeyObj = RegisterItem(typeof(SawKey), bundle.LoadAsset<Item>("Assets/SawKey/SawKeyItem.asset"));
+            pursuerEyeObj = RegisterItem(typeof(PursuerEye), bundle.LoadAsset<Item>("Assets/PursuerEye/PursuerEyeItem.asset"));
         }
 
-        public static void LoadEnemies()
+        public GameObject RegisterItem(Type type, Item item)
+        {
+            PhysicsProp script = item.spawnPrefab.AddComponent(type) as PhysicsProp;
+            script.grabbable = true;
+            script.grabbableToEnemies = true;
+            script.itemProperties = item;
+
+            NetworkPrefabs.RegisterNetworkPrefab(item.spawnPrefab);
+            Utilities.FixMixerGroups(item.spawnPrefab);
+            Items.RegisterItem(item);
+
+            return item.spawnPrefab;
+        }
+
+        public void LoadEnemies()
         {
             billyEnemy = bundle.LoadAsset<EnemyType>("Assets/BillyPuppet/BillyEnemy.asset");
             billyEnemy.enemyPrefab.AddComponent<Billy>();
             NetworkPrefabs.RegisterNetworkPrefab(billyEnemy.enemyPrefab);
-            Utilities.FixMixerGroups(billyEnemy.enemyPrefab);
         }
 
-        public static void LoadParticles()
+        public void LoadParticles()
         {
-            tapeParticle = bundle.LoadAsset<GameObject>("Assets/Particles/TapeParticle.prefab");
-            NetworkPrefabs.RegisterNetworkPrefab(tapeParticle);
-            Utilities.FixMixerGroups(tapeParticle);
+            HashSet<GameObject> gameObjects = new HashSet<GameObject>
+            {
+                (tapeParticle = bundle.LoadAsset<GameObject>("Assets/Particles/TapeParticle.prefab")),
+                (spawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/SpawnParticle.prefab")),
+                (despawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/DespawnParticle.prefab")),
+                (steamParticle = bundle.LoadAsset<GameObject>("Assets/Particles/SteamParticle.prefab"))
+            };
 
-            spawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/SpawnParticle.prefab");
-            NetworkPrefabs.RegisterNetworkPrefab(spawnParticle);
-            Utilities.FixMixerGroups(spawnParticle);
-
-            despawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/DespawnParticle.prefab");
-            NetworkPrefabs.RegisterNetworkPrefab(despawnParticle);
-            Utilities.FixMixerGroups(despawnParticle);
+            foreach (GameObject gameObject in gameObjects)
+            {
+                NetworkPrefabs.RegisterNetworkPrefab(gameObject);
+                Utilities.FixMixerGroups(gameObject);
+            }
         }
 
-        public static void LoadAudios()
+        public void LoadAudios()
         {
-            sawTheme = bundle.LoadAsset<GameObject>("Assets/Audios/SawTheme.prefab");
-            NetworkPrefabs.RegisterNetworkPrefab(sawTheme);
-            Utilities.FixMixerGroups(sawTheme);
+            HashSet<GameObject> gameObjects = new HashSet<GameObject>
+            {
+                (sawTheme = bundle.LoadAsset<GameObject>("Assets/Audios/SawTheme.prefab")),
+                (sawRecordingSurvival = bundle.LoadAsset<GameObject>("Assets/Audios/SawRecording_Survival.prefab")),
+                (sawRecordingHunting = bundle.LoadAsset<GameObject>("Assets/Audios/SawRecording_Hunting.prefab")),
+                (billyRecordingSurvival = bundle.LoadAsset<GameObject>("Assets/Audios/BillyRecording_Survival.prefab")),
+                (steamAudio = bundle.LoadAsset<GameObject>("Assets/Audios/SteamAudio.prefab"))
+            };
 
-            sawRecordingSurvival = bundle.LoadAsset<GameObject>("Assets/Audios/SawRecording_Survival.prefab");
-            NetworkPrefabs.RegisterNetworkPrefab(sawRecordingSurvival);
-            Utilities.FixMixerGroups(sawRecordingSurvival);
+            foreach (GameObject gameObject in gameObjects)
+            {
+                NetworkPrefabs.RegisterNetworkPrefab(gameObject);
+                Utilities.FixMixerGroups(gameObject);
+            }
+        }
 
-            billyRecordingSurvival = bundle.LoadAsset<GameObject>("Assets/Audios/BillyRecording_Survival.prefab");
-            NetworkPrefabs.RegisterNetworkPrefab(billyRecordingSurvival);
-            Utilities.FixMixerGroups(billyRecordingSurvival);
+        public static void LoadShaders()
+        {
+            wallhackShader = bundle.LoadAsset<Material>("Assets/Shaders/WallhackMaterial.mat");
         }
     }
 }

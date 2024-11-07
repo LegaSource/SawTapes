@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using SawTapes.Managers;
-using UnityEngine;
 
 namespace SawTapes.Patches
 {
@@ -8,9 +7,6 @@ namespace SawTapes.Patches
     {
         [HarmonyPatch(typeof(ManualCameraRenderer), nameof(ManualCameraRenderer.updateMapTarget))]
         [HarmonyPostfix]
-        private static void MapCameraText(ref ManualCameraRenderer __instance)
-        {
-            MapCameraSTManager.UpdateMapCamera(ref __instance);
-        }
+        private static void MapCameraText(ref ManualCameraRenderer __instance) => MapCameraSTManager.UpdateMapCamera(ref __instance);
     }
 }

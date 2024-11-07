@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SawTapes.Managers
 {
-    internal class PlayerSTManager
+    public class PlayerSTManager
     {
         public static void AddPlayerBehaviour(PlayerControllerB player)
         {
@@ -18,7 +18,7 @@ namespace SawTapes.Managers
         public static bool PreventTeleportPlayer(ref PlayerControllerB player)
         {
             PlayerSTBehaviour playerBehaviour = player.GetComponent<PlayerSTBehaviour>();
-            if (playerBehaviour != null && playerBehaviour.isInGame)
+            if (playerBehaviour != null && playerBehaviour.isInGame && (playerBehaviour.tileGame != null || playerBehaviour.assignedEnemy != null))
             {
                 player.KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
                 if (player == GameNetworkManager.Instance.localPlayerController)
@@ -37,6 +37,8 @@ namespace SawTapes.Managers
             playerBehaviour.campTime = 0;
             playerBehaviour.isInGame = false;
             playerBehaviour.tileGame = null;
+            playerBehaviour.assignedReverseBearTrap = null;
+            playerBehaviour.assignedEnemy = null;
         }
     }
 }

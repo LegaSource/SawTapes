@@ -1,24 +1,19 @@
-﻿using SawTapes.Behaviours;
+﻿using GameNetcodeStuff;
+using SawTapes.Behaviours;
 using SawTapes.Patches;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace SawTapes.Managers
 {
-    internal class SawTapesNetworkManager : NetworkBehaviour
+    public class SawTapesNetworkManager : NetworkBehaviour
     {
         public static SawTapesNetworkManager Instance;
 
-        public void Awake()
-        {
-            Instance = this;
-        }
+        public void Awake() => Instance = this;
 
         [ClientRpc]
-        public void SetGenerateGameTileClientRpc(bool enable)
-        {
-            DungeonPatch.isGenerateTileGame = enable;
-        }
+        public void SetGenerateGameTileClientRpc(bool enable) => DungeonPatch.isGenerateTileGame = enable;
 
         [ClientRpc]
         public void SpawnTapeParticleClientRpc(NetworkObjectReference obj)
@@ -58,13 +53,10 @@ namespace SawTapes.Managers
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void EnableParticleServerRpc(NetworkObjectReference obj, bool enable)
-        {
-            EnableParticleClientRpc(obj, enable);
-        }
+        public void EnableParticleServerRpc(NetworkObjectReference obj, bool enable) => EnableParticleClientRpc(obj, enable);
 
         [ClientRpc]
-        private void EnableParticleClientRpc(NetworkObjectReference obj, bool enable)
+        public void EnableParticleClientRpc(NetworkObjectReference obj, bool enable)
         {
             if (obj.TryGet(out var networkObject))
             {
@@ -75,8 +67,32 @@ namespace SawTapes.Managers
 
         [ClientRpc]
         public void AddTileInfosClientRpc(Vector3 tilePos, Vector3[] doorsPos, NetworkObjectReference[] entrancesObj, NetworkObjectReference obj)
+            => TileSTManager.AddTileInfos(tilePos, doorsPos, entrancesObj, obj);
+
+        [ServerRpc(RequireOwnership = false)]
+        public void DestroyObjectServerRpc(NetworkObjectReference obj) => DestroyObjectClientRpc(obj);
+
+        [ClientRpc]
+        public void DestroyObjectClientRpc(NetworkObjectReference obj)
         {
-            TileSTManager.AddTileInfos(tilePos, doorsPos, entrancesObj, obj);
+            if (obj.TryGet(out var networkObject))
+            {
+                GrabbableObject grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
+                grabbableObject.DestroyObjectInHand(grabbableObject.playerHeldBy);
+            }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void KillPlayerServerRpc(int playerId, Vector3 velocity, bool spawnBody, int causeOfDeath) => KillPlayerClientRpc(playerId, velocity, spawnBody, causeOfDeath);
+
+        [ClientRpc]
+        public void KillPlayerClientRpc(int playerId, Vector3 velocity, bool spawnBody, int causeOfDeath)
+        {
+            PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+            if (player == GameNetworkManager.Instance.localPlayerController)
+            {
+                player.KillPlayer(velocity, spawnBody, (CauseOfDeath)causeOfDeath);
+            }
         }
     }
 }

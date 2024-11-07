@@ -4,12 +4,15 @@ using UnityEngine;
 
 namespace SawTapes.Behaviours
 {
-    internal class PlayerSTBehaviour : MonoBehaviour
+    public class PlayerSTBehaviour : MonoBehaviour
     {
         public PlayerControllerB playerProperties;
         public bool isInGame = false;
         public Tile tileGame;
         // SURVIVAL GAME
         public int campTime = 0;
+        // HUNTING GAME
+        public ReverseBearTrap assignedReverseBearTrap;
+        public EnemyAI assignedEnemy;
     }
 }

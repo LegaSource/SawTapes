@@ -2,22 +2,20 @@
 
 namespace SawTapes.Values
 {
-    public class CustomItem
+    public class SawTapeValue
     {
         public Type Type { get; internal set; }
         public Item Item { get; internal set; }
-        public bool IsSpawnable { get; internal set; }
+        public int DefaultRarity { get; internal set; }
         public int Rarity { get; internal set; }
-        public string Description { get; internal set; }
         public bool IsTileGame { get; internal set; }
 
-        public CustomItem(Type type, Item item, bool isSpawnable, int rarity, string description, bool isTileGame)
+        public SawTapeValue(Type type, Item item, int rarity, bool isTileGame)
         {
             Type = type;
             Item = item;
-            IsSpawnable = isSpawnable;
+            DefaultRarity = rarity;
             Rarity = rarity;
-            Description = description;
             IsTileGame = isTileGame;
         }
     }

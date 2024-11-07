@@ -8,13 +8,12 @@ using System.Linq;
 
 namespace SawTapes.Files
 {
-    internal class SurvivalGameFile
+    public class SurvivalGameFile
     {
         public static string FilePath = Path.Combine(Paths.ConfigPath, "ST.survival_game.json");
 
         public static string Get()
-        {
-            return "{\n" +
+            => "{\n" +
                 "  \"hordes\": [\n" +
                 "    {\n" +
                 "      \"horde_name\": \"Horde1_FacilitySize\",\n" +
@@ -664,7 +663,6 @@ namespace SawTapes.Files
                 "    }\n" +
                 "  ]\n" +
                 "}";
-        }
 
         public static void LoadJSON()
         {

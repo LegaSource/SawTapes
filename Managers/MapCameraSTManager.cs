@@ -2,7 +2,7 @@
 
 namespace SawTapes.Managers
 {
-    internal class MapCameraSTManager
+    public class MapCameraSTManager
     {
         public static void UpdateMapCamera(ref ManualCameraRenderer mapScreen)
         {

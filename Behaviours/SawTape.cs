@@ -1,18 +1,33 @@
 ﻿using GameNetcodeStuff;
+using SawTapes.Files.Values;
 using SawTapes.Managers;
+using SawTapes.Patches;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace SawTapes.Behaviours
 {
-    public class SawTape : PhysicsProp
+    public abstract class SawTape : PhysicsProp
     {
         public bool isGameStarted = false;
         public bool isGameEnded = false;
         public AudioSource sawRecording;
         public AudioSource sawTheme;
         public GameObject particleEffect;
+        public List<SubtitleMapping> subtitlesGame = new List<SubtitleMapping>();
+        public int gameDuration = 60;
+        public int billyValue = 120;
+
+        public void InstantiateAndAttachAudio(GameObject audioPrefab)
+        {
+            GameObject audioObject = Instantiate(audioPrefab, transform.position, Quaternion.identity);
+            audioObject.transform.SetParent(transform);
+            sawRecording = audioObject.GetComponent<AudioSource>();
+        }
 
         public override void GrabItem()
         {
@@ -26,27 +41,139 @@ namespace SawTapes.Behaviours
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
-            if (ConfigManager.isSawTheme.Value
-                && buttonDown
-                && playerHeldBy != null
-                && !isGameEnded
-                && !isGameStarted
-                && (sawTheme == null || !sawTheme.isPlaying))
+            if (buttonDown && playerHeldBy != null)
             {
-                GameObject audioObject = Instantiate(SawTapes.sawTheme, playerHeldBy.transform.position, Quaternion.identity);
-                sawTheme = audioObject.GetComponent<AudioSource>();
-                sawTheme.Play();
-                audioObject.transform.SetParent(playerHeldBy.transform);
+                if (ConfigManager.isSawTheme.Value
+                    && !isGameEnded
+                    && !isGameStarted
+                    && (sawTheme == null || !sawTheme.isPlaying))
+                {
+                    GameObject audioObject = Instantiate(SawTapes.sawTheme, playerHeldBy.transform.position, Quaternion.identity);
+                    sawTheme = audioObject.GetComponent<AudioSource>();
+                    sawTheme.Play();
+                    audioObject.transform.SetParent(playerHeldBy.transform);
+                }
+
+                if (!sawRecording.isPlaying)
+                {
+                    PlaySawTapeServerRpc();
+                    PlayerSTBehaviour playerBehaviour = playerHeldBy.GetComponent<PlayerSTBehaviour>();
+                    if (!isGameStarted && !isGameEnded)
+                    {
+                        if (playerBehaviour.isInGame)
+                        {
+                            StartCoroutine(SawGameBeginCoroutine(playerBehaviour));
+                        }
+                        else
+                        {
+                            HUDManager.Instance.DisplayTip("Information", "You are not the tested player, the game can't start");
+                        }
+                    }
+                }
             }
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        public void PlaySawTapeServerRpc() => PlaySawTapeClientRpc();
+
         [ClientRpc]
-        public void StartGameClientRpc()
+        public void PlaySawTapeClientRpc()
         {
+            sawRecording.Play();
+            if (ConfigManager.isSubtitles.Value) StartCoroutine(ShowSubtitles());
+        }
+
+        public IEnumerator ShowSubtitles()
+        {
+            while (sawRecording.isPlaying)
+            {
+                string subtitleText = subtitlesGame.Where(s => s.Timestamp <= sawRecording.time).OrderByDescending(s => s.Timestamp).FirstOrDefault()?.Text;
+                if (!string.IsNullOrEmpty(subtitleText))
+                {
+                    if (Vector3.Distance(GameNetworkManager.Instance.localPlayerController.transform.position, transform.position) <= 25)
+                    {
+                        HUDManagerPatch.subtitleText.text = subtitleText;
+                    }
+                    else
+                    {
+                        HUDManagerPatch.subtitleText.text = "";
+                    }
+                }
+                yield return null;
+            }
+            HUDManagerPatch.subtitleText.text = "";
+        }
+
+        public virtual IEnumerator SawGameBeginCoroutine(PlayerSTBehaviour playerBehaviour)
+        {
+            ExecutePreGameActionServerRpc((int)playerBehaviour.playerProperties.playerClientId);
+
+            yield return new WaitUntil(() => sawRecording.isPlaying);
+            yield return new WaitWhile(() => sawRecording.isPlaying);
+
+            if (sawTheme != null)
+            {
+                sawTheme.volume *= 1.5f;
+            }
+
+            StartSawGameServerRpc((int)playerBehaviour.playerProperties.playerClientId);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ExecutePreGameActionServerRpc(int playerId)
+            => ExecutePreGameAction(StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>());
+
+        public abstract void ExecutePreGameAction(PlayerSTBehaviour playerBehaviour);
+
+        [ServerRpc(RequireOwnership = false)]
+        public void StartSawGameServerRpc(int playerId)
+        {
+            StartGameClientRpc(playerId, gameDuration);
+            StartCoroutine(StartSawGameCoroutine(StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>()));
+        }
+
+        [ClientRpc]
+        public void StartGameClientRpc(int playerId, int gameDuration)
+        {
+            if (GameNetworkManager.Instance.localPlayerController == StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>())
+            {
+                // Envoyé par le serveur car c'est lui qui met à jour cette durée depuis l'enfant
+                HUDManager.Instance.StartCoroutine(HUDManagerPatch.StartChronoCoroutine(gameDuration));
+            }
             isGameStarted = true;
         }
 
-        public IEnumerator SpawnBillyCoroutine(PlayerControllerB player, int billyValue)
+        public IEnumerator StartSawGameCoroutine(PlayerSTBehaviour playerBehaviour)
+        {
+            int timePassed = 0;
+            while (timePassed < gameDuration)
+            {
+                if (!DoGame(playerBehaviour, timePassed)) break;
+                yield return new WaitForSeconds(1f);
+                timePassed++;
+            }
+            EndGame(playerBehaviour);
+        }
+
+        public abstract bool DoGame(PlayerSTBehaviour playerBehaviour, int iterator);
+
+        public virtual void EndGame(PlayerSTBehaviour playerBehaviour)
+        {
+            //ExecutePreEndGameAction(playerBehaviour);
+            if (!ExecutePreEndGameAction(playerBehaviour)/*playerBehaviour.playerProperties.isPlayerDead*/)
+            {
+                TapeSTManager.EnableParticle(this, true);
+            }
+            else
+            {
+                StartCoroutine(SpawnBillyCoroutine(playerBehaviour.playerProperties));
+            }
+            SendEndGameClientRpc((int)playerBehaviour.playerProperties.playerClientId);
+        }
+
+        public abstract bool ExecutePreEndGameAction(PlayerSTBehaviour playerBehaviour);
+
+        public IEnumerator SpawnBillyCoroutine(PlayerControllerB player)
         {
             GameObject[] allAINodes = GameObject.FindGameObjectsWithTag("AINode");
             float maxDistance = 15f;
@@ -93,9 +220,7 @@ namespace SawTapes.Behaviours
                 spawnPosition = player.transform.position;
             }
 
-            GameObject gameObject = Instantiate(SawTapes.billyEnemy.enemyPrefab, spawnPosition, Quaternion.identity);
-            NetworkObject networkObject = gameObject.GetComponentInChildren<NetworkObject>();
-            networkObject.Spawn(true);
+            NetworkObject networkObject = EnemySTManager.SpawnEnemy(SawTapes.billyEnemy, spawnPosition);
             SpawnBillyClientRpc(networkObject, (int)player.playerClientId, billyValue);
         }
 
@@ -114,6 +239,32 @@ namespace SawTapes.Behaviours
                         billy.StartFollowingPlayer();
                     }
                 }
+            }
+        }
+
+        [ClientRpc]
+        public void SendEndGameClientRpc(int playerId)
+        {
+            PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[playerId];
+            EndGameResets(ref player);
+        }
+
+        public virtual void EndGameResets(ref PlayerControllerB player)
+        {
+            PlayerSTBehaviour playerBehaviour = player.GetComponentInChildren<PlayerSTBehaviour>();
+
+            if (!player.isPlayerDead)
+            {
+                if (playerBehaviour.tileGame != null) SawTapes.eligibleTiles.Remove(playerBehaviour.tileGame);
+                isGameEnded = true;
+            }
+
+            isGameStarted = false;
+            PlayerSTManager.ResetPlayerGame(ref playerBehaviour);
+            if (player == GameNetworkManager.Instance.localPlayerController && sawTheme != null)
+            {
+                sawTheme.Stop();
+                Destroy(sawTheme.gameObject);
             }
         }
     }

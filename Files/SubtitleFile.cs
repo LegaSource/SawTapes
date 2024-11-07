@@ -6,15 +6,15 @@ using System.IO;
 
 namespace SawTapes.Files
 {
-    internal class SubtitleFile
+    public class SubtitleFile
     {
         public static string FilePath = Path.Combine(Paths.ConfigPath, "ST.subtitles.json");
         public static List<SubtitleMapping> survivalGameSubtitles;
+        public static List<SubtitleMapping> huntingGameSubtitles;
         public static List<SubtitleMapping> billySubtitles;
 
         public static string Get()
-        {
-            return "{\n" +
+            => "{\n" +
                 "  \"survival_game\": [\n" +
                 "    {\n" +
                 "      \"timestamp\": 0,\n" +
@@ -77,6 +77,48 @@ namespace SawTapes.Files
                 "      \"text\": \"Que le jeu commence\"\n" +
                 "    }\n" +
                 "  ],\n" +
+                "  \"hunting_game\": [\n" +
+                "    {\n" +
+                "      \"timestamp\": 0,\n" +
+                "      // Hello, worker, I want to play a game\n" +
+                "      \"text\": \"Bonjour travailleur, je veux jouer à un jeu.\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 2.68,\n" +
+                "      // All your life, you've found satisfaction in violence\n" +
+                "      \"text\": \"Toute votre vie, vous avez trouvé votre satisfaction dans la violence\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 6.07,\n" +
+                "      // disregarding the value of the lives you harm\n" +
+                "      \"text\": \"sans tenir compte de la valeur des vies que vous détruisez\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 9.04,\n" +
+                "      // Today, the very violence you wield so easily has become your only chance at survival\n" +
+                "      \"text\": \"Aujourd'hui, la violence que vous exercez si facilement est devenue votre seule chance de survie\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 15.6,\n" +
+                "      // A deadly device is affixed to your head\n" +
+                "      \"text\": \"Un dispositif mortel est fixé sur votre tête\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 18.2,\n" +
+                "      // Your life depends on a key, hidden within the entrails of a creature you must confront\n" +
+                "      \"text\": \"Votre vie dépend d'une clé, cachée dans les entrailles d'une créature que vous devez affronter\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 23.51,\n" +
+                "      // Can you set aside your thirst for destruction to rekindle the instinct to survive?\n" +
+                "      \"text\": \"Pouvez-vous mettre de côté votre soif de destruction pour raviver votre instinct de survie ?\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 28.8,\n" +
+                "      // Live or die, the choice is yours\n" +
+                "      \"text\": \"Vivre ou mourir, à toi de choisir\"\n" +
+                "    }\n" +
+                "  ],\n" +
                 "  \"billy_announcement\": [\n" +
                 "    {\n" +
                 "      \"timestamp\": 0,\n" +
@@ -100,7 +142,6 @@ namespace SawTapes.Files
                 "    }\n" +
                 "  ]\n" +
                 "}";
-        }
 
         public static void LoadJSON()
         {
@@ -112,6 +153,7 @@ namespace SawTapes.Files
             using (var reader = new StreamReader(Path.Combine(Paths.ConfigPath, FilePath)))
             {
                 survivalGameSubtitles = LoadSurvivalGameSubtitles();
+                huntingGameSubtitles = LoadHuntingGameSubtitles();
                 billySubtitles = LoadBillyAnnouncementSubtitles();
             }
         }
@@ -120,6 +162,12 @@ namespace SawTapes.Files
         {
             string json = File.ReadAllText(FilePath);
             return JObject.Parse(json)["survival_game"].ToObject<List<SubtitleMapping>>();
+        }
+
+        public static List<SubtitleMapping> LoadHuntingGameSubtitles()
+        {
+            string json = File.ReadAllText(FilePath);
+            return JObject.Parse(json)["hunting_game"].ToObject<List<SubtitleMapping>>();
         }
 
         public static List<SubtitleMapping> LoadBillyAnnouncementSubtitles()

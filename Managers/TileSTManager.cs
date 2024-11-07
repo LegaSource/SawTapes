@@ -9,7 +9,7 @@ using UnityEngine.AI;
 
 namespace SawTapes.Managers
 {
-    internal class TileSTManager
+    public class TileSTManager
     {
         public static void UnlockDoors(ref TileSTBehaviour tileSTBehaviour)
         {
