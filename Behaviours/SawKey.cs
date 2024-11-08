@@ -20,7 +20,7 @@ namespace SawTapes.Behaviours
                 }
                 else
                 {
-                    HUDManager.Instance.DisplayTip("Impossible action", "This key is needed by the tested player to survive");
+                    HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_KEY);
                 }
             }
         }

@@ -88,7 +88,7 @@ namespace SawTapes.Patches
             EntranceTeleport entranceTeleport = interactTrigger.GetComponent<EntranceTeleport>();
             if (entranceTeleport != null && IsEntranceBlocked(ref entranceTeleport))
             {
-                HUDManager.Instance.DisplayTip("Impossible Action", "You can't use the entrance until the end of the game!");
+                HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_LOCKED_ENTRANCE);
                 __result = false;
             }
         }

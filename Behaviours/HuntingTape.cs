@@ -172,7 +172,7 @@ namespace SawTapes.Behaviours
                 if (Vector3.Distance(GameNetworkManager.Instance.localPlayerController.transform.position, position) > 10f)
                 {
                     GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
-                    HUDManager.Instance.DisplayTip("Information", "You tried to cheat, the rules were clear");
+                    HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_CHEAT);
                     ForceEndGameServerRpc((int)GameNetworkManager.Instance.localPlayerController.playerClientId, true);
                     yield break;
                 }
@@ -196,7 +196,7 @@ namespace SawTapes.Behaviours
                 foreach (NetworkPrefab networkPrefab in networkPrefabList.PrefabList ?? Enumerable.Empty<NetworkPrefab>())
                 {
                     GrabbableObject grabbableObject = networkPrefab.Prefab.GetComponent<GrabbableObject>();
-                    if (grabbableObject != null && grabbableObject.itemProperties.itemName.Equals("Shovel"))
+                    if (grabbableObject != null && grabbableObject.itemProperties.itemName.Equals(Constants.SHOVEL))
                     {
                         shovel = networkPrefab.Prefab;
                         if (shovel != null) break;

@@ -25,23 +25,23 @@ namespace SawTapes
 
         public static void Load()
         {
-            rarityIncrement = SawTapes.configFile.Bind("_Global_", "Rarity increment", 10, "By how much does the chance of a Saw game appearing increase with each round if it hasn't appeared?");
-            isDebug = SawTapes.configFile.Bind("_Global_", "Enable debugging", false, "Is debugging enabled?");
-            isInfoInGame = SawTapes.configFile.Bind("_Global_", "Enable Saw theme", true, "Display a tip when the player enters the mini-game to inform them to find the tape");
-            isSawTheme = SawTapes.configFile.Bind("_Global_", "Enable Saw theme", true, "Is Saw theme enabled?");
-            isSubtitles = SawTapes.configFile.Bind("_Global_", "Enable subtitles", false, "Is subtitles enabled?");
+            rarityIncrement = SawTapes.configFile.Bind(Constants.GLOBAL, "Rarity increment", 10, "By how much does the chance of a Saw game appearing increase with each round if it hasn't appeared?");
+            isDebug = SawTapes.configFile.Bind(Constants.GLOBAL, "Enable debugging", false, "Is debugging enabled?");
+            isInfoInGame = SawTapes.configFile.Bind(Constants.GLOBAL, "Enable Saw theme", true, "Display a tip when the player enters the mini-game to inform them to find the tape");
+            isSawTheme = SawTapes.configFile.Bind(Constants.GLOBAL, "Enable Saw theme", true, "Is Saw theme enabled?");
+            isSubtitles = SawTapes.configFile.Bind(Constants.GLOBAL, "Enable subtitles", false, "Is subtitles enabled?");
             // SURVIVAL GAME
-            survivalRarity = SawTapes.configFile.Bind("Survival Game", "Rarity", 20, "Default probability of the Survival Game mini-game appearing");
-            penalizePlayerWhoCamp = SawTapes.configFile.Bind("Survival Game", "Penalize campers", true, "Enable the possibility to penalize the player who is camping by spawning a Nutcracker");
-            campDuration = SawTapes.configFile.Bind("Survival Game", "Camping duration", 5, "Total camping duration before the player is killed");
+            survivalRarity = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Rarity", 20, $"Default probability of the {Constants.SURVIVAL_GAME} mini-game appearing");
+            penalizePlayerWhoCamp = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Penalize campers", true, "Enable the possibility to penalize the player who is camping by spawning a Nutcracker");
+            campDuration = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Camping duration", 5, "Total camping duration before the player is killed");
             // HUNTING GAME
-            huntingRarity = SawTapes.configFile.Bind("Hunting Game", "Rarity", 20, "Default probability of the Hunting Game mini-game appearing");
-            huntingDistance = SawTapes.configFile.Bind("Hunting Game", "Distance", 25f, "Maximum distance between the player and the tape before he is gassed");
-            huntingDuration = SawTapes.configFile.Bind("Hunting Game", "Duration", 150, "Duration of the Hunting Game");
-            huntingBillyValue = SawTapes.configFile.Bind("Hunting Game", "Billy value", 90, "Billy value for the Hunting Game");
-            huntingReverseBearTrapValue = SawTapes.configFile.Bind("Hunting Game", "Reverse bear trap value", 30, "Reverse Bear Trap value for the Hunting Game");
-            huntingAura = SawTapes.configFile.Bind("Hunting Game", "Aura duration", 10f, "Duration for which the enemy's aura is visible through walls");
-            huntingExclusions = SawTapes.configFile.Bind("Hunting Game", "Exclusion list", "Blob,Maneater,Lasso,Red pill", "List of creatures that will not be selected by the Hunting Game.\nYou can add enemies by separating them with a comma.");
+            huntingRarity = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Rarity", 20, $"Default probability of the {Constants.HUNTING_GAME} mini-game appearing");
+            huntingDistance = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Distance", 25f, "Maximum distance between the player and the tape before he is gassed");
+            huntingDuration = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Duration", 150, $"Duration of the {Constants.HUNTING_GAME}");
+            huntingBillyValue = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Billy value", 90, $"Billy value for the {Constants.HUNTING_GAME}");
+            huntingReverseBearTrapValue = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Reverse bear trap value", 30, $"Reverse Bear Trap value for the {Constants.HUNTING_GAME}");
+            huntingAura = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Aura duration", 10f, "Duration for which the enemy's aura is visible through walls");
+            huntingExclusions = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Exclusion list", "Blob,Maneater,Lasso,Red pill", "List of creatures that will not be selected by the Hunting Game.\nYou can add enemies by separating them with a comma.");
         }
     }
 }

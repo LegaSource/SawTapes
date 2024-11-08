@@ -133,7 +133,7 @@ namespace SawTapes.Managers
                     {
                         if (ConfigManager.isInfoInGame.Value && GameNetworkManager.Instance.localPlayerController == playerBehaviour.playerProperties)
                         {
-                            HUDManager.Instance.DisplayTip("Information", "You've been locked in, find the tape to get out");
+                            HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_CHEAT);
                         }
 
                         playerBehaviour.isInGame = true;

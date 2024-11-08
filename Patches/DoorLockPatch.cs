@@ -25,7 +25,7 @@ namespace SawTapes.Patches
             {
                 if (GameNetworkManager.Instance.localPlayerController == playerWhoTriggered)
                 {
-                    HUDManager.Instance.DisplayTip("Impossible Action", "You can't open the door until the end of the game!");
+                    HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_LOCKED_DOOR);
                 }
                 return false;
             }

@@ -24,7 +24,7 @@ namespace SawTapes.Managers
                 player.KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
                 if (player == GameNetworkManager.Instance.localPlayerController)
                 {
-                    HUDManager.Instance.DisplayTip("Information", "You tried to cheat, the rules were clear");
+                    HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_CHEAT);
                 }
                 return true;
             }

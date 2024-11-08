@@ -41,33 +41,26 @@ namespace SawTapes.Behaviours
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
-            if (buttonDown && playerHeldBy != null)
+            if (buttonDown && playerHeldBy != null && !sawRecording.isPlaying)
             {
-                if (ConfigManager.isSawTheme.Value
-                    && !isGameStarted
-                    && !isGameEnded
-                    && (sawTheme == null || !sawTheme.isPlaying))
+                PlaySawTapeServerRpc();
+                PlayerSTBehaviour playerBehaviour = playerHeldBy.GetComponent<PlayerSTBehaviour>();
+                if (!isGameStarted && !isGameEnded)
                 {
-                    GameObject audioObject = Instantiate(SawTapes.sawTheme, playerHeldBy.transform.position, Quaternion.identity);
-                    sawTheme = audioObject.GetComponent<AudioSource>();
-                    sawTheme.Play();
-                    audioObject.transform.SetParent(playerHeldBy.transform);
-                }
-
-                if (!sawRecording.isPlaying)
-                {
-                    PlaySawTapeServerRpc();
-                    PlayerSTBehaviour playerBehaviour = playerHeldBy.GetComponent<PlayerSTBehaviour>();
-                    if (!isGameStarted && !isGameEnded)
+                    if (playerBehaviour.isInGame)
                     {
-                        if (playerBehaviour.isInGame)
+                        if (ConfigManager.isSawTheme.Value && (sawTheme == null || !sawTheme.isPlaying))
                         {
-                            StartCoroutine(SawGameBeginCoroutine(playerBehaviour));
+                            GameObject audioObject = Instantiate(SawTapes.sawTheme, playerHeldBy.transform.position, Quaternion.identity);
+                            sawTheme = audioObject.GetComponent<AudioSource>();
+                            sawTheme.Play();
+                            audioObject.transform.SetParent(playerHeldBy.transform);
                         }
-                        else
-                        {
-                            HUDManager.Instance.DisplayTip("Impossible action", "You are not the tested player, the game can't start");
-                        }
+                        StartCoroutine(SawGameBeginCoroutine(playerBehaviour));
+                    }
+                    else
+                    {
+                        HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_TESTED_PLAYER);
                     }
                 }
             }
