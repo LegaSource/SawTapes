@@ -165,7 +165,6 @@ namespace SawTapes.Behaviours
         public virtual void EndGame(PlayerSTBehaviour playerBehaviour)
         {
             bool isGameOver = ExecutePreEndGameAction(playerBehaviour);
-            Debug.Log("isGameOver ? " + (isGameOver ? "true" : "false"));
             if (isGameOver) TapeSTManager.EnableParticle(this, true);
             else StartCoroutine(SpawnBillyCoroutine(playerBehaviour.playerProperties));
             SendEndGameClientRpc((int)playerBehaviour.playerProperties.playerClientId, isGameOver);

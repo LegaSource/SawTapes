@@ -72,9 +72,9 @@ namespace SawTapes.Behaviours
 
             yield return new WaitForSeconds(1f);
 
+            TeleportPlayer(ref localPlayer);
             SpawnReverseBearTrapServerRpc((int)localPlayer.playerClientId);
             SpawnShovelServerRpc();
-            TeleportPlayer(ref localPlayer);
             ApplyGasEffects(ref localPlayer, false, originalMovementSpeed: originalMovementSpeed);
         }
 
@@ -232,7 +232,7 @@ namespace SawTapes.Behaviours
 
         public void SpawnEnemy(ref PlayerControllerB player)
         {
-            List<EnemyType> killableEnemies = SawTapes.allEnemies.Where(e => e.canDie && !e.isOutsideEnemy && e.enemyName.Equals("Centipede")/*!ConfigManager.huntingExclusions.Value.Contains(e.enemyName)*/).ToList();
+            List<EnemyType> killableEnemies = SawTapes.allEnemies.Where(e => e.canDie && !e.isOutsideEnemy && !ConfigManager.huntingExclusions.Value.Contains(e.enemyName)).ToList();
             EnemyType enemyType = killableEnemies[new System.Random().Next(killableEnemies.Count)];
             Vector3 spawnPosition = EnemySTManager.GetFurthestPositionFromPlayer(player);
             NetworkObject networkObject = EnemySTManager.SpawnEnemy(enemyType, spawnPosition);
