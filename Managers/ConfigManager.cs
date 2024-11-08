@@ -36,7 +36,7 @@ namespace SawTapes
             campDuration = SawTapes.configFile.Bind("Survival Game", "Camping duration", 5, "Total camping duration before the player is killed");
             // HUNTING GAME
             huntingRarity = SawTapes.configFile.Bind("Hunting Game", "Rarity", 20, "Default probability of the Hunting Game mini-game appearing");
-            huntingDistance = SawTapes.configFile.Bind("Hunting Game", "Distance", 50f, "Maximum distance between the player and the tape before he is gassed");
+            huntingDistance = SawTapes.configFile.Bind("Hunting Game", "Distance", 25f, "Maximum distance between the player and the tape before he is gassed");
             huntingDuration = SawTapes.configFile.Bind("Hunting Game", "Duration", 150, "Duration of the Hunting Game");
             huntingBillyValue = SawTapes.configFile.Bind("Hunting Game", "Billy value", 90, "Billy value for the Hunting Game");
             huntingReverseBearTrapValue = SawTapes.configFile.Bind("Hunting Game", "Reverse bear trap value", 30, "Reverse Bear Trap value for the Hunting Game");

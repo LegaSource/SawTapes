@@ -33,12 +33,7 @@ namespace SawTapes.Managers
 
         public static void SetupCustomPassForEnemy(EnemyAI enemy)
         {
-            /*Renderer[] doorRenderers = FindObjectsOfType<Renderer>()
-                .Where(r => Vector3.Distance(r.transform.position, enemy.transform.position) == 0f
-                            && ConfigManager.rendererNames.Value.Any(n => r.name.StartsWith(n)))
-                .ToArray();*/
-
-            Renderer[] enemyRenderers = enemy.GetComponentsInChildren<Renderer>().ToArray();
+            Renderer[] enemyRenderers = enemy.GetComponentInChildren<EnemyAICollisionDetect>().GetComponentsInChildren<Renderer>().ToArray();
 
             if (CustomPassVolume == null)
             {

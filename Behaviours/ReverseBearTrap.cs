@@ -39,7 +39,7 @@ namespace SawTapes.Behaviours
                         }
                         else
                         {
-                            transform.position = parentObject.TransformPoint(parentObject.position);
+                            transform.position = parentObject.TransformPoint(Vector3.up * 0.01f);
                         }
                     }
                 }

@@ -95,13 +95,6 @@ namespace SawTapes.Behaviours
 
             if (billyPuppet == null)
             {
-                /*Item item = SawTapes.customItems.FirstOrDefault(c => c.Item.itemName.Equals("Billy Puppet"))?.Item;
-                if (item != null)
-                {
-                    Vector3 position = transform.position;
-                    billyPuppet = RoundManagerPatch.SpawnItem(ref item.spawnPrefab, position) as BillyPuppet;
-                    SpawnBillyClientRpc(billyPuppet.GetComponent<NetworkObject>());
-                }*/
                 Vector3 position = transform.position;
                 billyPuppet = RoundManagerPatch.SpawnItem(ref SawTapes.billyPuppetObj, position) as BillyPuppet;
                 SpawnBillyClientRpc(billyPuppet.GetComponent<NetworkObject>());

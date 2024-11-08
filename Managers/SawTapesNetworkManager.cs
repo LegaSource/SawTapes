@@ -94,5 +94,11 @@ namespace SawTapes.Managers
                 player.KillPlayer(velocity, spawnBody, (CauseOfDeath)causeOfDeath);
             }
         }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SpawnSawKeyServerRpc(Vector3 position) => RoundManagerPatch.SpawnItem(ref SawTapes.sawKeyObj, position);
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SpawnPursuerEyeServerRpc(Vector3 position) => RoundManagerPatch.SpawnItem(ref SawTapes.pursuerEyeObj, position);
     }
 }

@@ -1,4 +1,5 @@
-﻿using GameNetcodeStuff;
+﻿using BepInEx;
+using GameNetcodeStuff;
 using SawTapes.Files.Values;
 using SawTapes.Managers;
 using SawTapes.Patches;
@@ -7,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace SawTapes.Behaviours
 {
@@ -44,8 +44,8 @@ namespace SawTapes.Behaviours
             if (buttonDown && playerHeldBy != null)
             {
                 if (ConfigManager.isSawTheme.Value
-                    && !isGameEnded
                     && !isGameStarted
+                    && !isGameEnded
                     && (sawTheme == null || !sawTheme.isPlaying))
                 {
                     GameObject audioObject = Instantiate(SawTapes.sawTheme, playerHeldBy.transform.position, Quaternion.identity);
@@ -66,7 +66,7 @@ namespace SawTapes.Behaviours
                         }
                         else
                         {
-                            HUDManager.Instance.DisplayTip("Information", "You are not the tested player, the game can't start");
+                            HUDManager.Instance.DisplayTip("Impossible action", "You are not the tested player, the game can't start");
                         }
                     }
                 }
@@ -135,7 +135,12 @@ namespace SawTapes.Behaviours
         [ClientRpc]
         public void StartGameClientRpc(int playerId, int gameDuration)
         {
-            if (GameNetworkManager.Instance.localPlayerController == StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>())
+            ExecuteStartGameAction(StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>(), gameDuration);
+        }
+
+        public virtual void ExecuteStartGameAction(PlayerSTBehaviour playerBehaviour, int gameDuration)
+        {
+            if (GameNetworkManager.Instance.localPlayerController == playerBehaviour.playerProperties)
             {
                 // Envoyé par le serveur car c'est lui qui met à jour cette durée depuis l'enfant
                 HUDManager.Instance.StartCoroutine(HUDManagerPatch.StartChronoCoroutine(gameDuration));
@@ -159,16 +164,11 @@ namespace SawTapes.Behaviours
 
         public virtual void EndGame(PlayerSTBehaviour playerBehaviour)
         {
-            //ExecutePreEndGameAction(playerBehaviour);
-            if (!ExecutePreEndGameAction(playerBehaviour)/*playerBehaviour.playerProperties.isPlayerDead*/)
-            {
-                TapeSTManager.EnableParticle(this, true);
-            }
-            else
-            {
-                StartCoroutine(SpawnBillyCoroutine(playerBehaviour.playerProperties));
-            }
-            SendEndGameClientRpc((int)playerBehaviour.playerProperties.playerClientId);
+            bool isGameOver = ExecutePreEndGameAction(playerBehaviour);
+            Debug.Log("isGameOver ? " + (isGameOver ? "true" : "false"));
+            if (isGameOver) TapeSTManager.EnableParticle(this, true);
+            else StartCoroutine(SpawnBillyCoroutine(playerBehaviour.playerProperties));
+            SendEndGameClientRpc((int)playerBehaviour.playerProperties.playerClientId, isGameOver);
         }
 
         public abstract bool ExecutePreEndGameAction(PlayerSTBehaviour playerBehaviour);
@@ -243,17 +243,17 @@ namespace SawTapes.Behaviours
         }
 
         [ClientRpc]
-        public void SendEndGameClientRpc(int playerId)
+        public void SendEndGameClientRpc(int playerId, bool isGameOver)
         {
             PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[playerId];
-            EndGameResets(ref player);
+            EndGameResets(ref player, isGameOver);
         }
 
-        public virtual void EndGameResets(ref PlayerControllerB player)
+        public virtual void EndGameResets(ref PlayerControllerB player, bool isGameOver)
         {
             PlayerSTBehaviour playerBehaviour = player.GetComponentInChildren<PlayerSTBehaviour>();
 
-            if (!player.isPlayerDead)
+            if (!isGameOver)
             {
                 if (playerBehaviour.tileGame != null) SawTapes.eligibleTiles.Remove(playerBehaviour.tileGame);
                 isGameEnded = true;
@@ -261,10 +261,18 @@ namespace SawTapes.Behaviours
 
             isGameStarted = false;
             PlayerSTManager.ResetPlayerGame(ref playerBehaviour);
-            if (player == GameNetworkManager.Instance.localPlayerController && sawTheme != null)
+            if (player == GameNetworkManager.Instance.localPlayerController)
             {
-                sawTheme.Stop();
-                Destroy(sawTheme.gameObject);
+                if (sawTheme != null)
+                {
+                    sawTheme.Stop();
+                    Destroy(sawTheme.gameObject);
+                }
+
+                if (!HUDManagerPatch.chronoText.text.IsNullOrWhiteSpace())
+                {
+                    HUDManagerPatch.isChronoEnded = true;
+                }
             }
         }
     }

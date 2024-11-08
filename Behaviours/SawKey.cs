@@ -15,12 +15,12 @@ namespace SawTapes.Behaviours
                 if (playerBehaviour.assignedReverseBearTrap != null)
                 {
                     Vector3 position = playerHeldBy.gameplayCamera.transform.position + playerHeldBy.gameplayCamera.transform.forward;
-                    if (Physics.Raycast(position, Vector3.down, out var hitInfo, 80f, 268437760, QueryTriggerInteraction.Ignore))
-                    {
-                        position = hitInfo.point;
-                    }
                     ReleaseFromReverseBearTrapServerRpc(playerBehaviour.assignedReverseBearTrap.GetComponent<NetworkObject>(), position);
                     SawTapesNetworkManager.Instance.DestroyObjectServerRpc(GetComponent<NetworkObject>());
+                }
+                else
+                {
+                    HUDManager.Instance.DisplayTip("Impossible action", "This key is needed by the tested player to survive");
                 }
             }
         }

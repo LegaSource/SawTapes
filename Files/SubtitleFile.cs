@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using Newtonsoft.Json.Linq;
 using SawTapes.Files.Values;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -145,9 +146,26 @@ namespace SawTapes.Files
 
         public static void LoadJSON()
         {
-            if (!File.Exists(Path.Combine(Paths.ConfigPath, FilePath)))
+            string fullFilePath = Path.Combine(Paths.ConfigPath, FilePath);
+            if (File.Exists(fullFilePath))
             {
-                File.WriteAllText(Path.Combine(Paths.ConfigPath, FilePath), Get());
+                try
+                {
+                    string json = File.ReadAllText(fullFilePath);
+                    JObject parsedJson = JObject.Parse(json);
+                    if (!ValidateJsonStructure(parsedJson))
+                    {
+                        RenameOldFile(fullFilePath);
+                    }
+                }
+                catch (Exception)
+                {
+                    RenameOldFile(fullFilePath);
+                }
+            }
+            else
+            {
+                File.WriteAllText(fullFilePath, Get());
             }
 
             using (var reader = new StreamReader(Path.Combine(Paths.ConfigPath, FilePath)))
@@ -156,6 +174,41 @@ namespace SawTapes.Files
                 huntingGameSubtitles = LoadHuntingGameSubtitles();
                 billySubtitles = LoadBillyAnnouncementSubtitles();
             }
+        }
+
+        public static bool ValidateJsonStructure(JObject parsedJson)
+        {
+            var expectedKeys = new List<string> { "survival_game", "hunting_game", "billy_announcement" };
+            foreach (var key in expectedKeys)
+            {
+                if (parsedJson[key] == null)
+                {
+                    return false; // Si une clé attendue est manquante
+                }
+
+                if (parsedJson[key] is JArray array)
+                {
+                    foreach (var item in array)
+                    {
+                        if (item["timestamp"] == null || item["text"] == null)
+                        {
+                            return false; // Vérifier que chaque élément a bien les clés "timestamp" et "text"
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        public static void RenameOldFile(string filePath)
+        {
+            string backupFilePath = filePath + ".old";
+            if (File.Exists(backupFilePath))
+            {
+                File.Delete(backupFilePath);
+            }
+            File.Move(filePath, backupFilePath);
+            File.WriteAllText(filePath, Get());
         }
 
         public static List<SubtitleMapping> LoadSurvivalGameSubtitles()

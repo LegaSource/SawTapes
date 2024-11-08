@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using SawTapes.Files.Values;
 using SawTapes.Values;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -666,9 +667,26 @@ namespace SawTapes.Files
 
         public static void LoadJSON()
         {
-            if (!File.Exists(Path.Combine(Paths.ConfigPath, FilePath)))
+            string fullFilePath = Path.Combine(Paths.ConfigPath, FilePath);
+            if (File.Exists(fullFilePath))
             {
-                File.WriteAllText(Path.Combine(Paths.ConfigPath, FilePath), Get());
+                try
+                {
+                    string json = File.ReadAllText(fullFilePath);
+                    JObject parsedJson = JObject.Parse(json);
+                    if (!ValidateJsonStructure(parsedJson))
+                    {
+                        RenameOldFile(fullFilePath);
+                    }
+                }
+                catch (Exception)
+                {
+                    RenameOldFile(fullFilePath);
+                }
+            }
+            else
+            {
+                File.WriteAllText(fullFilePath, Get());
             }
 
             using (var reader = new StreamReader(Path.Combine(Paths.ConfigPath, FilePath)))
@@ -712,6 +730,94 @@ namespace SawTapes.Files
                     SawTapes.rooms.Add(new Room($"{room.RoomName}(Clone)", room.DoorsNames, room.Weight, hordes));
                 }
             }
+        }
+
+        public static bool ValidateJsonStructure(JObject parsedJson)
+        {
+            bool isValid = true;
+            if (parsedJson["hordes"] == null)
+            {
+                SawTapes.mls.LogWarning("Missing 'hordes' array in the JSON.");
+                isValid = false;
+            }
+
+            if (parsedJson["rooms"] == null)
+            {
+                SawTapes.mls.LogWarning("Missing 'rooms' array in the JSON.");
+                isValid = false;
+            }
+
+            // Validation des éléments dans 'hordes'
+            foreach (var horde in parsedJson["hordes"])
+            {
+                if (horde["horde_name"] == null)
+                {
+                    SawTapes.mls.LogWarning("Missing 'horde_name' in one of the horde objects.");
+                    isValid = false;
+                }
+                if (horde["game_duration"] == null)
+                {
+                    SawTapes.mls.LogWarning("Missing 'game_duration' in one of the horde objects.");
+                    isValid = false;
+                }
+                if (horde["billy_value"] == null)
+                {
+                    SawTapes.mls.LogWarning("Missing 'billy_value' in one of the horde objects.");
+                    isValid = false;
+                }
+                if (horde["min_hour"] == null)
+                {
+                    SawTapes.mls.LogWarning("Missing 'min_hour' in one of the horde objects.");
+                    isValid = false;
+                }
+                if (horde["max_hour"] == null)
+                {
+                    SawTapes.mls.LogWarning("Missing 'max_hour' in one of the horde objects.");
+                    isValid = false;
+                }
+                if (horde["enemies_spawn"] == null)
+                {
+                    SawTapes.mls.LogWarning("Missing 'enemies_spawn' array in one of the horde objects.");
+                    isValid = false;
+                }
+            }
+
+            // Validation des éléments dans 'rooms'
+            foreach (var room in parsedJson["rooms"])
+            {
+                if (room["room_name"] == null)
+                {
+                    SawTapes.mls.LogWarning("Missing 'room_name' in one of the room objects.");
+                    isValid = false;
+                }
+                if (room["doors_names"] == null)
+                {
+                    SawTapes.mls.LogWarning("Missing 'doors_names' array in one of the room objects.");
+                    isValid = false;
+                }
+                if (room["weight"] == null)
+                {
+                    SawTapes.mls.LogWarning("Missing 'weight' in one of the room objects.");
+                    isValid = false;
+                }
+                if (room["hordes"] == null)
+                {
+                    SawTapes.mls.LogWarning("Missing 'hordes' array in one of the room objects.");
+                    isValid = false;
+                }
+            }
+            return isValid;
+        }
+
+        public static void RenameOldFile(string filePath)
+        {
+            string backupFilePath = filePath + ".old";
+            if (File.Exists(backupFilePath))
+            {
+                File.Delete(backupFilePath);
+            }
+            File.Move(filePath, backupFilePath);
+            File.WriteAllText(filePath, Get());
         }
 
         public static List<HordeMapping> LoadHordes()

@@ -15,17 +15,10 @@ namespace SawTapes.Behaviours
                 PlayerSTBehaviour playerBehaviour = playerHeldBy.GetComponent<PlayerSTBehaviour>();
                 if (playerBehaviour.assignedEnemy != null)
                 {
-                    StartCoroutine(ShowEnemyCoroutine(playerBehaviour.assignedEnemy));
+                    StartCoroutine(STUtilities.ShowEnemyCoroutine(playerBehaviour.assignedEnemy));
                     SawTapesNetworkManager.Instance.DestroyObjectServerRpc(GetComponent<NetworkObject>());
                 }
             }
-        }
-
-        public IEnumerator ShowEnemyCoroutine(EnemyAI enemy)
-        {
-            CustomPassManager.SetupCustomPassForEnemy(enemy);
-            yield return new WaitForSeconds(ConfigManager.huntingAura.Value);
-            CustomPassManager.RemoveAura();
         }
     }
 }

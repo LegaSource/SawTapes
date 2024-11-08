@@ -131,7 +131,7 @@ namespace SawTapes.Behaviours
                     spawnedEnemy.Despawn();
                 }
             }
-            return !playerBehaviour.playerProperties.isPlayerDead;
+            return playerBehaviour.playerProperties.isPlayerDead;
         }
 
         [ClientRpc]
