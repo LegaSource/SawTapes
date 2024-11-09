@@ -247,7 +247,7 @@ namespace SawTapes.Behaviours
 
             if (!isGameOver)
             {
-                if (playerBehaviour.tileGame != null) SawTapes.eligibleTiles.Remove(playerBehaviour.tileGame);
+                if (playerBehaviour.tileGame != null) SawTapes.eligibleTiles.RemoveAll(t => t == playerBehaviour.tileGame);
                 isGameEnded = true;
             }
 

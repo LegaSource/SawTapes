@@ -63,7 +63,7 @@ namespace SawTapes.Behaviours
         private void StartMovingClientRpc()
         {
             PlayMovementSound();
-            creatureAnimator.SetBool("isMoving", true);
+            creatureAnimator?.SetBool("isMoving", true);
             SetMovingTowardsTargetPlayer(targetPlayer);
         }
 
@@ -75,7 +75,7 @@ namespace SawTapes.Behaviours
             targetPlayer = null;
             agent.speed = 0f;
             bikeSqueek.Stop();
-            creatureAnimator.SetBool("isMoving", false);
+            creatureAnimator?.SetBool("isMoving", false);
         }
 
         private void PlayMovementSound()

@@ -17,7 +17,7 @@ namespace SawTapes.Managers
             {
                 foreach (DoorLock doorLock in tileSTBehaviour.doorLocks)
                 {
-                    if (!doorLock.isLocked)
+                    if (doorLock != null && doorLock.gameObject != null && !doorLock.isLocked)
                     {
                         if (doorLock.gameObject.TryGetComponent<AnimatedObjectTrigger>(out var triggerAnimation))
                         {
@@ -133,7 +133,7 @@ namespace SawTapes.Managers
                     {
                         if (ConfigManager.isInfoInGame.Value && GameNetworkManager.Instance.localPlayerController == playerBehaviour.playerProperties)
                         {
-                            HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_CHEAT);
+                            HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_LOCKED);
                         }
 
                         playerBehaviour.isInGame = true;

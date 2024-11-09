@@ -16,7 +16,8 @@ namespace SawTapes
         public static ConfigEntry<int> campDuration;
         // HUNTING GAME
         public static ConfigEntry<int> huntingRarity;
-        public static ConfigEntry<float> huntingDistance;
+        public static ConfigEntry<float> huntingGassedDistance;
+        public static ConfigEntry<float> huntingCheatDistance;
         public static ConfigEntry<int> huntingDuration;
         public static ConfigEntry<int> huntingBillyValue;
         public static ConfigEntry<int> huntingReverseBearTrapValue;
@@ -36,7 +37,8 @@ namespace SawTapes
             campDuration = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Camping duration", 5, "Total camping duration before the player is killed");
             // HUNTING GAME
             huntingRarity = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Rarity", 20, $"Default probability of the {Constants.HUNTING_GAME} mini-game appearing");
-            huntingDistance = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Distance", 25f, "Maximum distance between the player and the tape before he is gassed");
+            huntingGassedDistance = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Gassed distance", 25f, "Maximum distance between the player and the tape before he is gassed");
+            huntingCheatDistance = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Cheat distance", 15f, "Maximum distance the player can move before launching the tape. Beyond that, he'll be killed.");
             huntingDuration = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Duration", 150, $"Duration of the {Constants.HUNTING_GAME}");
             huntingBillyValue = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Billy value", 90, $"Billy value for the {Constants.HUNTING_GAME}");
             huntingReverseBearTrapValue = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Reverse bear trap value", 30, $"Reverse Bear Trap value for the {Constants.HUNTING_GAME}");

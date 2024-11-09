@@ -1,7 +1,5 @@
 ﻿using SawTapes.Managers;
-using System.Collections;
 using Unity.Netcode;
-using UnityEngine;
 
 namespace SawTapes.Behaviours
 {

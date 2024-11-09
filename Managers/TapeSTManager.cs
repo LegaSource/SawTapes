@@ -24,7 +24,7 @@ namespace SawTapes.Managers
         public static IEnumerator TapeSearchCoroutine(int playerId)
         {
             PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
-            SawTape sawTape = playerBehaviour.tileGame.GetComponent<TileSTBehaviour>()?.sawTape;
+            SawTape sawTape = playerBehaviour.tileGame?.GetComponent<TileSTBehaviour>()?.sawTape;
             if (sawTape != null)
             {
                 List<RandomScrapSpawn> listRandomScrapSpawn = Object.FindObjectsOfType<RandomScrapSpawn>().Where(s => playerBehaviour.tileGame.Bounds.Contains(s.transform.position)).ToList();

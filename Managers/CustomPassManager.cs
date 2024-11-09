@@ -1,7 +1,6 @@
 ﻿using SawTapes.Behaviours;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine;
-using System.Linq;
 
 namespace SawTapes.Managers
 {
@@ -33,7 +32,14 @@ namespace SawTapes.Managers
 
         public static void SetupCustomPassForEnemy(EnemyAI enemy)
         {
-            Renderer[] enemyRenderers = enemy.GetComponentInChildren<EnemyAICollisionDetect>().GetComponentsInChildren<Renderer>().ToArray();
+            Renderer[] enemyRenderers = enemy.GetComponentInChildren<EnemyAICollisionDetect>()?.GetComponentsInChildren<Renderer>()
+                ?? enemy.GetComponentsInChildren<Renderer>();
+
+            if (enemyRenderers == null || enemyRenderers.Length == 0)
+            {
+                SawTapes.mls.LogError($"No renderer could be found on {enemy.enemyType.enemyName}.");
+                return;
+            }
 
             if (CustomPassVolume == null)
             {
@@ -42,7 +48,13 @@ namespace SawTapes.Managers
             }
 
             wallhackPass = CustomPassVolume.customPasses.Find(pass => pass is WallhackCustomPass) as WallhackCustomPass;
-            wallhackPass?.SetTargetRenderers(enemyRenderers, SawTapes.wallhackShader);
+            if (wallhackPass == null)
+            {
+                SawTapes.mls.LogError("WallhackCustomPass could not be found in CustomPassVolume.");
+                return;
+            }
+
+            wallhackPass.SetTargetRenderers(enemyRenderers, SawTapes.wallhackShader);
         }
 
         public static void RemoveAura()

@@ -31,11 +31,12 @@ namespace SawTapes.Behaviours
         public void FindPlayerInRange()
         {
             if (!isPlayerFinded
+                && !isInShipRoom
                 && !GameNetworkManager.Instance.localPlayerController.isPlayerDead
-                && Vector3.Distance(GameNetworkManager.Instance.localPlayerController.transform.position, transform.position) <= ConfigManager.huntingDistance.Value)
+                && Vector3.Distance(GameNetworkManager.Instance.localPlayerController.transform.position, transform.position) <= ConfigManager.huntingGassedDistance.Value)
             {
                 PlayerControllerB player = StartOfRound.Instance.allPlayerScripts
-                    .Where(p => Vector3.Distance(p.transform.position, transform.position) <= ConfigManager.huntingDistance.Value)
+                    .Where(p => Vector3.Distance(p.transform.position, transform.position) <= ConfigManager.huntingGassedDistance.Value)
                     .OrderBy(p => Vector3.Distance(p.transform.position, transform.position))
                     .FirstOrDefault();
 
@@ -169,7 +170,7 @@ namespace SawTapes.Behaviours
         {
             while (!sawRecording.isPlaying)
             {
-                if (Vector3.Distance(GameNetworkManager.Instance.localPlayerController.transform.position, position) > 10f)
+                if (Vector3.Distance(GameNetworkManager.Instance.localPlayerController.transform.position, position) > ConfigManager.huntingCheatDistance.Value)
                 {
                     GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
                     HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_CHEAT);
@@ -191,7 +192,7 @@ namespace SawTapes.Behaviours
         public void SpawnShovelServerRpc()
         {
             GameObject shovel = null;
-            foreach (NetworkPrefabsList networkPrefabList in NetworkManager.NetworkConfig.Prefabs.NetworkPrefabsLists ?? Enumerable.Empty<NetworkPrefabsList>())
+            foreach (NetworkPrefabsList networkPrefabList in NetworkManager.Singleton.NetworkConfig.Prefabs.NetworkPrefabsLists ?? Enumerable.Empty<NetworkPrefabsList>())
             {
                 foreach (NetworkPrefab networkPrefab in networkPrefabList.PrefabList ?? Enumerable.Empty<NetworkPrefab>())
                 {
@@ -227,7 +228,10 @@ namespace SawTapes.Behaviours
         public override void ExecuteStartGameAction(PlayerSTBehaviour playerBehaviour, int gameDuration)
         {
             base.ExecuteStartGameAction(playerBehaviour, gameDuration);
-            StartCoroutine(STUtilities.ShowEnemyCoroutine(playerBehaviour.assignedEnemy));
+            if (GameNetworkManager.Instance.localPlayerController == playerBehaviour.playerProperties)
+            {
+                StartCoroutine(STUtilities.ShowEnemyCoroutine(playerBehaviour.assignedEnemy));
+            }
         }
 
         public void SpawnEnemy(ref PlayerControllerB player)
