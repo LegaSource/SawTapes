@@ -13,6 +13,7 @@
         public const string MESSAGE_IMPAC_LOCKED_ENTRANCE = "You can't use the entrance until the end of the game!";
         // Configs
         public const string GLOBAL = "_Global_";
+        public const string HUD = "_HUD_";
         public const string SURVIVAL_GAME = "Survival Game";
         public const string HUNTING_GAME = "Hunting Game";
         // Items

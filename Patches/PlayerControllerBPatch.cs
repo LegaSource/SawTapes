@@ -20,7 +20,10 @@ namespace SawTapes.Patches
         private static void PlayerDeath(ref PlayerControllerB __instance, int playerId)
         {
             PlayerSTBehaviour playerBehaviour = __instance.playersManager.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
-            PlayerSTManager.ResetPlayerGame(ref playerBehaviour);
+            if (playerBehaviour != null)
+            {
+                PlayerSTManager.ResetPlayerGame(ref playerBehaviour);
+            }
         }
     }
 }

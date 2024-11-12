@@ -20,14 +20,22 @@ namespace SawTapes.Patches
         [HarmonyPostfix]
         private static void StartHUDManager(ref HUDManager __instance)
         {
-            GameObject chrono = UnityEngine.Object.Instantiate(__instance.weightCounterAnimator.gameObject, __instance.weightCounterAnimator.transform.parent);
-            chrono.transform.localPosition += new Vector3(-85f, 185f, 0f);
-            chrono.name = "ChronoUI";
+            GameObject chrono = new GameObject("ChronoUI");
+            chrono.transform.localPosition = new Vector3(0f, 0f, 0f);
+            chrono.AddComponent<RectTransform>();
 
-            chronoText = chrono.GetComponentInChildren<TextMeshProUGUI>();
-            chronoText.text = "";
-            chronoText.alignment = TextAlignmentOptions.BottomLeft;
-            chronoText.name = "Chrono";
+            TextMeshProUGUI textMeshChrono = chrono.AddComponent<TextMeshProUGUI>();
+            RectTransform rectTransformChrono = textMeshChrono.rectTransform;
+            rectTransformChrono.SetParent(GameObject.Find("Systems/UI/Canvas/Panel/GameObject/PlayerScreen").transform, worldPositionStays: false);
+            rectTransformChrono.anchorMin = new Vector2(0f, 1f);
+            rectTransformChrono.anchorMax = new Vector2(0f, 1f);
+            rectTransformChrono.pivot = new Vector2(0f, 1f);
+            rectTransformChrono.anchoredPosition = new Vector2(ConfigManager.chronoPosX.Value, ConfigManager.chronoPosY.Value);
+            rectTransformChrono.sizeDelta = new Vector2(300f, 300f);
+            textMeshChrono.alignment = TextAlignmentOptions.TopLeft;
+            textMeshChrono.font = __instance.controlTipLines[0].font;
+            textMeshChrono.fontSize = 14f;
+            chronoText = textMeshChrono;
 
             if (ConfigManager.isSubtitles.Value)
             {

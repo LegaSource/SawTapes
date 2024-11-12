@@ -9,7 +9,10 @@ namespace SawTapes
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<bool> isInfoInGame;
         public static ConfigEntry<bool> isSawTheme;
+        // HUD
         public static ConfigEntry<bool> isSubtitles;
+        public static ConfigEntry<float> chronoPosX;
+        public static ConfigEntry<float> chronoPosY;
         // SURVIVAL GAME
         public static ConfigEntry<int> survivalRarity;
         public static ConfigEntry<bool> penalizePlayerWhoCamp;
@@ -26,11 +29,15 @@ namespace SawTapes
 
         public static void Load()
         {
+            // GLOBAL
             rarityIncrement = SawTapes.configFile.Bind(Constants.GLOBAL, "Rarity increment", 10, "By how much does the chance of a Saw game appearing increase with each round if it hasn't appeared?");
             isDebug = SawTapes.configFile.Bind(Constants.GLOBAL, "Enable debugging", false, "Is debugging enabled?");
             isInfoInGame = SawTapes.configFile.Bind(Constants.GLOBAL, "Enable Saw theme", true, "Display a tip when the player enters the mini-game to inform them to find the tape");
             isSawTheme = SawTapes.configFile.Bind(Constants.GLOBAL, "Enable Saw theme", true, "Is Saw theme enabled?");
-            isSubtitles = SawTapes.configFile.Bind(Constants.GLOBAL, "Enable subtitles", false, "Is subtitles enabled?");
+            // HUD
+            isSubtitles = SawTapes.configFile.Bind(Constants.HUD, "Enable subtitles", false, "Is subtitles enabled?");
+            chronoPosX = SawTapes.configFile.Bind(Constants.HUD, "Chrono pos X", 106f, "X position of chrono on interface.");
+            chronoPosY = SawTapes.configFile.Bind(Constants.HUD, "Chrono pos Y", -50f, "Y position of chrono on interface.");
             // SURVIVAL GAME
             survivalRarity = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Rarity", 20, $"Default probability of the {Constants.SURVIVAL_GAME} mini-game appearing");
             penalizePlayerWhoCamp = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Penalize campers", true, "Enable the possibility to penalize the player who is camping by spawning a Nutcracker");

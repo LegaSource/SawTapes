@@ -21,7 +21,7 @@ namespace SawTapes
     {
         private const string modGUID = "Lega.SawTapes";
         private const string modName = "Saw Tapes";
-        private const string modVersion = "1.1.2";
+        private const string modVersion = "1.1.3";
 
         private readonly Harmony harmony = new Harmony(modGUID);
         private readonly static AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "sawtapes"));

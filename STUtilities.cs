@@ -19,8 +19,11 @@ namespace SawTapes
 
         public static IEnumerator ShowEnemyCoroutine(EnemyAI enemy)
         {
-            CustomPassManager.SetupCustomPassForEnemy(enemy);
-            yield return new WaitForSeconds(ConfigManager.huntingAura.Value);
+            if (enemy != null)
+            {
+                CustomPassManager.SetupCustomPassForEnemy(enemy);
+                yield return new WaitForSeconds(ConfigManager.huntingAura.Value);
+            }
             CustomPassManager.RemoveAura();
         }
 
