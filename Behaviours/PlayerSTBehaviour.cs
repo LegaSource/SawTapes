@@ -12,7 +12,6 @@ namespace SawTapes.Behaviours
         // SURVIVAL GAME
         public int campTime = 0;
         // HUNTING GAME
-        public ReverseBearTrap assignedReverseBearTrap;
-        public EnemyAI assignedEnemy;
+        public HuntingTape huntingTape;
     }
 }

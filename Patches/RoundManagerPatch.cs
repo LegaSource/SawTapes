@@ -31,7 +31,7 @@ namespace SawTapes.Patches
                         tapeToSpawn = sawTapeValue;
                         sawTapeValue.Rarity = sawTapeValue.DefaultRarity;
                     }
-                    else if (sawTapeValue.Rarity < 100)
+                    else if (sawTapeValue.Rarity > 0 && sawTapeValue.Rarity < 100)
                     {
                         sawTapeValue.Rarity = Mathf.Min(100, sawTapeValue.Rarity + ConfigManager.rarityIncrement.Value);
                     }

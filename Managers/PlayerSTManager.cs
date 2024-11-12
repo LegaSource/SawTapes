@@ -18,7 +18,7 @@ namespace SawTapes.Managers
         public static bool PreventTeleportPlayer(ref PlayerControllerB player)
         {
             PlayerSTBehaviour playerBehaviour = player.GetComponent<PlayerSTBehaviour>();
-            if (playerBehaviour != null && playerBehaviour.isInGame && (playerBehaviour.tileGame != null || playerBehaviour.assignedEnemy != null))
+            if (playerBehaviour != null && playerBehaviour.isInGame && (playerBehaviour.tileGame != null || playerBehaviour.huntingTape?.assignedEnemy != null))
             {
                 player.KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
                 if (player == GameNetworkManager.Instance.localPlayerController)
@@ -37,8 +37,7 @@ namespace SawTapes.Managers
             playerBehaviour.campTime = 0;
             playerBehaviour.isInGame = false;
             playerBehaviour.tileGame = null;
-            playerBehaviour.assignedReverseBearTrap = null;
-            playerBehaviour.assignedEnemy = null;
+            playerBehaviour.huntingTape = null;
         }
     }
 }

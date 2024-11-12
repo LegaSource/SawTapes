@@ -12,10 +12,11 @@ namespace SawTapes.Behaviours
             if (buttonDown && playerHeldBy != null)
             {
                 PlayerSTBehaviour playerBehaviour = playerHeldBy.GetComponent<PlayerSTBehaviour>();
-                if (playerBehaviour.assignedReverseBearTrap != null)
+                ReverseBearTrap reverseBearTrap = playerBehaviour.huntingTape?.reverseBearTrap;
+                if (reverseBearTrap != null)
                 {
                     Vector3 position = playerHeldBy.gameplayCamera.transform.position + playerHeldBy.gameplayCamera.transform.forward;
-                    ReleaseFromReverseBearTrapServerRpc(playerBehaviour.assignedReverseBearTrap.GetComponent<NetworkObject>(), position);
+                    ReleaseFromReverseBearTrapServerRpc(reverseBearTrap.GetComponent<NetworkObject>(), position);
                     SawTapesNetworkManager.Instance.DestroyObjectServerRpc(GetComponent<NetworkObject>());
                 }
                 else

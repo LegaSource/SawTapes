@@ -23,5 +23,19 @@ namespace SawTapes.Managers
             networkObject.Spawn(true);
             return networkObject;
         }
+
+        public static void DespawnEnemy(NetworkObject spawnedEnemy)
+        {
+            EnemyAI enemyAI = spawnedEnemy.GetComponentInChildren<EnemyAI>();
+            if (enemyAI != null && !enemyAI.isEnemyDead)
+            {
+                SawTapesNetworkManager.Instance.PlayDespawnParticleClientRpc(spawnedEnemy.transform.position);
+                if (enemyAI is NutcrackerEnemyAI nutcrackerEnemyAI && nutcrackerEnemyAI.gun != null)
+                {
+                    SawTapesNetworkManager.Instance.DestroyObjectClientRpc(nutcrackerEnemyAI.gun.GetComponent<NetworkObject>());
+                }
+                spawnedEnemy.Despawn();
+            }
+        }
     }
 }

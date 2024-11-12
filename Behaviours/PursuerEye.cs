@@ -10,10 +10,10 @@ namespace SawTapes.Behaviours
             base.ItemActivate(used, buttonDown);
             if (buttonDown && playerHeldBy != null)
             {
-                PlayerSTBehaviour playerBehaviour = playerHeldBy.GetComponent<PlayerSTBehaviour>();
-                if (playerBehaviour.assignedEnemy != null)
+                EnemyAI assignedEnemy = playerHeldBy.GetComponent<PlayerSTBehaviour>().huntingTape?.assignedEnemy;
+                if (assignedEnemy != null)
                 {
-                    StartCoroutine(STUtilities.ShowEnemyCoroutine(playerBehaviour.assignedEnemy));
+                    StartCoroutine(STUtilities.ShowEnemyCoroutine(assignedEnemy));
                     SawTapesNetworkManager.Instance.DestroyObjectServerRpc(GetComponent<NetworkObject>());
                 }
             }

@@ -1,6 +1,7 @@
 ﻿using SawTapes.Managers;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SawTapes
@@ -21,6 +22,11 @@ namespace SawTapes
             CustomPassManager.SetupCustomPassForEnemy(enemy);
             yield return new WaitForSeconds(ConfigManager.huntingAura.Value);
             CustomPassManager.RemoveAura();
+        }
+
+        public static Transform FindMainEntrancePoint()
+        {
+            return Object.FindObjectsOfType<EntranceTeleport>().FirstOrDefault(e => e.entranceId == 0 && !e.isEntranceToBuilding).entrancePoint;
         }
     }
 }

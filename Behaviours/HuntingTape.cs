@@ -14,6 +14,7 @@ namespace SawTapes.Behaviours
     {
         public bool isPlayerFinded = false;
         public ReverseBearTrap reverseBearTrap;
+        public EnemyAI assignedEnemy;
 
         public override void Start()
         {
@@ -31,7 +32,6 @@ namespace SawTapes.Behaviours
         public void FindPlayerInRange()
         {
             if (!isPlayerFinded
-                && !isInShipRoom
                 && !GameNetworkManager.Instance.localPlayerController.isPlayerDead
                 && Vector3.Distance(GameNetworkManager.Instance.localPlayerController.transform.position, transform.position) <= ConfigManager.huntingGassedDistance.Value)
             {
@@ -43,19 +43,23 @@ namespace SawTapes.Behaviours
                 if (GameNetworkManager.Instance.localPlayerController == player)
                 {
                     isPlayerFinded = true;
-                    PlayerFindedServerRpc();
-                    StartCoroutine(TeleportPlayerCoroutine());
+                    PlayerFindedServerRpc((int)GameNetworkManager.Instance.localPlayerController.playerClientId);
+                    StartCoroutine(GameSetUpCoroutine());
                 }
             }
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void PlayerFindedServerRpc() => PlayerFindedClientRpc();
+        public void PlayerFindedServerRpc(int playerId) => PlayerFindedClientRpc(playerId);
 
         [ClientRpc]
-        public void PlayerFindedClientRpc() => isPlayerFinded = true;
+        public void PlayerFindedClientRpc(int playerId)
+        {
+            isPlayerFinded = true;
+            StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>().huntingTape = this;
+        }
 
-        public IEnumerator TeleportPlayerCoroutine()
+        public IEnumerator GameSetUpCoroutine()
         {
             PlayerControllerB localPlayer = GameNetworkManager.Instance.localPlayerController;
             float originalMovementSpeed = localPlayer.movementSpeed;
@@ -74,8 +78,12 @@ namespace SawTapes.Behaviours
             yield return new WaitForSeconds(1f);
 
             TeleportPlayer(ref localPlayer);
+
+            Vector3 position = localPlayer.gameplayCamera.transform.position + localPlayer.gameplayCamera.transform.forward;
+            SawTapesNetworkManager.Instance.ChangeTapePositionServerRpc(GetComponent<NetworkObject>(), position);
             SpawnReverseBearTrapServerRpc((int)localPlayer.playerClientId);
-            SpawnShovelServerRpc();
+            SpawnShovelServerRpc(position);
+
             ApplyGasEffects(ref localPlayer, false, originalMovementSpeed: originalMovementSpeed);
         }
 
@@ -128,6 +136,44 @@ namespace SawTapes.Behaviours
             }
         }
 
+        public void TeleportPlayer(ref PlayerControllerB player)
+        {
+            player.DropAllHeldItemsAndSync();
+            Transform ëntrancePoint = STUtilities.FindMainEntrancePoint();
+            player.averageVelocity = 0f;
+            player.velocityLastFrame = Vector3.zero;
+            player.TeleportPlayer(ëntrancePoint.position, withRotation: true, ëntrancePoint.eulerAngles.y);
+            player.isInElevator = false;
+            player.isInHangarShipRoom = false;
+            player.isInsideFactory = true;
+            TeleportPlayerServerRpc((int)player.playerClientId);
+            player.SpawnPlayerAnimation();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void TeleportPlayerServerRpc(int playerId) => TeleportPlayerClientRpc(playerId);
+
+        [ClientRpc]
+        public void TeleportPlayerClientRpc(int playerId)
+        {
+            PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+            if (player != GameNetworkManager.Instance.localPlayerController)
+            {
+                Transform ëntrancePoint = STUtilities.FindMainEntrancePoint();
+                player.TeleportPlayer(ëntrancePoint.position, withRotation: true, ëntrancePoint.eulerAngles.y);
+                player.isInElevator = false;
+                player.isInHangarShipRoom = false;
+                player.isInsideFactory = true;
+            }
+            for (int i = 0; i < player.ItemSlots.Length; i++)
+            {
+                if (player.ItemSlots[i] != null)
+                {
+                    player.ItemSlots[i].isInFactory = true;
+                }
+            }
+        }
+
         [ServerRpc(RequireOwnership = false)]
         public void SpawnReverseBearTrapServerRpc(int playerId)
         {
@@ -161,7 +207,6 @@ namespace SawTapes.Behaviours
 
                 PlayerSTBehaviour playerBehaviour = player.GetComponent<PlayerSTBehaviour>();
                 playerBehaviour.isInGame = true;
-                playerBehaviour.assignedReverseBearTrap = reverseBearTrap;
                 this.reverseBearTrap = reverseBearTrap;
             }
         }
@@ -189,7 +234,7 @@ namespace SawTapes.Behaviours
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnShovelServerRpc()
+        public void SpawnShovelServerRpc(Vector3 position)
         {
             GameObject shovel = null;
             foreach (NetworkPrefabsList networkPrefabList in NetworkManager.Singleton.NetworkConfig.Prefabs.NetworkPrefabsLists ?? Enumerable.Empty<NetworkPrefabsList>())
@@ -204,18 +249,7 @@ namespace SawTapes.Behaviours
                     }
                 }
             }
-            if (shovel != null) RoundManagerPatch.SpawnItem(ref shovel, transform.position + Vector3.up * 0.5f);
-        }
-
-        public void TeleportPlayer(ref PlayerControllerB player)
-        {
-            player.DropAllHeldItemsAndSync();
-            Vector3 position = RoundManager.Instance.GetRandomNavMeshPositionInRadiusSpherical(transform.position, 3f);
-            player.averageVelocity = 0f;
-            player.velocityLastFrame = Vector3.zero;
-            player.TeleportPlayer(position);
-            player.transform.rotation = Quaternion.LookRotation(transform.position - player.transform.position);
-            player.SpawnPlayerAnimation();
+            if (shovel != null) RoundManagerPatch.SpawnItem(ref shovel, position + Vector3.up * 0.5f);
         }
 
         public override void ExecutePreGameAction(PlayerSTBehaviour playerBehaviour)
@@ -225,32 +259,30 @@ namespace SawTapes.Behaviours
             billyValue = ConfigManager.huntingBillyValue.Value;
         }
 
-        public override void ExecuteStartGameAction(PlayerSTBehaviour playerBehaviour, int gameDuration)
-        {
-            base.ExecuteStartGameAction(playerBehaviour, gameDuration);
-            if (GameNetworkManager.Instance.localPlayerController == playerBehaviour.playerProperties)
-            {
-                StartCoroutine(STUtilities.ShowEnemyCoroutine(playerBehaviour.assignedEnemy));
-            }
-        }
-
         public void SpawnEnemy(ref PlayerControllerB player)
         {
             List<EnemyType> killableEnemies = SawTapes.allEnemies.Where(e => e.canDie && !e.isOutsideEnemy && !ConfigManager.huntingExclusions.Value.Contains(e.enemyName)).ToList();
             EnemyType enemyType = killableEnemies[new System.Random().Next(killableEnemies.Count)];
             Vector3 spawnPosition = EnemySTManager.GetFurthestPositionFromPlayer(player);
             NetworkObject networkObject = EnemySTManager.SpawnEnemy(enemyType, spawnPosition);
-            SetAssignedEnemyClientRpc((int)player.playerClientId, networkObject);
+            SetAssignedEnemyClientRpc(networkObject);
         }
 
         [ClientRpc]
-        public void SetAssignedEnemyClientRpc(int playerId, NetworkObjectReference enemyObject)
+        public void SetAssignedEnemyClientRpc(NetworkObjectReference enemyObject)
         {
             if (enemyObject.TryGet(out NetworkObject networkObject))
             {
-                PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
-                playerBehaviour.assignedEnemy = networkObject.gameObject.GetComponentInChildren<EnemyAI>();
-                playerBehaviour.assignedEnemy.enemyType.enemyPrefab.AddComponent<EnemySTBehaviour>().isAssignedEnemy = true;
+                assignedEnemy = networkObject.gameObject.GetComponentInChildren<EnemyAI>();
+            }
+        }
+
+        public override void ExecuteStartGameAction(PlayerSTBehaviour playerBehaviour, int gameDuration)
+        {
+            base.ExecuteStartGameAction(playerBehaviour, gameDuration);
+            if (GameNetworkManager.Instance.localPlayerController == playerBehaviour.playerProperties)
+            {
+                StartCoroutine(STUtilities.ShowEnemyCoroutine(assignedEnemy));
             }
         }
 
@@ -262,6 +294,12 @@ namespace SawTapes.Behaviours
             if (playerBehaviour.playerProperties.isPlayerDead || !reverseBearTrap.isReleased)
             {
                 DestroyReverseBearTrap();
+                if (!assignedEnemy.isEnemyDead
+                    && assignedEnemy.NetworkObject != null
+                    && assignedEnemy.NetworkObject.IsSpawned)
+                {
+                    EnemySTManager.DespawnEnemy(assignedEnemy.NetworkObject);
+                }
                 DestroySawKey();
                 if (!playerBehaviour.playerProperties.isPlayerDead) SawTapesNetworkManager.Instance.KillPlayerClientRpc((int)playerBehaviour.playerProperties.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown);
                 return true;

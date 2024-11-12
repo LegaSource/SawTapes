@@ -42,6 +42,9 @@ namespace SawTapes.Managers
             TileSTManager.UnlockDoors(ref tileSTBehaviour);
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        public void ChangeTapePositionServerRpc(NetworkObjectReference obj, Vector3 position) => ChangeTapePositionClientRpc(obj, position);
+
         [ClientRpc]
         public void ChangeTapePositionClientRpc(NetworkObjectReference obj, Vector3 position)
         {
@@ -100,5 +103,13 @@ namespace SawTapes.Managers
 
         [ServerRpc(RequireOwnership = false)]
         public void SpawnPursuerEyeServerRpc(Vector3 position) => RoundManagerPatch.SpawnItem(ref SawTapes.pursuerEyeObj, position);
+
+        [ClientRpc]
+        public void PlayDespawnParticleClientRpc(Vector3 position)
+        {
+            GameObject spawnObject = Instantiate(SawTapes.despawnParticle, position, Quaternion.identity);
+            ParticleSystem despawnParticle = spawnObject.GetComponent<ParticleSystem>();
+            Destroy(spawnObject, despawnParticle.main.duration + despawnParticle.main.startLifetime.constantMax);
+        }
     }
 }

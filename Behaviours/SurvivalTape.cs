@@ -13,7 +13,6 @@ namespace SawTapes.Behaviours
     public class SurvivalTape : SawTape
     {
         public ParticleSystem spawnParticle;
-        public ParticleSystem despawnParticle;
         public bool wasCampingLastSecond = false;
         public Horde activeHorde;
         List<NetworkObject> spawnedEnemies = new List<NetworkObject>();
@@ -76,7 +75,7 @@ namespace SawTapes.Behaviours
         public IEnumerator SpawnEnemyCoroutine(EnemyType enemyType, PlayerSTBehaviour playerBehaviour, List<NetworkObject> spawnedEnemies)
         {
             Vector3 spawnPosition = TileSTManager.GetRandomNavMeshPositionInTile(ref playerBehaviour);
-            PlaySpawnParticleClientRpc(spawnPosition, true);
+            PlaySpawnParticleClientRpc(spawnPosition);
 
             yield return new WaitUntil(() => !spawnParticle.isPlaying);
 
@@ -120,34 +119,16 @@ namespace SawTapes.Behaviours
         {
             foreach (NetworkObject spawnedEnemy in spawnedEnemies.Where(s => s.IsSpawned))
             {
-                EnemyAI enemyAI = spawnedEnemy.GetComponentInChildren<EnemyAI>();
-                if (enemyAI != null && !enemyAI.isEnemyDead)
-                {
-                    PlaySpawnParticleClientRpc(spawnedEnemy.transform.position, false);
-                    if (enemyAI is NutcrackerEnemyAI nutcrackerEnemyAI && nutcrackerEnemyAI.gun != null)
-                    {
-                        SawTapesNetworkManager.Instance.DestroyObjectClientRpc(nutcrackerEnemyAI.gun.GetComponent<NetworkObject>());
-                    }
-                    spawnedEnemy.Despawn();
-                }
+                EnemySTManager.DespawnEnemy(spawnedEnemy);
             }
             return playerBehaviour.playerProperties.isPlayerDead;
         }
 
         [ClientRpc]
-        public void PlaySpawnParticleClientRpc(Vector3 position, bool isSpawn)
+        public void PlaySpawnParticleClientRpc(Vector3 position)
         {
-            if (isSpawn)
-            {
-                GameObject spawnObject = Instantiate(SawTapes.spawnParticle, position, Quaternion.identity);
-                spawnParticle = spawnObject.GetComponent<ParticleSystem>();
-            }
-            else
-            {
-                GameObject spawnObject = Instantiate(SawTapes.despawnParticle, position, Quaternion.identity);
-                despawnParticle = spawnObject.GetComponent<ParticleSystem>();
-                Destroy(spawnObject, despawnParticle.main.duration + despawnParticle.main.startLifetime.constantMax);
-            }
+            GameObject spawnObject = Instantiate(SawTapes.spawnParticle, position, Quaternion.identity);
+            spawnParticle = spawnObject.GetComponent<ParticleSystem>();
         }
     }
 }
