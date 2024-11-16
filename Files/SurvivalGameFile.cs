@@ -661,6 +661,44 @@ namespace SawTapes.Files
                 "      \"doors_names\": [\"AtDoorFrameDoor\", \"StDoorFrameDoorInterior\"],\n" +
                 "      \"weight\": 1,\n" +
                 "      \"hordes\": [\"Horde1_HauntedMansionTileTypeSize\", \"Horde2_HauntedMansionTileTypeSize\", \"Horde3_HauntedMansionTileTypeSize\", \"Horde4_HauntedMansionTileTypeSize\", \"Horde5_HauntedMansionTileTypeSize\"]\n" +
+                "    },\n" +
+                "    // Yavin IV\n" +
+                "    {\n" +
+                "      \"room_name\": \"LargeRoom\",\n" +
+                "      \"doors_names\": [\"DoorSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionLibrarySize\", \"Horde2_HauntedMansionLibrarySize\", \"Horde3_HauntedMansionLibrarySize\", \"Horde4_HauntedMansionLibrarySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"LargeRoom2\",\n" +
+                "      \"doors_names\": [\"DoorSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionLibrarySize\", \"Horde2_HauntedMansionLibrarySize\", \"Horde3_HauntedMansionLibrarySize\", \"Horde4_HauntedMansionLibrarySize\"]\n" +
+                "    },\n" +
+                "    // CastleGrounds\n" +
+                "    {\n" +
+                "      \"room_name\": \"HMCRoom\",\n" +
+                "      \"doors_names\": [\"DoorWoodSpawn\", \"DoorSlidingSpawn\", \"DoorMetalSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"BasementPaintingRoom1\",\n" +
+                "      \"doors_names\": [\"DoorWoodSpawn\", \"DoorSlidingSpawn\", \"DoorMetalSpawn\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionLibrarySize\", \"Horde2_HauntedMansionLibrarySize\", \"Horde3_HauntedMansionLibrarySize\", \"Horde4_HauntedMansionLibrarySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"MirrorRoom 1\",\n" +
+                "      \"doors_names\": [\"DoorWoodSpawn\", \"DoorSlidingSpawn\", \"DoorMetalSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionLibrarySize\", \"Horde2_HauntedMansionLibrarySize\", \"Horde3_HauntedMansionLibrarySize\", \"Horde4_HauntedMansionLibrarySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"UpperFloorHub\",\n" +
+                "      \"doors_names\": [\"DoorWoodSpawn\", \"DoorSlidingSpawn\", \"DoorMetalSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_HauntedMansionLibrarySize\", \"Horde2_HauntedMansionLibrarySize\", \"Horde3_HauntedMansionLibrarySize\", \"Horde4_HauntedMansionLibrarySize\"]\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}";

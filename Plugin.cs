@@ -21,7 +21,7 @@ namespace SawTapes
     {
         private const string modGUID = "Lega.SawTapes";
         private const string modName = "Saw Tapes";
-        private const string modVersion = "1.1.4";
+        private const string modVersion = "1.1.5";
 
         private readonly Harmony harmony = new Harmony(modGUID);
         private readonly static AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "sawtapes"));
@@ -114,8 +114,8 @@ namespace SawTapes
         {
             sawTapeValues = new List<SawTapeValue>
             {
-                new SawTapeValue(typeof(SurvivalTape), bundle.LoadAsset<Item>("Assets/SawTape/SurvivalTapeItem.asset"), ConfigManager.survivalRarity.Value, true),
-                new SawTapeValue(typeof(HuntingTape), bundle.LoadAsset<Item>("Assets/SawTape/HuntingTapeItem.asset"), ConfigManager.huntingRarity.Value, false)
+                new SawTapeValue(typeof(SurvivalTape), bundle.LoadAsset<Item>("Assets/SawTape/SurvivalTapeItem.asset"), ConfigManager.SurvivalRarity, true),
+                new SawTapeValue(typeof(HuntingTape), bundle.LoadAsset<Item>("Assets/SawTape/HuntingTapeItem.asset"), ConfigManager.HuntingRarity, false)
             };
 
             foreach (SawTapeValue sawTapeValue in sawTapeValues)

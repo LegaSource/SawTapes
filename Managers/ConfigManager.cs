@@ -27,6 +27,11 @@ namespace SawTapes
         public static ConfigEntry<float> huntingAura;
         public static ConfigEntry<string> huntingExclusions;
 
+        // Encapsulation des paramètres qui pourraient être modifiés
+        public static int SurvivalRarity => survivalRarity.Value;
+        public static int HuntingRarity => huntingRarity.Value;
+
+
         public static void Load()
         {
             // GLOBAL
