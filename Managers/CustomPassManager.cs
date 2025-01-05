@@ -2,15 +2,14 @@
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine;
 using System.Linq;
-using UnityEngine.ProBuilder;
 using System.Collections.Generic;
 
 namespace SawTapes.Managers
 {
     public class CustomPassManager : MonoBehaviour
     {
-        private static WallhackCustomPass wallhackPass;
-        private static CustomPassVolume customPassVolume;
+        public static WallhackCustomPass wallhackPass;
+        public static CustomPassVolume customPassVolume;
 
         public static CustomPassVolume CustomPassVolume
         {
@@ -37,7 +36,8 @@ namespace SawTapes.Managers
         {
             LayerMask wallhackLayer = 524288;
             List<Renderer> enemyRenderers = enemy.GetComponentsInChildren<Renderer>().Where(r => (wallhackLayer & (1 << r.gameObject.layer)) != 0).ToList();
-            if (enemyRenderers.Any(r => r.name.Contains("LOD"))) enemyRenderers.RemoveAll(r => !r.name.Contains("LOD"));
+            if (enemyRenderers.Any(r => r.name.Contains("LOD")))
+                enemyRenderers.RemoveAll(r => !r.name.Contains("LOD"));
 
             if (enemyRenderers == null || enemyRenderers.Count == 0)
             {
@@ -45,6 +45,24 @@ namespace SawTapes.Managers
                 return;
             }
 
+            SetupCustomPass(enemyRenderers.ToArray());
+        }
+
+        public static void SetupCustomPassForObject(GrabbableObject grabbableObject)
+        {
+            List<Renderer> objectRenderers = grabbableObject.GetComponentsInChildren<Renderer>().ToList();
+
+            if (objectRenderers == null || objectRenderers.Count == 0)
+            {
+                SawTapes.mls.LogError($"No renderer could be found on {grabbableObject.itemProperties.itemName}.");
+                return;
+            }
+
+            SetupCustomPass(objectRenderers.ToArray());
+        }
+
+        public static void SetupCustomPass(Renderer[] renderers)
+        {
             if (CustomPassVolume == null)
             {
                 SawTapes.mls.LogError("CustomPassVolume is not assigned.");
@@ -58,12 +76,9 @@ namespace SawTapes.Managers
                 return;
             }
 
-            wallhackPass.SetTargetRenderers(enemyRenderers.ToArray(), SawTapes.wallhackShader);
+            wallhackPass.SetTargetRenderers(renderers, SawTapes.wallhackShader);
         }
 
-        public static void RemoveAura()
-        {
-            wallhackPass?.ClearTargetRenderers();
-        }
+        public static void RemoveAura() => wallhackPass?.ClearTargetRenderers();
     }
 }

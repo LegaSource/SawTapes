@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace SawTapes.Behaviours
+namespace SawTapes.Behaviours.Items
 {
     public class ReverseBearTrap : PhysicsProp
     {
@@ -15,9 +15,8 @@ namespace SawTapes.Behaviours
 
             scanNodeCollider = GetComponentsInChildren<BoxCollider>().FirstOrDefault(c => c.gameObject.name.Equals("ScanNode"));
             if (scanNodeCollider == null)
-            {
                 SawTapes.mls.LogWarning("The scan node collider could not be found for Reverse Bear Trap.");
-            }
+
             SetCarriedState(true);
         }
 
@@ -34,19 +33,13 @@ namespace SawTapes.Behaviours
                     {
                         transform.rotation = parentObject.rotation;
                         if (GameNetworkManager.Instance.localPlayerController == player)
-                        {
                             transform.position = parentObject.TransformPoint(Vector3.down * 0.17f);
-                        }
                         else
-                        {
                             transform.position = parentObject.TransformPoint(Vector3.up * 0.01f);
-                        }
                     }
                 }
                 if (radarIcon != null)
-                {
                     radarIcon.position = transform.position;
-                }
             }
             else
             {

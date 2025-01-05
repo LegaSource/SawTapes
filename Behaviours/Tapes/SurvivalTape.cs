@@ -1,5 +1,4 @@
-﻿using GameNetcodeStuff;
-using SawTapes.Files;
+﻿using SawTapes.Files;
 using SawTapes.Managers;
 using SawTapes.Values;
 using System.Collections;
@@ -8,63 +7,58 @@ using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace SawTapes.Behaviours
+namespace SawTapes.Behaviours.Tapes
 {
     public class SurvivalTape : SawTape
     {
         public ParticleSystem spawnParticle;
         public bool wasCampingLastSecond = false;
-        public Horde activeHorde;
-        List<NetworkObject> spawnedEnemies = new List<NetworkObject>();
+        public SurvivalHorde activeHorde;
+        public List<NetworkObject> spawnedEnemies = new List<NetworkObject>();
 
         public override void Start()
         {
             base.Start();
+
             InstantiateAndAttachAudio(SawTapes.sawRecordingSurvival);
             subtitlesGame = SubtitleFile.survivalGameSubtitles;
         }
 
-        public override void ExecutePreGameAction(PlayerSTBehaviour playerBehaviour)
+        public override void ExecutePreGameActionForServer(PlayerSTBehaviour playerBehaviour)
         {
-            Room room = SawTapes.rooms.FirstOrDefault(r => playerBehaviour.tileGame.name.Contains(r.RoomName));
+            SurvivalRoom room = SawTapes.rooms.FirstOrDefault(r => playerBehaviour.tileGame.name.Equals(r.RoomName));
 
-            List<Horde> validHordes = room.Hordes.Where(h => h.MinHour <= TimeOfDay.Instance.hour && h.MaxHour >= TimeOfDay.Instance.hour).ToList();
+            List<SurvivalHorde> validHordes = room.Hordes.Where(h => h.MinHour <= TimeOfDay.Instance.hour && h.MaxHour >= TimeOfDay.Instance.hour).ToList();
             if (validHordes.Count > 0)
-            {
                 activeHorde = validHordes[new System.Random().Next(validHordes.Count)];
-            }
             else
-            {
                 activeHorde = room.Hordes[new System.Random().Next(room.Hordes.Count)];
-            }
+
             gameDuration = activeHorde.GameDuration;
             billyValue = activeHorde.BillyValue;
         }
 
-        public override bool DoGame(PlayerSTBehaviour playerBehaviour, int iterator)
+        public override bool DoGameForServer(int iterator)
         {
-            if (playerBehaviour.playerProperties.isPlayerDead)
-            {
-                return false;
-            }
+            if (mainPlayer.isPlayerDead) return false;
+
             if (activeHorde.EnemiesSpawn.TryGetValue(iterator, out EnemyType enemyType) && enemyType != null)
-            {
-                StartCoroutine(SpawnEnemyCoroutine(enemyType, playerBehaviour, spawnedEnemies));
-            }
+                StartCoroutine(SpawnEnemyCoroutine(enemyType, spawnedEnemies));
+
             bool isFirst = true;
             foreach (NetworkObject spawnedEnemy in spawnedEnemies.Where(s => s.IsSpawned))
             {
-                EnemyAI enemyAI = spawnedEnemy.GetComponentInChildren<EnemyAI>();
-                if (enemyAI != null
-                    && enemyAI.thisNetworkObject != null
-                    && enemyAI.thisNetworkObject.IsSpawned
-                    && !enemyAI.isEnemyDead)
+                EnemyAI enemy = spawnedEnemy.GetComponentInChildren<EnemyAI>();
+                if (enemy != null
+                    && enemy.thisNetworkObject != null
+                    && enemy.thisNetworkObject.IsSpawned
+                    && !enemy.isEnemyDead)
                 {
-                    SetEnemyFocusClientRpc((int)playerBehaviour.playerProperties.playerClientId, spawnedEnemy);
+                    SetEnemyFocusClientRpc(spawnedEnemy);
                     // Vérification si le joueur campe - on vérifie si le path est accessible avec un seul ennemi
                     if (ConfigManager.penalizePlayerWhoCamp.Value && isFirst)
                     {
-                        PenalizePlayerWhoCamp(playerBehaviour, enemyAI, spawnedEnemies);
+                        PenalizePlayerWhoCamp(enemy, spawnedEnemies);
                         isFirst = false;
                     }
                 }
@@ -72,9 +66,9 @@ namespace SawTapes.Behaviours
             return true;
         }
 
-        public IEnumerator SpawnEnemyCoroutine(EnemyType enemyType, PlayerSTBehaviour playerBehaviour, List<NetworkObject> spawnedEnemies)
+        public IEnumerator SpawnEnemyCoroutine(EnemyType enemyType, List<NetworkObject> spawnedEnemies)
         {
-            Vector3 spawnPosition = TileSTManager.GetRandomNavMeshPositionInTile(ref playerBehaviour);
+            Vector3 spawnPosition = TileSTManager.GetRandomNavMeshPositionInTile(mainPlayer.GetComponent<PlayerSTBehaviour>());
             PlaySpawnParticleClientRpc(spawnPosition);
 
             yield return new WaitUntil(() => !spawnParticle.isPlaying);
@@ -85,26 +79,24 @@ namespace SawTapes.Behaviours
         }
 
         [ClientRpc]
-        public void SetEnemyFocusClientRpc(int playerId, NetworkObjectReference enemyObject)
+        public void SetEnemyFocusClientRpc(NetworkObjectReference enemyObject)
         {
-            PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[playerId];
             if (enemyObject.TryGet(out NetworkObject networkObject))
-            {
-                networkObject.GetComponentInChildren<EnemyAI>().SetMovingTowardsTargetPlayer(player);
-            }
+                networkObject.GetComponentInChildren<EnemyAI>().SetMovingTowardsTargetPlayer(mainPlayer);
         }
 
-        public void PenalizePlayerWhoCamp(PlayerSTBehaviour playerBehaviour, EnemyAI enemy, List<NetworkObject> spawnedEnemies)
+        public void PenalizePlayerWhoCamp(EnemyAI enemy, List<NetworkObject> spawnedEnemies)
         {
-            if (!enemy.agent.CalculatePath(playerBehaviour.playerProperties.transform.position, enemy.path1))
+            if (!enemy.agent.CalculatePath(mainPlayer.transform.position, enemy.path1))
             {
                 if (wasCampingLastSecond)
                 {
+                    PlayerSTBehaviour playerBehaviour = mainPlayer.GetComponent<PlayerSTBehaviour>();
                     playerBehaviour.campTime++;
                     if (playerBehaviour.campTime == ConfigManager.campDuration.Value)
                     {
                         EnemyType enemyType = SawTapes.allEnemies.FirstOrDefault(e => !e.ToString().Contains("Outside") && e.enemyName.Equals("Nutcracker"));
-                        StartCoroutine(SpawnEnemyCoroutine(enemyType, playerBehaviour, spawnedEnemies));
+                        StartCoroutine(SpawnEnemyCoroutine(enemyType, spawnedEnemies));
                     }
                 }
                 wasCampingLastSecond = true;
@@ -115,13 +107,11 @@ namespace SawTapes.Behaviours
             }
         }
 
-        public override bool ExecutePreEndGameAction(PlayerSTBehaviour playerBehaviour)
+        public override bool ExecutePreEndGameActionForServer(bool isGameCancelled)
         {
             foreach (NetworkObject spawnedEnemy in spawnedEnemies.Where(s => s.IsSpawned))
-            {
                 EnemySTManager.DespawnEnemy(spawnedEnemy);
-            }
-            return playerBehaviour.playerProperties.isPlayerDead;
+            return mainPlayer.isPlayerDead;
         }
 
         [ClientRpc]

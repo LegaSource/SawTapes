@@ -28,9 +28,7 @@ namespace SawTapes.Patches
             // Remplir les objets pour le déroulement du mini-jeu
             SawTapes.allEnemies.Clear();
             foreach (EnemyType enemyType in Resources.FindObjectsOfTypeAll<EnemyType>().Where(e => e?.enemyPrefab != null && e.enemyPrefab.TryGetComponent<EnemyAI>(out var enemyAI) && enemyAI != null).Distinct())
-            {
                 SawTapes.allEnemies.Add(enemyType);
-            }
             SurvivalGameFile.LoadJSON();
             SubtitleFile.LoadJSON();
         }
@@ -44,9 +42,7 @@ namespace SawTapes.Patches
         private static void PlayerConnection(ref StartOfRound __instance)
         {
             foreach (PlayerControllerB player in __instance.allPlayerScripts)
-            {
                 PlayerSTManager.AddPlayerBehaviour(player);
-            }
         }
     }
 }

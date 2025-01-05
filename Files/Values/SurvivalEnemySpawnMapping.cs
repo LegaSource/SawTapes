@@ -2,7 +2,7 @@
 
 namespace SawTapes.Files.Values
 {
-    public class EnemySpawnMapping
+    public class SurvivalEnemySpawnMapping
     {
         [JsonProperty("enemy")]
         public string Enemy { get; internal set; }

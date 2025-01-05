@@ -16,12 +16,22 @@ namespace SawTapes.Managers
         public void SetGenerateGameTileClientRpc(bool enable) => DungeonPatch.isGenerateTileGame = enable;
 
         [ClientRpc]
-        public void SpawnTapeParticleClientRpc(NetworkObjectReference obj)
+        public void SetScrapValueClientRpc(NetworkObjectReference obj, int value)
         {
             if (obj.TryGet(out var networkObject))
             {
                 GrabbableObject grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
-                TapeSTManager.SpawnTapeParticle(ref grabbableObject);
+                grabbableObject.SetScrapValue(value);
+            }
+        }
+
+        [ClientRpc]
+        public void SpawnBlackParticleClientRpc(NetworkObjectReference obj)
+        {
+            if (obj.TryGet(out var networkObject))
+            {
+                GrabbableObject grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
+                ObjectSTManager.SpawnBlackParticle(grabbableObject);
             }
         }
 
@@ -29,42 +39,40 @@ namespace SawTapes.Managers
         public void TapeSearchServerRpc(int playerId)
         {
             if (TapeSTManager.tapeSearchCoroutine != null)
-            {
                 StopCoroutine(TapeSTManager.tapeSearchCoroutine);
-            }
             TapeSTManager.tapeSearchCoroutine = StartCoroutine(TapeSTManager.TapeSearchCoroutine(playerId));
         }
 
         [ClientRpc]
-        public void UnlockDoorsClientRpc(int playerId)
+        public void OpenTileDoorsClientRpc(int playerId)
         {
-            TileSTBehaviour tileSTBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>().tileGame?.GetComponent<TileSTBehaviour>();
-            TileSTManager.UnlockDoors(ref tileSTBehaviour);
+            PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
+            TileSTManager.OpenTileDoors(playerBehaviour);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void ChangeTapePositionServerRpc(NetworkObjectReference obj, Vector3 position) => ChangeTapePositionClientRpc(obj, position);
+        public void ChangeObjectPositionServerRpc(NetworkObjectReference obj, Vector3 position) => ChangeObjectPositionClientRpc(obj, position);
 
         [ClientRpc]
-        public void ChangeTapePositionClientRpc(NetworkObjectReference obj, Vector3 position)
+        public void ChangeObjectPositionClientRpc(NetworkObjectReference obj, Vector3 position)
         {
             if (obj.TryGet(out var networkObject))
             {
                 GrabbableObject grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
-                TapeSTManager.ChangeTapePosition(ref grabbableObject, position);
+                ObjectSTManager.ChangeObjectPosition(grabbableObject, position);
             }
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void EnableParticleServerRpc(NetworkObjectReference obj, bool enable) => EnableParticleClientRpc(obj, enable);
+        public void EnableBlackParticleServerRpc(NetworkObjectReference obj, bool enable) => EnableBlackParticleClientRpc(obj, enable);
 
         [ClientRpc]
-        public void EnableParticleClientRpc(NetworkObjectReference obj, bool enable)
+        public void EnableBlackParticleClientRpc(NetworkObjectReference obj, bool enable)
         {
             if (obj.TryGet(out var networkObject))
             {
                 GrabbableObject grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
-                TapeSTManager.EnableParticle(grabbableObject, enable);
+                ObjectSTManager.EnableBlackParticle(grabbableObject, enable);
             }
         }
 
@@ -93,16 +101,14 @@ namespace SawTapes.Managers
         {
             PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
             if (player == GameNetworkManager.Instance.localPlayerController)
-            {
                 player.KillPlayer(velocity, spawnBody, (CauseOfDeath)causeOfDeath);
-            }
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnSawKeyServerRpc(Vector3 position) => RoundManagerPatch.SpawnItem(ref SawTapes.sawKeyObj, position);
+        public void SpawnSawKeyServerRpc(Vector3 position) => RoundManagerPatch.SpawnItem(SawTapes.sawKeyObj, position);
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnPursuerEyeServerRpc(Vector3 position) => RoundManagerPatch.SpawnItem(ref SawTapes.pursuerEyeObj, position);
+        public void SpawnPursuerEyeServerRpc(Vector3 position) => RoundManagerPatch.SpawnItem(SawTapes.pursuerEyeObj, position);
 
         [ClientRpc]
         public void PlayDespawnParticleClientRpc(Vector3 position)
@@ -110,6 +116,22 @@ namespace SawTapes.Managers
             GameObject spawnObject = Instantiate(SawTapes.despawnParticle, position, Quaternion.identity);
             ParticleSystem despawnParticle = spawnObject.GetComponent<ParticleSystem>();
             Destroy(spawnObject, despawnParticle.main.duration + despawnParticle.main.startLifetime.constantMax);
+        }
+
+        [ClientRpc]
+        public void SpawnPathParticleClientRpc(Vector3 leftPosition, Vector3 rightPosition, int[] playerIds)
+        {
+            if (GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer) return;
+
+            foreach (int playerId in playerIds)
+            {
+                PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+                if (GameNetworkManager.Instance.localPlayerController == player)
+                {
+                    SawGameSTManager.SpawnPathParticle(leftPosition);
+                    SawGameSTManager.SpawnPathParticle(rightPosition);
+                }
+            }
         }
     }
 }

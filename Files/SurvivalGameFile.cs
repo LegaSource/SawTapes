@@ -27,7 +27,7 @@ namespace SawTapes.Files
                 "        { \"enemy\": \"Bunker Spider\", \"time\": 10 },\n" +
                 "        { \"enemy\": \"Bunker Spider\", \"time\": 20 },\n" +
                 "        { \"enemy\": \"Crawler\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Bunker Spider\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -39,10 +39,11 @@ namespace SawTapes.Files
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Flowerman\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Crawler\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Blob\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 25 },\n" +
                 "        { \"enemy\": \"Flowerman\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Blob\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -52,12 +53,28 @@ namespace SawTapes.Files
                 "      \"min_hour\": 1,\n" +
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Bunker Spider\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Bunker Spider\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde4_FacilitySize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 40 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -69,10 +86,8 @@ namespace SawTapes.Files
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Spring\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 40 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -83,11 +98,10 @@ namespace SawTapes.Files
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Flowerman\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 40 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -99,9 +113,8 @@ namespace SawTapes.Files
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Spring\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Spring\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 35 },\n" +
                 "        { \"enemy\": \"Blob\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
@@ -114,11 +127,9 @@ namespace SawTapes.Files
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Flowerman\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 30 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Blob\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -155,10 +166,10 @@ namespace SawTapes.Files
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Bunker Spider\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 5 },\n" +
                 "        { \"enemy\": \"Blob\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Hoarding bug\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 40 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -170,13 +181,11 @@ namespace SawTapes.Files
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Hoarding bug\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Hoarding bug\", \"time\": 5 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Hoarding bug\", \"time\": 15 },\n" +
-                "        { \"enemy\": \"Hoarding bug\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Hoarding bug\", \"time\": 25 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Hoarding bug\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Hoarding bug\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 40 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -186,13 +195,11 @@ namespace SawTapes.Files
                 "      \"min_hour\": 1,\n" +
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 15 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 40 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -205,8 +212,7 @@ namespace SawTapes.Files
                 "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
                 "        { \"enemy\": \"Clay Surgeon\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -218,11 +224,8 @@ namespace SawTapes.Files
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Bunker Spider\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 5 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 25 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 30 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 25 },\n" +
                 "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
@@ -235,11 +238,11 @@ namespace SawTapes.Files
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Hoarding bug\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Hoarding bug\", \"time\": 5 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Hoarding bug\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 25 },\n" +
-                "        { \"enemy\": \"Hoarding bug\", \"time\": 30 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 35 },\n" +
                 "        { \"enemy\": \"Hoarding bug\", \"time\": 40 },\n" +
                 "        { \"enemy\": \"Hoarding bug\", \"time\": 45 }\n" +
                 "      ]\n" +
@@ -254,10 +257,10 @@ namespace SawTapes.Files
                 "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Masked\", \"time\": 5 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Clay Surgeon\", \"time\": 15 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Spring\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 35 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -267,13 +270,16 @@ namespace SawTapes.Files
                 "      \"min_hour\": 1,\n" +
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 30 },\n" +
-                "        { \"enemy\": \"Spring\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -283,16 +289,14 @@ namespace SawTapes.Files
                 "      \"min_hour\": 1,\n" +
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 5 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 15 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Baboon hawk\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 20 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 30 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Baboon hawk\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 40 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -302,14 +306,16 @@ namespace SawTapes.Files
                 "      \"min_hour\": 1,\n" +
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"MouthDog\", \"time\": 5 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"MouthDog\", \"time\": 15 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 30 },\n" +
-                "        { \"enemy\": \"MouthDog\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"MouthDog\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Nutcracker\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -322,11 +328,11 @@ namespace SawTapes.Files
                 "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Clay Surgeon\", \"time\": 5 },\n" +
                 "        { \"enemy\": \"Clay Surgeon\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Clay Surgeon\", \"time\": 15 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 30 },\n" +
                 "        { \"enemy\": \"Clay Surgeon\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Clay Surgeon\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Clay Surgeon\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 40 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -337,13 +343,15 @@ namespace SawTapes.Files
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 5 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 15 },\n" +
-                "        { \"enemy\": \"Bunker Spider\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Bunker Spider\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 30 },\n" +
                 "        { \"enemy\": \"Masked\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Masked\", \"time\": 40 }\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -353,16 +361,14 @@ namespace SawTapes.Files
                 "      \"min_hour\": 1,\n" +
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 5 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Baboon hawk\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 15 },\n" +
                 "        { \"enemy\": \"MouthDog\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 25 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 30 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Puffer\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Baboon hawk\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 40 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -372,16 +378,46 @@ namespace SawTapes.Files
                 "      \"min_hour\": 1,\n" +
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"MouthDog\", \"time\": 5 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"MouthDog\", \"time\": 15 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 25 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 30 },\n" +
-                "        { \"enemy\": \"MouthDog\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde_WarehouseSizeOutside\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"ForestGiant\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"MouthDog\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"ForestGiant\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Baboon hawk\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde_WarehouseSizeBlackMesa\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -392,11 +428,10 @@ namespace SawTapes.Files
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Bunker Spider\", \"time\": 5 },\n" +
                 "        { \"enemy\": \"Bunker Spider\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 25 },\n" +
-                "        { \"enemy\": \"Bunker Spider\", \"time\": 35 },\n" +
-                "        { \"enemy\": \"Crawler\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 30 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 40 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -407,7 +442,7 @@ namespace SawTapes.Files
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Blob\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 5 },\n" +
                 "        { \"enemy\": \"Blob\", \"time\": 10 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 30 },\n" +
                 "        { \"enemy\": \"Blob\", \"time\": 40 }\n" +
@@ -420,11 +455,10 @@ namespace SawTapes.Files
                 "      \"min_hour\": 1,\n" +
                 "      \"max_hour\": 18,\n" +
                 "      \"enemies_spawn\": [\n" +
-                "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 10 },\n" +
                 "        { \"enemy\": \"Blob\", \"time\": 20 },\n" +
-                "        { \"enemy\": \"Nutcracker\", \"time\": 40 },\n" +
-                "        { \"enemy\": \"Clay Surgeon\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 35 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -436,10 +470,10 @@ namespace SawTapes.Files
                 "      \"enemies_spawn\": [\n" +
                 "        { \"enemy\": \"Bunker Spider\", \"time\": 0 },\n" +
                 "        { \"enemy\": \"Nutcracker\", \"time\": 10 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 15 },\n" +
-                "        { \"enemy\": \"Bunker Spider\", \"time\": 25 },\n" +
-                "        { \"enemy\": \"Flowerman\", \"time\": 30 },\n" +
-                "        { \"enemy\": \"Bunker Spider\", \"time\": 45 }\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 45 }\n" +
                 "      ]\n" +
                 "    },\n" +
                 "    {\n" +
@@ -466,6 +500,78 @@ namespace SawTapes.Files
                 "        { \"enemy\": \"Nutcracker\", \"time\": 5 },\n" +
                 "        { \"enemy\": \"Blob\", \"time\": 35 }\n" +
                 "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde1_LittleRoomWithoutCoverSize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Clay Surgeon\", \"time\": 40 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde2_LittleRoomWithoutCoverSize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 35 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde3_LittleRoomWithoutCoverSize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Crawler\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Bunker Spider\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Blob\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde4_LittleRoomWithoutCoverSize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 5 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 25 },\n" +
+                "        { \"enemy\": \"Spring\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 40 },\n" +
+                "        { \"enemy\": \"Hoarding bug\", \"time\": 45 }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"horde_name\": \"Horde5_LittleRoomWithoutCoverSize\",\n" +
+                "      \"game_duration\": 60,\n" +
+                "      \"billy_value\": 120,\n" +
+                "      \"min_hour\": 1,\n" +
+                "      \"max_hour\": 18,\n" +
+                "      \"enemies_spawn\": [\n" +
+                "        { \"enemy\": \"Masked\", \"time\": 0 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 10 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 15 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 20 },\n" +
+                "        { \"enemy\": \"Flowerman\", \"time\": 35 },\n" +
+                "        { \"enemy\": \"Puffer\", \"time\": 45 }\n" +
+                "      ]\n" +
                 "    }\n" +
                 "  ],\n" +
                 "  \"rooms\": [\n" +
@@ -474,19 +580,19 @@ namespace SawTapes.Files
                 "      \"room_name\": \"4x4BigStairTile\",\n" +
                 "      \"doors_names\": [\"SteelDoorMapSpawn\"],\n" +
                 "      \"weight\": 2,\n" +
-                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"4x4ServerRoomTile\",\n" +
                 "      \"doors_names\": [\"SteelDoorMapSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"MediumRoomHallway1B\",\n" +
                 "      \"doors_names\": [\"SteelDoorMapSpawn\"],\n" +
                 "      \"weight\": 2,\n" +
-                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
                 "    },\n" +
                 "    // Haunted Mansion\n" +
                 "    {\n" +
@@ -512,7 +618,7 @@ namespace SawTapes.Files
                 "      \"room_name\": \"GFC_FlagRoom\",\n" +
                 "      \"doors_names\": [\"GuardiaDoorSpawn\"],\n" +
                 "      \"weight\": 2,\n" +
-                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\"]\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\", \"Horde_WarehouseSizeOutside\"]\n" +
                 "    },\n" +
                 "    // Nali Haven\n" +
                 "    {\n" +
@@ -525,7 +631,7 @@ namespace SawTapes.Files
                 "      \"room_name\": \"NHEntryRoom2\",\n" +
                 "      \"doors_names\": [\"HavenDoorSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\"]\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\", \"Horde_WarehouseSizeOutside\"]\n" +
                 "    },\n" +
                 "    // Skaarj Outpost\n" +
                 "    {\n" +
@@ -552,7 +658,7 @@ namespace SawTapes.Files
                 "      \"room_name\": \"GMFountainHall\",\n" +
                 "      \"doors_names\": [\"GothicDoorSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "      \"hordes\": [\"Horde1_LittleRoomWithoutCoverSize\", \"Horde2_LittleRoomWithoutCoverSize\", \"Horde3_LittleRoomWithoutCoverSize\", \"Horde4_LittleRoomWithoutCoverSize\", \"Horde5_LittleRoomWithoutCoverSize\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"GMStep8Way\",\n" +
@@ -571,13 +677,13 @@ namespace SawTapes.Files
                 "      \"room_name\": \"RoomOfVerticality\",\n" +
                 "      \"doors_names\": [\"SciFiDoorSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\"]\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\", \"Horde_WarehouseSizeOutside\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"MegaEnergyStorage\",\n" +
                 "      \"doors_names\": [\"SciFiDoorSpawn\"],\n" +
                 "      \"weight\": 2,\n" +
-                "      \"hordes\": [\"Horde1_WarehouseSizeWithCover\", \"Horde2_WarehouseSizeWithCover\", \"Horde3_WarehouseSizeWithCover\", \"Horde4_WarehouseSizeWithCover\"]\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithCover\", \"Horde2_WarehouseSizeWithCover\", \"Horde3_WarehouseSizeWithCover\", \"Horde4_WarehouseSizeWithCover\", \"Horde_WarehouseSizeOutside\"]\n" +
                 "    },\n" +
                 "    // Devil Mansion\n" +
                 "    {\n" +
@@ -609,7 +715,13 @@ namespace SawTapes.Files
                 "      \"room_name\": \"TypicalRoom\",\n" +
                 "      \"doors_names\": [\"ConnectorDoor\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"UnremarkableRoom\",\n" +
+                "      \"doors_names\": [\"ConnectorDoor\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
                 "    },\n" +
                 "    // Niven Reactor\n" +
                 "    {\n" +
@@ -622,14 +734,14 @@ namespace SawTapes.Files
                 "      \"room_name\": \"NIVC_MegaConnectorRoom\",\n" +
                 "      \"doors_names\": [\"NIV_DoorSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
                 "    },\n" +
                 "    // The Rubber Rooms\n" +
                 "    {\n" +
                 "      \"room_name\": \"RubberRRRRRRRRRRoom\",\n" +
                 "      \"doors_names\": [\"DoorFrameDoor\"],\n" +
                 "      \"weight\": 4,\n" +
-                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
                 "    },\n" +
                 "    // Toy Store\n" +
                 "    {\n" +
@@ -680,7 +792,7 @@ namespace SawTapes.Files
                 "      \"room_name\": \"HMCRoom\",\n" +
                 "      \"doors_names\": [\"DoorWoodSpawn\", \"DoorSlidingSpawn\", \"DoorMetalSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
-                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\"]\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"room_name\": \"BasementPaintingRoom1\",\n" +
@@ -699,6 +811,152 @@ namespace SawTapes.Files
                 "      \"doors_names\": [\"DoorWoodSpawn\", \"DoorSlidingSpawn\", \"DoorMetalSpawn\"],\n" +
                 "      \"weight\": 1,\n" +
                 "      \"hordes\": [\"Horde1_HauntedMansionLibrarySize\", \"Horde2_HauntedMansionLibrarySize\", \"Horde3_HauntedMansionLibrarySize\", \"Horde4_HauntedMansionLibrarySize\"]\n" +
+                "    },\n" +
+                "    // CircusFacility\n" +
+                "    {\n" +
+                "      \"room_name\": \"Circus_4x4BigStairTile\",\n" +
+                "      \"doors_names\": [\"CircusDoorMapSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"Circus_MediumRoomHallway1B\",\n" +
+                "      \"doors_names\": [\"CircusDoorMapSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
+                "    },\n" +
+                "    // Liminal Pool Rooms\n" +
+                "    {\n" +
+                "      \"room_name\": \"DoublePoolsRoom\",\n" +
+                "      \"doors_names\": [\"SpawnDoorObjectThingy\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_MediumLibrarySize\", \"Horde2_MediumLibrarySize\", \"Horde3_MediumLibrarySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"TheBiggestOne\",\n" +
+                "      \"doors_names\": [\"SpawnDoorObjectThingy\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"ThatOneStaircaseRoom\",\n" +
+                "      \"doors_names\": [\"SpawnDoorObjectThingy\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_LittleRoomWithoutCoverSize\", \"Horde2_LittleRoomWithoutCoverSize\", \"Horde3_LittleRoomWithoutCoverSize\", \"Horde4_LittleRoomWithoutCoverSize\", \"Horde5_LittleRoomWithoutCoverSize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"TheRoomRoom\",\n" +
+                "      \"doors_names\": [\"SpawnDoorObjectThingy\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\"]\n" +
+                "    },\n" +
+                //"    // Museum\n" +
+                //"    {\n" +
+                //"      \"room_name\": \"MuseumRoom2\",\n" +
+                //"      \"doors_names\": [\"Door0Spawn\", \"Door1Spawn\"],\n" +
+                //"      \"weight\": 1,\n" +
+                //"      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
+                //"    },\n" +
+                //"    // Mausoleum\n" +
+                //"    {\n" +
+                //"      \"room_name\": \"MausoleumStart\",\n" +
+                //"      \"doors_names\": [\"Door2Spawn\", \"Door3Spawn\"],\n" +
+                //"      \"weight\": 1,\n" +
+                //"      \"hordes\": [\"Horde1_LittleRoomWithoutCoverSize\", \"Horde2_LittleRoomWithoutCoverSize\", \"Horde3_LittleRoomWithoutCoverSize\", \"Horde4_LittleRoomWithoutCoverSize\", \"Horde5_LittleRoomWithoutCoverSize\"]\n" +
+                //"    },\n" +
+                //"    {\n" +
+                //"      \"room_name\": \"MausoleumRoom1\",\n" +
+                //"      \"doors_names\": [\"Door2Spawn\", \"Door3Spawn\"],\n" +
+                //"      \"weight\": 2,\n" +
+                //"      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
+                //"    },\n" +
+                "    // Slaughterhouse\n" +
+                "    {\n" +
+                "      \"room_name\": \"PigStyRoom\",\n" +
+                "      \"doors_names\": [\"SlaughterhouseDoorMapSpawn\", \"SlaughterhouseDoorMapSpawn2\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_LittleRoomWithoutCoverSize\", \"Horde2_LittleRoomWithoutCoverSize\", \"Horde3_LittleRoomWithoutCoverSize\", \"Horde4_LittleRoomWithoutCoverSize\", \"Horde5_LittleRoomWithoutCoverSize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"GrinderRoom\",\n" +
+                "      \"doors_names\": [\"SlaughterhouseDoorMapSpawn\", \"SlaughterhouseDoorMapSpawn2\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
+                "    },\n" +
+                "    // Blue Mines\n" +
+                "    {\n" +
+                "      \"room_name\": \"Blue_FactoryFloor1\",\n" +
+                "      \"doors_names\": [\"BlueDoor_Spawner\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_LittleRoomWithoutCoverSize\", \"Horde2_LittleRoomWithoutCoverSize\", \"Horde3_LittleRoomWithoutCoverSize\", \"Horde4_LittleRoomWithoutCoverSize\", \"Horde5_LittleRoomWithoutCoverSize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"Blue_FactoryFloor3\",\n" +
+                "      \"doors_names\": [\"BlueDoor_Spawner\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_LittleRoomWithoutCoverSize\", \"Horde2_LittleRoomWithoutCoverSize\", \"Horde3_LittleRoomWithoutCoverSize\", \"Horde4_LittleRoomWithoutCoverSize\", \"Horde5_LittleRoomWithoutCoverSize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"Blue_FactoryFloor4\",\n" +
+                "      \"doors_names\": [\"BlueDoor_Spawner\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_LittleRoomWithoutCoverSize\", \"Horde2_LittleRoomWithoutCoverSize\", \"Horde3_LittleRoomWithoutCoverSize\", \"Horde4_LittleRoomWithoutCoverSize\", \"Horde5_LittleRoomWithoutCoverSize\"]\n" +
+                "    },\n" +
+                "    // Gray Apartments\n" +
+                "    {\n" +
+                "      \"room_name\": \"GrayApparatusRoom\",\n" +
+                "      \"doors_names\": [\"GrayDoor_Spawner\", \"GrayDoubleDoor_Spawner\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"GrayOfficePowerRoom\",\n" +
+                "      \"doors_names\": [\"GrayDoor_Spawner\", \"GrayDoubleDoor_Spawner\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
+                "    },\n" +
+                "    // Black Mesa\n" +
+                "    {\n" +
+                "      \"room_name\": \"Quarantine 4 Door Complex Room\",\n" +
+                "      \"doors_names\": [\"QuarantineDoorMapSpawn\", \"DoubleGreyDoorMapSpawn\", \"SingleMetalDoorMapSpawn\", \"DoubleGlassSlidingDoorMainSpawn\", \"LabSingleDoorMapSpawn\", \"LabDoubleDoorMapSpawn\", \"DoubleRedDoorMapSpawn\", \"SingleRedDoorMapSpawn\", \"SingleGlassSlidingDoorResonanceSpawn\", \"DoubleGlassSlidingDoorResonanceSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"Military Storage Room 2\",\n" +
+                "      \"doors_names\": [\"QuarantineDoorMapSpawn\", \"DoubleGreyDoorMapSpawn\", \"SingleMetalDoorMapSpawn\", \"DoubleGlassSlidingDoorMainSpawn\", \"LabSingleDoorMapSpawn\", \"LabDoubleDoorMapSpawn\", \"DoubleRedDoorMapSpawn\", \"SingleRedDoorMapSpawn\", \"SingleGlassSlidingDoorResonanceSpawn\", \"DoubleGlassSlidingDoorResonanceSpawn\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\", \"Horde_WarehouseSizeBlackMesa\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"Military Cafeteria\",\n" +
+                "      \"doors_names\": [\"QuarantineDoorMapSpawn\", \"DoubleGreyDoorMapSpawn\", \"SingleMetalDoorMapSpawn\", \"DoubleGlassSlidingDoorMainSpawn\", \"LabSingleDoorMapSpawn\", \"LabDoubleDoorMapSpawn\", \"DoubleRedDoorMapSpawn\", \"SingleRedDoorMapSpawn\", \"SingleGlassSlidingDoorResonanceSpawn\", \"DoubleGlassSlidingDoorResonanceSpawn\"],\n" +
+                "      \"weight\": 3,\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\", \"Horde_WarehouseSizeBlackMesa\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"Military Storage Room Large\",\n" +
+                "      \"doors_names\": [\"QuarantineDoorMapSpawn\", \"DoubleGreyDoorMapSpawn\", \"SingleMetalDoorMapSpawn\", \"DoubleGlassSlidingDoorMainSpawn\", \"LabSingleDoorMapSpawn\", \"LabDoubleDoorMapSpawn\", \"DoubleRedDoorMapSpawn\", \"SingleRedDoorMapSpawn\", \"SingleGlassSlidingDoorResonanceSpawn\", \"DoubleGlassSlidingDoorResonanceSpawn\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithoutCover\", \"Horde2_WarehouseSizeWithoutCover\", \"Horde3_WarehouseSizeWithoutCover\", \"Horde4_WarehouseSizeWithoutCover\", \"Horde_WarehouseSizeBlackMesa\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"Office Super Complex\",\n" +
+                "      \"doors_names\": [\"QuarantineDoorMapSpawn\", \"DoubleGreyDoorMapSpawn\", \"SingleMetalDoorMapSpawn\", \"DoubleGlassSlidingDoorMainSpawn\", \"LabSingleDoorMapSpawn\", \"LabDoubleDoorMapSpawn\", \"DoubleRedDoorMapSpawn\", \"SingleRedDoorMapSpawn\", \"SingleGlassSlidingDoorResonanceSpawn\", \"DoubleGlassSlidingDoorResonanceSpawn\"],\n" +
+                "      \"weight\": 3,\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithCover\", \"Horde2_WarehouseSizeWithCover\", \"Horde3_WarehouseSizeWithCover\", \"Horde4_WarehouseSizeWithCover\", \"Horde_WarehouseSizeBlackMesa\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"Brick Mega Warehouse\",\n" +
+                "      \"doors_names\": [\"QuarantineDoorMapSpawn\", \"DoubleGreyDoorMapSpawn\", \"SingleMetalDoorMapSpawn\", \"DoubleGlassSlidingDoorMainSpawn\", \"LabSingleDoorMapSpawn\", \"LabDoubleDoorMapSpawn\", \"DoubleRedDoorMapSpawn\", \"SingleRedDoorMapSpawn\", \"SingleGlassSlidingDoorResonanceSpawn\", \"DoubleGlassSlidingDoorResonanceSpawn\"],\n" +
+                "      \"weight\": 2,\n" +
+                "      \"hordes\": [\"Horde1_WarehouseSizeWithCover\", \"Horde2_WarehouseSizeWithCover\", \"Horde3_WarehouseSizeWithCover\", \"Horde4_WarehouseSizeWithCover\", \"Horde_WarehouseSizeBlackMesa\"]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"room_name\": \"Resonance Chamber\",\n" +
+                "      \"doors_names\": [\"QuarantineDoorMapSpawn\", \"DoubleGreyDoorMapSpawn\", \"SingleMetalDoorMapSpawn\", \"DoubleGlassSlidingDoorMainSpawn\", \"LabSingleDoorMapSpawn\", \"LabDoubleDoorMapSpawn\", \"DoubleRedDoorMapSpawn\", \"SingleRedDoorMapSpawn\", \"SingleGlassSlidingDoorResonanceSpawn\", \"DoubleGlassSlidingDoorResonanceSpawn\"],\n" +
+                "      \"weight\": 1,\n" +
+                "      \"hordes\": [\"Horde1_FacilitySize\", \"Horde2_FacilitySize\", \"Horde3_FacilitySize\", \"Horde4_FacilitySize\"]\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}";
@@ -713,9 +971,7 @@ namespace SawTapes.Files
                     string json = File.ReadAllText(fullFilePath);
                     JObject parsedJson = JObject.Parse(json);
                     if (!ValidateJsonStructure(parsedJson))
-                    {
                         RenameOldFile(fullFilePath);
-                    }
                 }
                 catch (Exception)
                 {
@@ -729,43 +985,35 @@ namespace SawTapes.Files
 
             using (var reader = new StreamReader(Path.Combine(Paths.ConfigPath, FilePath)))
             {
-                List<HordeMapping> hordesMapping = LoadHordes();
-                foreach (HordeMapping horde in hordesMapping)
+                List<SurvivalHordeMapping> hordesMapping = LoadHordes();
+                foreach (SurvivalHordeMapping horde in hordesMapping)
                 {
                     Dictionary<int, EnemyType> enemiesSpawn = new Dictionary<int, EnemyType>();
-                    foreach (EnemySpawnMapping enemySpawnMapping in horde.EnemiesSpawn)
+                    foreach (SurvivalEnemySpawnMapping enemySpawnMapping in horde.EnemiesSpawn)
                     {
                         EnemyType enemyType = SawTapes.allEnemies.FirstOrDefault(e => !e.ToString().Contains("Outside") && e.enemyName.Equals(enemySpawnMapping.Enemy))
                             ?? SawTapes.allEnemies.FirstOrDefault(e => e.enemyName.Equals(enemySpawnMapping.Enemy));
                         if (enemyType != null)
-                        {
                             enemiesSpawn.Add(enemySpawnMapping.Time, enemyType);
-                        }
                         else
-                        {
                             SawTapes.mls.LogWarning($"The enemy {enemySpawnMapping.Enemy} could not be found from the ST.survival_game.json file.");
-                        }
                     }
-                    SawTapes.hordes.Add(new Horde(horde.HordeName, horde.GameDuration, horde.BillyValue, horde.MinHour, horde.MaxHour, enemiesSpawn));
+                    SawTapes.hordes.Add(new SurvivalHorde(horde.HordeName, horde.GameDuration, horde.BillyValue, horde.MinHour, horde.MaxHour, enemiesSpawn));
                 }
 
-                List<RoomMapping> roomsMapping = LoadRooms();
-                foreach (RoomMapping room in roomsMapping)
+                List<SurvivalRoomMapping> roomsMapping = LoadRooms();
+                foreach (SurvivalRoomMapping room in roomsMapping)
                 {
-                    List<Horde> hordes = new List<Horde>();
+                    List<SurvivalHorde> hordes = new List<SurvivalHorde>();
                     foreach (string hordeName in room.Hordes)
                     {
-                        Horde horde = SawTapes.hordes.FirstOrDefault(h => h.HordeName.Equals(hordeName));
+                        SurvivalHorde horde = SawTapes.hordes.FirstOrDefault(h => h.HordeName.Equals(hordeName));
                         if (horde != null)
-                        {
                             hordes.Add(horde);
-                        }
                         else
-                        {
                             SawTapes.mls.LogWarning($"The horde {hordeName} could not be found from the file configuration.");
-                        }
                     }
-                    SawTapes.rooms.Add(new Room($"{room.RoomName}(Clone)", room.DoorsNames, room.Weight, hordes));
+                    SawTapes.rooms.Add(new SurvivalRoom($"{room.RoomName}(Clone)", room.DoorsNames, room.Weight, hordes));
                 }
             }
         }
@@ -851,23 +1099,21 @@ namespace SawTapes.Files
         {
             string backupFilePath = filePath + ".old";
             if (File.Exists(backupFilePath))
-            {
                 File.Delete(backupFilePath);
-            }
             File.Move(filePath, backupFilePath);
             File.WriteAllText(filePath, Get());
         }
 
-        public static List<HordeMapping> LoadHordes()
+        public static List<SurvivalHordeMapping> LoadHordes()
         {
             string json = File.ReadAllText(FilePath);
-            return JObject.Parse(json)["hordes"].ToObject<List<HordeMapping>>();
+            return JObject.Parse(json)["hordes"].ToObject<List<SurvivalHordeMapping>>();
         }
 
-        public static List<RoomMapping> LoadRooms()
+        public static List<SurvivalRoomMapping> LoadRooms()
         {
             string json = File.ReadAllText(FilePath);
-            return JObject.Parse(json)["rooms"].ToObject<List<RoomMapping>>();
+            return JObject.Parse(json)["rooms"].ToObject<List<SurvivalRoomMapping>>();
         }
     }
 }

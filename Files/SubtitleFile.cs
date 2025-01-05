@@ -10,9 +10,10 @@ namespace SawTapes.Files
     public class SubtitleFile
     {
         public static string FilePath = Path.Combine(Paths.ConfigPath, "ST.subtitles.json");
-        public static List<SubtitleMapping> survivalGameSubtitles;
-        public static List<SubtitleMapping> huntingGameSubtitles;
-        public static List<SubtitleMapping> billySubtitles;
+        public static HashSet<SubtitleMapping> survivalGameSubtitles;
+        public static HashSet<SubtitleMapping> huntingGameSubtitles;
+        public static HashSet<SubtitleMapping> escapeGameSubtitles;
+        public static HashSet<SubtitleMapping> billySubtitles;
 
         public static string Get()
             => "{\n" +
@@ -81,7 +82,7 @@ namespace SawTapes.Files
                 "  \"hunting_game\": [\n" +
                 "    {\n" +
                 "      \"timestamp\": 0,\n" +
-                "      // Hello, worker, I want to play a game\n" +
+                "      // Hello worker, I want to play a game\n" +
                 "      \"text\": \"Bonjour travailleur, je veux jouer à un jeu.\"\n" +
                 "    },\n" +
                 "    {\n" +
@@ -120,6 +121,48 @@ namespace SawTapes.Files
                 "      \"text\": \"Vivre ou mourir, à toi de choisir\"\n" +
                 "    }\n" +
                 "  ],\n" +
+                "  \"escape_game\": [\n" +
+                "    {\n" +
+                "      \"timestamp\": 0,\n" +
+                "      // Hello workers.\n" +
+                "      \"text\": \"Bonjour travailleurs\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 1.27,\n" +
+                "      // Until now\n" +
+                "      \"text\": \"Jusqu'à maintenant\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 2.21,\n" +
+                "      // you have made decisions that impacted the lives of others without facing the consequences yourselves\n" +
+                "      \"text\": \"vous avez pris des décisions qui ont affecté la vie des autres sans en subir vous-même les conséquences\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 8.43,\n" +
+                "      // But today, your lives are bound together\n" +
+                "      \"text\": \"Mais aujourd'hui, vos vies sont liées\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 11.16,\n" +
+                "      // The chains that tether you represent your ability—or inability—to work as one\n" +
+                "      \"text\": \"Les chaînes qui vous attachent représentent votre capacité, ou votre incapacité, à travailler ensemble\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 16.85,\n" +
+                "      // Path to freedom is littered with deadly traps\n" +
+                "      \"text\": \"Votre chemin vers la liberté est jonché de pièges mortels\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 20.41,\n" +
+                "      // Reach the saw before it's too late, or prepare to perish together\n" +
+                "      \"text\": \"Atteignez la scie avant qu'il ne soit trop tard, ou préparez-vous à périr ensemble\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"timestamp\": 24.93,\n" +
+                "      // The choice is yours\n" +
+                "      \"text\": \"Le choix est à vous\"\n" +
+                "    }\n" +
+                "  ],\n" +
                 "  \"billy_announcement\": [\n" +
                 "    {\n" +
                 "      \"timestamp\": 0,\n" +
@@ -154,9 +197,7 @@ namespace SawTapes.Files
                     string json = File.ReadAllText(fullFilePath);
                     JObject parsedJson = JObject.Parse(json);
                     if (!ValidateJsonStructure(parsedJson))
-                    {
                         RenameOldFile(fullFilePath);
-                    }
                 }
                 catch (Exception)
                 {
@@ -172,28 +213,25 @@ namespace SawTapes.Files
             {
                 survivalGameSubtitles = LoadSurvivalGameSubtitles();
                 huntingGameSubtitles = LoadHuntingGameSubtitles();
+                escapeGameSubtitles = LoadEscapeGameSubtitles();
                 billySubtitles = LoadBillyAnnouncementSubtitles();
             }
         }
 
         public static bool ValidateJsonStructure(JObject parsedJson)
         {
-            var expectedKeys = new List<string> { "survival_game", "hunting_game", "billy_announcement" };
+            var expectedKeys = new List<string> { "survival_game", "hunting_game", "escape_game", "billy_announcement" };
             foreach (var key in expectedKeys)
             {
                 if (parsedJson[key] == null)
-                {
                     return false; // Si une clé attendue est manquante
-                }
 
                 if (parsedJson[key] is JArray array)
                 {
                     foreach (var item in array)
                     {
                         if (item["timestamp"] == null || item["text"] == null)
-                        {
                             return false; // Vérifier que chaque élément a bien les clés "timestamp" et "text"
-                        }
                     }
                 }
             }
@@ -204,29 +242,33 @@ namespace SawTapes.Files
         {
             string backupFilePath = filePath + ".old";
             if (File.Exists(backupFilePath))
-            {
                 File.Delete(backupFilePath);
-            }
             File.Move(filePath, backupFilePath);
             File.WriteAllText(filePath, Get());
         }
 
-        public static List<SubtitleMapping> LoadSurvivalGameSubtitles()
+        public static HashSet<SubtitleMapping> LoadSurvivalGameSubtitles()
         {
             string json = File.ReadAllText(FilePath);
-            return JObject.Parse(json)["survival_game"].ToObject<List<SubtitleMapping>>();
+            return JObject.Parse(json)["survival_game"].ToObject<HashSet<SubtitleMapping>>();
         }
 
-        public static List<SubtitleMapping> LoadHuntingGameSubtitles()
+        public static HashSet<SubtitleMapping> LoadHuntingGameSubtitles()
         {
             string json = File.ReadAllText(FilePath);
-            return JObject.Parse(json)["hunting_game"].ToObject<List<SubtitleMapping>>();
+            return JObject.Parse(json)["hunting_game"].ToObject<HashSet<SubtitleMapping>>();
         }
 
-        public static List<SubtitleMapping> LoadBillyAnnouncementSubtitles()
+        public static HashSet<SubtitleMapping> LoadEscapeGameSubtitles()
         {
             string json = File.ReadAllText(FilePath);
-            return JObject.Parse(json)["billy_announcement"].ToObject<List<SubtitleMapping>>();
+            return JObject.Parse(json)["escape_game"].ToObject<HashSet<SubtitleMapping>>();
+        }
+
+        public static HashSet<SubtitleMapping> LoadBillyAnnouncementSubtitles()
+        {
+            string json = File.ReadAllText(FilePath);
+            return JObject.Parse(json)["billy_announcement"].ToObject<HashSet<SubtitleMapping>>();
         }
     }
 }

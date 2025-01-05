@@ -1,4 +1,5 @@
-﻿using SawTapes.Files;
+﻿using SawTapes.Behaviours.Items;
+using SawTapes.Files;
 using SawTapes.Patches;
 using System.Collections;
 using System.Linq;
@@ -19,14 +20,12 @@ namespace SawTapes.Behaviours
         {
             enemyType = SawTapes.billyEnemy;
             base.Start();
+
             if (bikeSqueek == null)
-            {
                 bikeSqueek = GetComponent<AudioSource>();
-            }
             if (bikeSqueek == null)
-            {
                 SawTapes.mls.LogError("bikeSqueek is not assigned and could not be found.");
-            }
+
             GameObject audioObject = Instantiate(SawTapes.billyRecordingSurvival, transform.position, Quaternion.identity);
             billyRecording = audioObject.GetComponent<AudioSource>();
             audioObject.transform.SetParent(transform);
@@ -40,16 +39,13 @@ namespace SawTapes.Behaviours
         public override void Update()
         {
             base.Update();
-            if (IsServer && targetPlayer != null && isMoving)
-            {
+            if (IsServer && isMoving && targetPlayer != null)
                 MoveTowardPlayer();
-            }
         }
 
         public void MoveTowardPlayer()
         {
             StartMovingClientRpc();
-
             if (Vector3.Distance(targetPlayer.transform.position, transform.position) <= 4f)
             {
                 isMoving = false;
@@ -60,7 +56,7 @@ namespace SawTapes.Behaviours
         }
 
         [ClientRpc]
-        private void StartMovingClientRpc()
+        public void StartMovingClientRpc()
         {
             PlayMovementSound();
             creatureAnimator?.SetBool("isMoving", true);
@@ -68,7 +64,7 @@ namespace SawTapes.Behaviours
         }
 
         [ClientRpc]
-        private void StopMovingClientRpc()
+        public void StopMovingClientRpc()
         {
             moveTowardsDestination = false;
             movingTowardsTargetPlayer = false;
@@ -78,12 +74,10 @@ namespace SawTapes.Behaviours
             creatureAnimator?.SetBool("isMoving", false);
         }
 
-        private void PlayMovementSound()
+        public void PlayMovementSound()
         {
             if (bikeSqueek != null && !bikeSqueek.isPlaying)
-            {
                 RoundManager.PlayRandomClip(bikeSqueek, [bikeSqueek.clip], randomize: true);
-            }
         }
 
         public IEnumerator BillyAnnouncementCoroutine()
@@ -96,20 +90,21 @@ namespace SawTapes.Behaviours
             if (billyPuppet == null)
             {
                 Vector3 position = transform.position;
-                billyPuppet = RoundManagerPatch.SpawnItem(ref SawTapes.billyPuppetObj, position) as BillyPuppet;
+                billyPuppet = RoundManagerPatch.SpawnItem(SawTapes.billyPuppetObj, position) as BillyPuppet;
                 SpawnBillyClientRpc(billyPuppet.GetComponent<NetworkObject>());
             }
         }
 
         [ClientRpc]
-        private void BillyAnnouncementClientRpc()
+        public void BillyAnnouncementClientRpc()
         {
             billyRecording.Play();
-            if (ConfigManager.isSubtitles.Value) StartCoroutine(ShowSubtitlesCoroutine());
+            if (ConfigManager.isSubtitles.Value)
+                StartCoroutine(ShowSubtitlesCoroutine());
         }
 
         [ClientRpc]
-        private void SpawnBillyClientRpc(NetworkObjectReference obj)
+        public void SpawnBillyClientRpc(NetworkObjectReference obj)
         {
             if (obj.TryGet(out var networkObject))
             {
@@ -135,13 +130,9 @@ namespace SawTapes.Behaviours
                 if (!string.IsNullOrEmpty(subtitleText))
                 {
                     if (Vector3.Distance(GameNetworkManager.Instance.localPlayerController.transform.position, transform.position) <= 25)
-                    {
                         HUDManagerPatch.subtitleText.text = subtitleText;
-                    }
                     else
-                    {
                         HUDManagerPatch.subtitleText.text = "";
-                    }
                 }
                 yield return null;
             }

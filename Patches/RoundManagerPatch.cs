@@ -1,6 +1,7 @@
 ﻿using DunGen;
 using HarmonyLib;
-using SawTapes.Behaviours;
+using SawTapes.Behaviours.Items;
+using SawTapes.Behaviours.Tapes;
 using SawTapes.Managers;
 using SawTapes.Values;
 using System;
@@ -15,131 +16,139 @@ namespace SawTapes.Patches
     {
         public static SawTapeValue tapeToSpawn;
 
-        [HarmonyPatch(typeof(RoundManager), nameof(RoundManager.LoadNewLevel))]
-        [HarmonyPostfix]
-        private static void LoadNewGame(ref RoundManager __instance)
+        [HarmonyPatch(typeof(RuntimeDungeon), nameof(RuntimeDungeon.Generate))]
+        [HarmonyPrefix]
+        private static void LoadNewGame()
         {
             SawTapes.eligibleTiles.Clear();
             tapeToSpawn = null;
-            if (__instance.IsServer)
+
+            if (!RoundManager.Instance.IsServer) return;
+
+            STUtilities.Shuffle(SawTapes.sawTapeValues);
+            foreach (SawTapeValue sawTapeValue in SawTapes.sawTapeValues.Where(s => string.IsNullOrEmpty(s.InteriorsExclusion) || !s.InteriorsExclusion.Contains(RoundManager.Instance.dungeonGenerator.Generator.DungeonFlow.name)))
             {
-                STUtilities.Shuffle(SawTapes.sawTapeValues);
-                foreach (SawTapeValue sawTapeValue in SawTapes.sawTapeValues)
+                if (tapeToSpawn == null && new System.Random().Next(1, 100) <= sawTapeValue.Rarity)
                 {
-                    if (tapeToSpawn == null && new System.Random().Next(1, 100) <= sawTapeValue.Rarity)
-                    {
-                        tapeToSpawn = sawTapeValue;
-                        sawTapeValue.Rarity = sawTapeValue.DefaultRarity;
-                    }
-                    else if (sawTapeValue.Rarity > 0 && sawTapeValue.Rarity < 100)
-                    {
-                        sawTapeValue.Rarity = Mathf.Min(100, sawTapeValue.Rarity + ConfigManager.rarityIncrement.Value);
-                    }
+                    tapeToSpawn = sawTapeValue;
+                    sawTapeValue.Rarity = sawTapeValue.DefaultRarity;
                 }
-                SawTapesNetworkManager.Instance.SetGenerateGameTileClientRpc(tapeToSpawn != null && tapeToSpawn.IsTileGame);
+                else if (sawTapeValue.Rarity > 0 && sawTapeValue.Rarity < 100)
+                {
+                    sawTapeValue.Rarity = Mathf.Min(100, sawTapeValue.Rarity + ConfigManager.rarityIncrement.Value);
+                }
             }
+            SawTapesNetworkManager.Instance.SetGenerateGameTileClientRpc(tapeToSpawn != null && tapeToSpawn.IsTileGame);
         }
 
         [HarmonyPatch(typeof(RoundManager), nameof(RoundManager.SpawnScrapInLevel))]
         [HarmonyPostfix]
-        private static void SpawnItems(ref RoundManager __instance) => AddNewItems(ref __instance);
+        private static void SpawnItems() => AddNewItems();
 
-        public static void AddNewItems(ref RoundManager roundManager)
+        public static void AddNewItems()
         {
-            if (tapeToSpawn != null)
+            if (tapeToSpawn == null) return;
+
+            List<RandomScrapSpawn> listRandomScrapSpawn = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>().Where(s => !s.spawnUsed).ToList();
+            if (tapeToSpawn.IsTileGame)
             {
-                if (tapeToSpawn.IsTileGame)
+                STUtilities.Shuffle(SawTapes.eligibleTiles);
+                foreach (Tile tile in SawTapes.eligibleTiles.ToList())
                 {
-                    STUtilities.Shuffle(SawTapes.eligibleTiles);
-                    foreach (Tile tile in SawTapes.eligibleTiles.ToList())
+                    SurvivalRoom room = SawTapes.rooms.FirstOrDefault(r => tile.name.Equals(r.RoomName));
+                    List<DoorLock> doorLocks = new List<DoorLock>();
+
+                    bool IsDoorwayValid(Doorway doorway)
                     {
-                        List<DoorLock> doorLocks = new List<DoorLock>();
-                        bool noDoor = false;
-                        foreach (Doorway doorway in tile.UsedDoorways)
-                        {
-                            Vector3 doorPosition = doorway.transform.position;
-                            DoorLock doorLock = UnityEngine.Object.FindObjectsOfType<DoorLock>()
-                                .Where(d => Vector3.Distance(d.transform.position, doorway.transform.position) < 5f)
-                                .OrderBy(d => Vector3.Distance(d.transform.position, doorway.transform.position))
-                                .FirstOrDefault();
+                        if (doorway.doorComponent == null) return false;
+                        if (!doorway.ConnectedDoorway.ConnectorPrefabWeights.Any()) return false;
+                        if (!room.DoorsNames.Contains(doorway.doorComponent.name.Replace("(Clone)", "").Trim())) return false;
 
-                            if (doorLock == null)
-                            {
-                                noDoor = true;
-                                break;
-                            }
-                            else
-                            {
-                                doorLocks.Add(doorLock);
-                            }
-                        }
-                        if (noDoor)
-                        {
-                            SawTapes.eligibleTiles.Remove(tile);
-                            continue;
-                        }
+                        DoorLock doorLock = UnityEngine.Object.FindObjectsOfType<DoorLock>()
+                            .Where(d => Vector3.Distance(d.transform.position, doorway.doorComponent.transform.position) < 2f)
+                            .OrderBy(d => Vector3.Distance(d.transform.position, doorway.doorComponent.transform.position))
+                            .FirstOrDefault();
 
-                        List<RandomScrapSpawn> listRandomScrapSpawn = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>().Where(s => !s.spawnUsed && tile.Bounds.Contains(s.transform.position)).ToList();
-                        if (listRandomScrapSpawn.Count <= 0)
-                        {
-                            SawTapes.eligibleTiles.Remove(tile);
-                            continue;
-                        }
-                        Vector3 position = GetRandomSpawnItemPosition(listRandomScrapSpawn, roundManager, tapeToSpawn.Item);
-                        GrabbableObject grabbableObject = SpawnItem(ref tapeToSpawn.Item.spawnPrefab, position);
-
-                        // Ajout des infos pour les portes et entrées/sorties liées dans le Tile - permet d'éviter le freeze lors de l'accès à une salle de jeu
-                        Vector3[] doorsPos = doorLocks.Select(d => d.transform.position).ToArray();
-                        List<NetworkObjectReference> entranceTeleports = new List<NetworkObjectReference>();
-                        foreach (EntranceTeleport entranceTeleport in UnityEngine.Object.FindObjectsOfType<EntranceTeleport>().Where(e => tile.Bounds.Contains(e.transform.position)))
-                        {
-                            NetworkObject entranceObject = entranceTeleport.GetComponent<NetworkObject>();
-                            if (entranceObject != null)
-                            {
-                                entranceTeleports.Add(entranceObject);
-                                foreach (EntranceTeleport exitTeleport in UnityEngine.Object.FindObjectsOfType<EntranceTeleport>().Where(e => e.isEntranceToBuilding != entranceTeleport.isEntranceToBuilding && e.entranceId == entranceTeleport.entranceId))
-                                {
-                                    NetworkObject exitObject = exitTeleport.GetComponent<NetworkObject>();
-                                    if (exitObject != null)
-                                    {
-                                        entranceTeleports.Add(exitObject);
-                                    }
-                                }
-                            }
-                        }
-                        SawTapesNetworkManager.Instance.AddTileInfosClientRpc(tile.transform.position, doorsPos, entranceTeleports.ToArray(), grabbableObject.GetComponent<NetworkObject>());
-                        SawTapes.eligibleTiles.RemoveAll(t => t != tile);
-                        break;
+                        if (doorLock != null)
+                            doorLocks.Add(doorLock);
+                        return true;
                     }
-                }
-                else
-                {
-                    Vector3 position = GetRandomSpawnItemPosition(UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>().Where(s => !s.spawnUsed).ToList(), roundManager, tapeToSpawn.Item);
-                    GrabbableObject grabbableObject = SpawnItem(ref tapeToSpawn.Item.spawnPrefab, position);
-                }
-            }
-        }
 
-        public static Vector3 GetRandomSpawnItemPosition(List<RandomScrapSpawn> listRandomScrapSpawn, RoundManager roundManager, Item item)
-        {
-            System.Random random = new System.Random();
-            int indexRandomScrapSpawn = random.Next(0, listRandomScrapSpawn.Count);
-            RandomScrapSpawn randomScrapSpawn = listRandomScrapSpawn[indexRandomScrapSpawn];
-            if (randomScrapSpawn.spawnedItemsCopyPosition)
-            {
-                randomScrapSpawn.spawnUsed = true;
-                listRandomScrapSpawn.RemoveAt(indexRandomScrapSpawn);
+                    if (!tile.UsedDoorways.All(IsDoorwayValid))
+                    {
+                        SawTapes.eligibleTiles.RemoveAll(t => t == tile);
+                        continue;
+                    }
+
+                    // On ne prend que les spawns dans la room
+                    List<RandomScrapSpawn> listRandomScrapTile = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>().Where(s => tile.Bounds.Contains(s.transform.position)).ToList();
+                    if (listRandomScrapTile.Count <= 0)
+                    {
+                        // Au cas où tous les spawn de la room ont été utilisés
+                        listRandomScrapTile = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>().Where(s => tile.Bounds.Contains(s.transform.position)).ToList();
+                        if (listRandomScrapTile.Count <= 0)
+                        {
+                            SawTapes.eligibleTiles.RemoveAll(t => t == tile);
+                            continue;
+                        }
+                    }
+                    // Spawn de la tape à la position la plus proche du centre de la room
+                    GrabbableObject grabbableObject = SpawnTape(listRandomScrapTile.OrderBy(s => Vector3.Distance(s.transform.position, tile.Bounds.center)).FirstOrDefault());
+
+                    // Ajout des infos pour les portes et entrées/sorties liées dans le Tile - permet d'éviter le freeze lors de l'accès à une salle de jeu
+                    List<NetworkObjectReference> entranceTeleports = entranceTeleports = CollectEntranceAndExitTeleports(tile);
+                    Vector3[] doorsPos = doorLocks.Select(d => d.transform.position).ToArray();
+                    SawTapesNetworkManager.Instance.AddTileInfosClientRpc(tile.transform.position, doorsPos, entranceTeleports.ToArray(), grabbableObject.GetComponent<NetworkObject>());
+
+                    // Suppression des autres rooms pour ne garder que celle-ci
+                    SawTapes.eligibleTiles.RemoveAll(t => t != tile);
+                    break;
+                }
             }
             else
             {
-                randomScrapSpawn.transform.position = roundManager.GetRandomNavMeshPositionInBoxPredictable(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, roundManager.navHit, roundManager.AnomalyRandom) + Vector3.up * item.verticalOffset;
+                int indexRandomScrapSpawn = new System.Random().Next(0, listRandomScrapSpawn.Count);
+                SpawnTape(listRandomScrapSpawn[indexRandomScrapSpawn]);
             }
-            return randomScrapSpawn.transform.position + Vector3.up * 0.5f;
         }
 
-        public static GrabbableObject SpawnItem(ref GameObject spawnPrefab, Vector3 position) => SpawnItem(ref spawnPrefab, position, Quaternion.identity);
+        public static List<NetworkObjectReference> CollectEntranceAndExitTeleports(Tile tile)
+        {
+            List<NetworkObjectReference> entranceTeleports = new List<NetworkObjectReference>();
+            foreach (EntranceTeleport entranceTeleport in UnityEngine.Object.FindObjectsOfType<EntranceTeleport>()
+                .Where(e => tile.Bounds.Contains(e.transform.position)))
+            {
+                NetworkObject entranceObject = entranceTeleport.GetComponent<NetworkObject>();
+                if (entranceObject != null)
+                {
+                    entranceTeleports.Add(entranceObject);
+                    foreach (EntranceTeleport exitTeleport in UnityEngine.Object.FindObjectsOfType<EntranceTeleport>()
+                        .Where(e => e.isEntranceToBuilding != entranceTeleport.isEntranceToBuilding && e.entranceId == entranceTeleport.entranceId))
+                    {
+                        NetworkObject exitObject = exitTeleport.GetComponent<NetworkObject>();
+                        if (exitObject != null)
+                            entranceTeleports.Add(exitObject);
+                    }
+                }
+            }
+            return entranceTeleports;
+        }
 
-        public static GrabbableObject SpawnItem(ref GameObject spawnPrefab, Vector3 position, Quaternion rotation)
+        public static GrabbableObject SpawnTape(RandomScrapSpawn randomScrapSpawn)
+        {
+            if (randomScrapSpawn == null) return null;
+
+            if (randomScrapSpawn.spawnedItemsCopyPosition)
+                randomScrapSpawn.spawnUsed = true;
+            else
+                randomScrapSpawn.transform.position = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom) + Vector3.up * tapeToSpawn.Item.verticalOffset;
+
+            return SpawnItem(tapeToSpawn.Item.spawnPrefab, randomScrapSpawn.transform.position + Vector3.up * 0.5f);
+        }
+
+        public static GrabbableObject SpawnItem(GameObject spawnPrefab, Vector3 position) => SpawnItem(spawnPrefab, position, Quaternion.identity);
+
+        public static GrabbableObject SpawnItem(GameObject spawnPrefab, Vector3 position, Quaternion rotation)
         {
             if (GameNetworkManager.Instance.localPlayerController.IsServer || GameNetworkManager.Instance.localPlayerController.IsHost)
             {
@@ -150,10 +159,8 @@ namespace SawTapes.Patches
                     grabbableObject.fallTime = 0f;
                     gameObject.GetComponent<NetworkObject>().Spawn();
 
-                    if (grabbableObject is SawTape)
-                    {
-                        SawTapesNetworkManager.Instance.SpawnTapeParticleClientRpc(grabbableObject.GetComponent<NetworkObject>());
-                    }
+                    if (grabbableObject is SawTape || grabbableObject is Saw)
+                        SawTapesNetworkManager.Instance.SpawnBlackParticleClientRpc(grabbableObject.GetComponent<NetworkObject>());
 
                     return grabbableObject;
                 }
@@ -163,6 +170,14 @@ namespace SawTapes.Patches
                 }
             }
             return null;
+        }
+
+        [HarmonyPatch(typeof(RoundManager), nameof(RoundManager.DetectElevatorIsRunning))]
+        [HarmonyPostfix]
+        private static void EndGame()
+        {
+            foreach (SawTape sawTape in UnityEngine.Object.FindObjectsOfType<SawTape>())
+                SawTapesNetworkManager.Instance.DestroyObjectServerRpc(sawTape.GetComponent<NetworkObject>());
         }
     }
 }

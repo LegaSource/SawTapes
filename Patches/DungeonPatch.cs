@@ -22,7 +22,7 @@ namespace SawTapes.Patches
 
         private static void RemoveSpawnEmptyDoor(Doorway doorway)
         {
-            Room room = SawTapes.rooms.FirstOrDefault(r => doorway.tile.name.Contains(r.RoomName));
+            SurvivalRoom room = SawTapes.rooms.FirstOrDefault(r => doorway.tile.name.Equals(r.RoomName));
             if (room != null
                 && doorway.ConnectorPrefabWeights.HasAnyViableEntries()
                 && doorway.ConnectedDoorway.ConnectorPrefabWeights.HasAnyViableEntries()
@@ -33,10 +33,12 @@ namespace SawTapes.Patches
                 if (!SawTapes.eligibleTiles.Contains(doorway.tile))
                 {
                     for (int i = 0; i < room.Weight; i++)
-                    {
                         SawTapes.eligibleTiles.Add(doorway.tile);
-                    }
                 }
+            }
+            else if (SawTapes.eligibleTiles.Contains(doorway.tile))
+            {
+                SawTapes.eligibleTiles.RemoveAll(t => t == doorway.tile);
             }
         }
     }

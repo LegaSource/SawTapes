@@ -4,7 +4,7 @@ namespace SawTapes.Managers
 {
     public class MapCameraSTManager
     {
-        public static void UpdateMapCamera(ref ManualCameraRenderer mapScreen)
+        public static void UpdateMapCamera(ManualCameraRenderer mapScreen)
         {
             if (StartOfRound.Instance.shipHasLanded && mapScreen.targetedPlayer != null)
             {

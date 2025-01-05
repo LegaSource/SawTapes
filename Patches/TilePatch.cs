@@ -11,8 +11,8 @@ namespace SawTapes.Patches
         [HarmonyPrefix]
         private static void EnterTile(ref Tile __instance, Collider other)
         {
-            TileSTManager.LogTileDebugInfo(ref __instance, ref other);
-            TileSTManager.HandleTileBehaviour(ref __instance, ref other);
+            TileSTManager.LogTileDebugInfo(__instance, other);
+            TileSTManager.HandleTileBehaviour(__instance, other);
         }
     }
 }

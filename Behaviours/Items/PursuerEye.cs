@@ -1,7 +1,7 @@
 ﻿using SawTapes.Managers;
 using Unity.Netcode;
 
-namespace SawTapes.Behaviours
+namespace SawTapes.Behaviours.Items
 {
     public class PursuerEye : PhysicsProp
     {

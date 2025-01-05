@@ -2,7 +2,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-namespace SawTapes.Behaviours
+namespace SawTapes.Behaviours.Items
 {
     public class SawKey : PhysicsProp
     {

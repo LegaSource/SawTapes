@@ -1,7 +1,7 @@
 ﻿using Unity.Netcode;
 using UnityEngine;
 
-namespace SawTapes.Behaviours
+namespace SawTapes.Behaviours.Items
 {
     public class BillyPuppet : PhysicsProp
     {
@@ -12,22 +12,16 @@ namespace SawTapes.Behaviours
         {
             base.Start();
             if (billyLaugh == null)
-            {
                 billyLaugh = GetComponent<AudioSource>();
-            }
             if (billyLaugh == null)
-            {
                 SawTapes.mls.LogError("billyLaugh is not assigned and could not be found.");
-            }
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
             if (buttonDown && playerHeldBy != null)
-            {
                 BillyLaughServerRpc();
-            }
         }
 
         [ServerRpc(RequireOwnership = false)]

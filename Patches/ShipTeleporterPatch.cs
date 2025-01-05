@@ -12,10 +12,8 @@ namespace SawTapes.Patches
             if (!__instance.isInverseTeleporter && StartOfRound.Instance.mapScreen.targetedPlayer != null)
             {
                 PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.mapScreen.targetedPlayer.GetComponent<PlayerSTBehaviour>();
-                if (playerBehaviour.isInGame)
-                {
+                if (playerBehaviour != null && playerBehaviour.isInGame)
                     return false;
-                }
             }
             return true;
         }

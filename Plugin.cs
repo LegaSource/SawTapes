@@ -13,6 +13,8 @@ using SawTapes.Behaviours;
 using DunGen;
 using SawTapes.Values;
 using System;
+using SawTapes.Behaviours.Tapes;
+using SawTapes.Behaviours.Items;
 
 namespace SawTapes
 {
@@ -21,7 +23,7 @@ namespace SawTapes
     {
         private const string modGUID = "Lega.SawTapes";
         private const string modName = "Saw Tapes";
-        private const string modVersion = "1.1.5";
+        private const string modVersion = "1.1.6";
 
         private readonly Harmony harmony = new Harmony(modGUID);
         private readonly static AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "sawtapes"));
@@ -36,11 +38,14 @@ namespace SawTapes
         public static GameObject reverseBearTrapObj;
         public static GameObject sawKeyObj;
         public static GameObject pursuerEyeObj;
+        public static Item sawItem;
+        public static GameObject chainObj;
 
         // Audios sources
         public static GameObject sawTheme;
         public static GameObject sawRecordingSurvival;
         public static GameObject sawRecordingHunting;
+        public static GameObject sawRecordingEscape;
         public static GameObject billyRecordingSurvival;
         public static GameObject steamAudio;
 
@@ -49,6 +54,7 @@ namespace SawTapes
         public static GameObject spawnParticle;
         public static GameObject despawnParticle;
         public static GameObject steamParticle;
+        public static GameObject pathParticle;
 
         // Enemies
         public static EnemyType billyEnemy;
@@ -58,8 +64,8 @@ namespace SawTapes
 
         public static HashSet<EnemyType> allEnemies = new HashSet<EnemyType>();
         public static List<Tile> eligibleTiles = new List<Tile>();
-        public static HashSet<Room> rooms = new HashSet<Room>();
-        public static HashSet<Horde> hordes = new HashSet<Horde>();
+        public static HashSet<SurvivalRoom> rooms = new HashSet<SurvivalRoom>();
+        public static HashSet<SurvivalHorde> hordes = new HashSet<SurvivalHorde>();
 
         public void Awake()
         {
@@ -103,9 +109,7 @@ namespace SawTapes
                 {
                     var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
                     if (attributes.Length > 0)
-                    {
                         method.Invoke(null, null);
-                    }
                 }
             }
         }
@@ -114,21 +118,24 @@ namespace SawTapes
         {
             sawTapeValues = new List<SawTapeValue>
             {
-                new SawTapeValue(typeof(SurvivalTape), bundle.LoadAsset<Item>("Assets/SawTape/SurvivalTapeItem.asset"), ConfigManager.SurvivalRarity, true),
-                new SawTapeValue(typeof(HuntingTape), bundle.LoadAsset<Item>("Assets/SawTape/HuntingTapeItem.asset"), ConfigManager.HuntingRarity, false)
+                new SawTapeValue(typeof(SurvivalTape), bundle.LoadAsset<Item>("Assets/SawTape/SurvivalTapeItem.asset"), ConfigManager.SurvivalRarity, true, ConfigManager.survivalInteriorExclusions.Value),
+                new SawTapeValue(typeof(HuntingTape), bundle.LoadAsset<Item>("Assets/SawTape/HuntingTapeItem.asset"), ConfigManager.HuntingRarity, false, ConfigManager.huntingInteriorExclusions.Value),
+                new SawTapeValue(typeof(EscapeTape), bundle.LoadAsset<Item>("Assets/SawTape/EscapeTapeItem.asset"), ConfigManager.EscapeRarity, false, ConfigManager.escapeInteriorExclusions.Value)
             };
 
             foreach (SawTapeValue sawTapeValue in sawTapeValues)
             {
                 RegisterItem(sawTapeValue.Type, sawTapeValue.Item);
             }
-            billyPuppetObj = RegisterItem(typeof(BillyPuppet), bundle.LoadAsset<Item>("Assets/BillyPuppet/BillyPuppetItem.asset"));
-            reverseBearTrapObj = RegisterItem(typeof(ReverseBearTrap), bundle.LoadAsset<Item>("Assets/ReverseBearTrap/ReverseBearTrapItem.asset"));
-            sawKeyObj = RegisterItem(typeof(SawKey), bundle.LoadAsset<Item>("Assets/SawKey/SawKeyItem.asset"));
-            pursuerEyeObj = RegisterItem(typeof(PursuerEye), bundle.LoadAsset<Item>("Assets/PursuerEye/PursuerEyeItem.asset"));
+            billyPuppetObj = RegisterItem(typeof(BillyPuppet), bundle.LoadAsset<Item>("Assets/BillyPuppet/BillyPuppetItem.asset")).spawnPrefab;
+            reverseBearTrapObj = RegisterItem(typeof(ReverseBearTrap), bundle.LoadAsset<Item>("Assets/ReverseBearTrap/ReverseBearTrapItem.asset")).spawnPrefab;
+            sawKeyObj = RegisterItem(typeof(SawKey), bundle.LoadAsset<Item>("Assets/SawKey/SawKeyItem.asset")).spawnPrefab;
+            pursuerEyeObj = RegisterItem(typeof(PursuerEye), bundle.LoadAsset<Item>("Assets/PursuerEye/PursuerEyeItem.asset")).spawnPrefab;
+            sawItem = RegisterItem(typeof(Saw), bundle.LoadAsset<Item>("Assets/Saw/SawItem.asset"));
+            chainObj = RegisterItem(typeof(Chain), bundle.LoadAsset<Item>("Assets/Chain/ChainItem.asset")).spawnPrefab;
         }
 
-        public GameObject RegisterItem(Type type, Item item)
+        public Item RegisterItem(Type type, Item item)
         {
             PhysicsProp script = item.spawnPrefab.AddComponent(type) as PhysicsProp;
             script.grabbable = true;
@@ -139,7 +146,7 @@ namespace SawTapes
             Utilities.FixMixerGroups(item.spawnPrefab);
             Items.RegisterItem(item);
 
-            return item.spawnPrefab;
+            return item;
         }
 
         public void LoadEnemies()
@@ -156,7 +163,8 @@ namespace SawTapes
                 (tapeParticle = bundle.LoadAsset<GameObject>("Assets/Particles/TapeParticle.prefab")),
                 (spawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/SpawnParticle.prefab")),
                 (despawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/DespawnParticle.prefab")),
-                (steamParticle = bundle.LoadAsset<GameObject>("Assets/Particles/SteamParticle.prefab"))
+                (steamParticle = bundle.LoadAsset<GameObject>("Assets/Particles/SteamParticle.prefab")),
+                (pathParticle = bundle.LoadAsset<GameObject>("Assets/Particles/PathParticle.prefab"))
             };
 
             foreach (GameObject gameObject in gameObjects)
@@ -173,6 +181,7 @@ namespace SawTapes
                 (sawTheme = bundle.LoadAsset<GameObject>("Assets/Audios/SawTheme.prefab")),
                 (sawRecordingSurvival = bundle.LoadAsset<GameObject>("Assets/Audios/SawRecording_Survival.prefab")),
                 (sawRecordingHunting = bundle.LoadAsset<GameObject>("Assets/Audios/SawRecording_Hunting.prefab")),
+                (sawRecordingEscape = bundle.LoadAsset<GameObject>("Assets/Audios/SawRecording_Escape.prefab")),
                 (billyRecordingSurvival = bundle.LoadAsset<GameObject>("Assets/Audios/BillyRecording_Survival.prefab")),
                 (steamAudio = bundle.LoadAsset<GameObject>("Assets/Audios/SteamAudio.prefab"))
             };
@@ -185,8 +194,6 @@ namespace SawTapes
         }
 
         public static void LoadShaders()
-        {
-            wallhackShader = bundle.LoadAsset<Material>("Assets/Shaders/WallhackMaterial.mat");
-        }
+            => wallhackShader = bundle.LoadAsset<Material>("Assets/Shaders/WallhackMaterial.mat");
     }
 }

@@ -1,6 +1,7 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
 using SawTapes.Behaviours;
+using SawTapes.Behaviours.Tapes;
 using SawTapes.Managers;
 
 namespace SawTapes.Patches
@@ -30,10 +31,21 @@ namespace SawTapes.Patches
             {
                 EnemyAI enemy = UnityEngine.Object.FindFirstObjectByType<HuntingTape>()?.assignedEnemy;
                 if (enemy != null && __instance == enemy)
-                {
                     SawTapesNetworkManager.Instance.SpawnSawKeyServerRpc(__instance.transform.position);
-                }
             }
+        }
+
+        [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.PlayerIsTargetable))]
+        [HarmonyPrefix]
+        private static bool IsPlayerTargetable(ref bool __result, PlayerControllerB playerScript)
+        {
+            PlayerSTBehaviour playerBehaviour = playerScript.GetComponent<PlayerSTBehaviour>();
+            if (playerBehaviour != null)
+            {
+                __result = playerBehaviour.isTargetable;
+                return playerBehaviour.isTargetable;
+            }
+            return true;
         }
     }
 }

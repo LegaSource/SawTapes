@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SawTapes.Files.Values
 {
-    public class HordeMapping
+    public class SurvivalHordeMapping
     {
         [JsonProperty("horde_name")]
         public string HordeName { get; internal set; }
@@ -21,6 +21,6 @@ namespace SawTapes.Files.Values
         public int BillyValue { get; internal set; }
 
         [JsonProperty("enemies_spawn")]
-        public List<EnemySpawnMapping> EnemiesSpawn { get; internal set; }
+        public List<SurvivalEnemySpawnMapping> EnemiesSpawn { get; internal set; }
     }
 }

@@ -8,13 +8,11 @@ namespace SawTapes.Managers
     public class EnemySTManager
     {
         public static Vector3 GetFurthestPositionFromPlayer(PlayerControllerB player)
-        {
-            return RoundManager.Instance.insideAINodes
+            => RoundManager.Instance.insideAINodes
                 .OrderByDescending(n => Vector3.Distance(player.transform.position, n.transform.position))
                 .FirstOrDefault()
                 .transform
                 .position;
-        }
 
         public static NetworkObject SpawnEnemy(EnemyType enemyType, Vector3 spawnPosition)
         {
@@ -26,14 +24,12 @@ namespace SawTapes.Managers
 
         public static void DespawnEnemy(NetworkObject spawnedEnemy)
         {
-            EnemyAI enemyAI = spawnedEnemy.GetComponentInChildren<EnemyAI>();
-            if (enemyAI != null && !enemyAI.isEnemyDead)
+            EnemyAI enemy = spawnedEnemy.GetComponentInChildren<EnemyAI>();
+            if (enemy != null && !enemy.isEnemyDead)
             {
                 SawTapesNetworkManager.Instance.PlayDespawnParticleClientRpc(spawnedEnemy.transform.position);
-                if (enemyAI is NutcrackerEnemyAI nutcrackerEnemyAI && nutcrackerEnemyAI.gun != null)
-                {
+                if (enemy is NutcrackerEnemyAI nutcrackerEnemyAI && nutcrackerEnemyAI.gun != null)
                     SawTapesNetworkManager.Instance.DestroyObjectClientRpc(nutcrackerEnemyAI.gun.GetComponent<NetworkObject>());
-                }
                 spawnedEnemy.Despawn();
             }
         }

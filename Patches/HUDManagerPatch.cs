@@ -1,5 +1,6 @@
 ﻿using DunGen;
 using HarmonyLib;
+using SawTapes.Managers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,40 +19,29 @@ namespace SawTapes.Patches
 
         [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.Start))]
         [HarmonyPostfix]
-        private static void StartHUDManager(ref HUDManager __instance)
+        private static void StartHUDManager()
         {
-            GameObject chrono = new GameObject("ChronoUI");
-            chrono.transform.localPosition = new Vector3(0f, 0f, 0f);
-            chrono.AddComponent<RectTransform>();
-
-            TextMeshProUGUI textMeshChrono = chrono.AddComponent<TextMeshProUGUI>();
-            RectTransform rectTransformChrono = textMeshChrono.rectTransform;
-            rectTransformChrono.SetParent(GameObject.Find("Systems/UI/Canvas/Panel/GameObject/PlayerScreen").transform, worldPositionStays: false);
-            rectTransformChrono.anchorMin = new Vector2(0f, 1f);
-            rectTransformChrono.anchorMax = new Vector2(0f, 1f);
-            rectTransformChrono.pivot = new Vector2(0f, 1f);
-            rectTransformChrono.anchoredPosition = new Vector2(ConfigManager.chronoPosX.Value, ConfigManager.chronoPosY.Value);
-            rectTransformChrono.sizeDelta = new Vector2(300f, 300f);
-            textMeshChrono.alignment = TextAlignmentOptions.TopLeft;
-            textMeshChrono.font = __instance.controlTipLines[0].font;
-            textMeshChrono.fontSize = 14f;
-            chronoText = textMeshChrono;
+            chronoText = HUDSTManager.CreateUIElement(
+                name: "ChronoUI",
+                anchorMin: new Vector2(0f, 1f),
+                anchorMax: new Vector2(0f, 1f),
+                pivot: new Vector2(0f, 1f),
+                anchoredPosition: new Vector2(ConfigManager.chronoPosX.Value, ConfigManager.chronoPosY.Value),
+                sizeDelta: new Vector2(300f, 300f),
+                alignment: TextAlignmentOptions.TopLeft
+            );
 
             if (ConfigManager.isSubtitles.Value)
             {
-                GameObject subtitle = new GameObject("SubtitleUI");
-                subtitle.transform.localPosition = new Vector3(0f, -125f, 0f);
-                subtitle.AddComponent<RectTransform>();
-
-                TextMeshProUGUI textMeshProUGUI = subtitle.AddComponent<TextMeshProUGUI>();
-                RectTransform rectTransform = textMeshProUGUI.rectTransform;
-                rectTransform.SetParent(GameObject.Find("Systems/UI/Canvas/Panel/GameObject/PlayerScreen").transform, worldPositionStays: false);
-                rectTransform.sizeDelta = new Vector2(600f, 200f);
-                rectTransform.anchoredPosition = new Vector2(0f, -125f);
-                textMeshProUGUI.alignment = TextAlignmentOptions.Center;
-                textMeshProUGUI.font = __instance.controlTipLines[0].font;
-                textMeshProUGUI.fontSize = 14f;
-                subtitleText = textMeshProUGUI;
+                subtitleText = HUDSTManager.CreateUIElement(
+                    name: "SubtitleUI",
+                    anchorMin: new Vector2(0.5f, 0.5f),
+                    anchorMax: new Vector2(0.5f, 0.5f),
+                    pivot: new Vector2(0.5f, 0.5f),
+                    anchoredPosition: new Vector2(0f, -125f),
+                    sizeDelta: new Vector2(600f, 200f),
+                    alignment: TextAlignmentOptions.Center
+                );
             }
         }
 
@@ -84,31 +74,21 @@ namespace SawTapes.Patches
         [HarmonyPostfix]
         private static void HoldInteraction(ref bool __result)
         {
-            if (!__result)
-            {
-                return;
-            }
+            if (!__result) return;
+
             InteractTrigger interactTrigger = GameNetworkManager.Instance.localPlayerController.hoveringOverTrigger;
-            if (interactTrigger == null)
-            {
-                return;
-            }
+            if (interactTrigger == null) return;
+
             EntranceTeleport entranceTeleport = interactTrigger.GetComponent<EntranceTeleport>();
-            if (entranceTeleport != null && IsEntranceBlocked(ref entranceTeleport))
+            if (entranceTeleport != null && IsEntranceBlocked(entranceTeleport))
             {
                 HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_LOCKED_ENTRANCE);
                 __result = false;
             }
         }
 
-        public static bool IsEntranceBlocked(ref EntranceTeleport entranceTeleport)
-        {
-            if (blockedEntrances.ContainsKey(entranceTeleport))
-            {
-                return true;
-            }
-            return false;
-        }
+        public static bool IsEntranceBlocked(EntranceTeleport entranceTeleport)
+            => blockedEntrances.ContainsKey(entranceTeleport);
 
         [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SetScreenFilters))]
         [HarmonyPrefix]

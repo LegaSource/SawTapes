@@ -11,34 +11,24 @@ namespace SawTapes.Patches
 
         [HarmonyPatch(typeof(DoorLock), nameof(DoorLock.OnTriggerStay))]
         [HarmonyPrefix]
-        private static bool OpenDoorAsEnemy(ref DoorLock __instance) => !IsDoorBlocked(ref __instance);
+        private static bool OpenDoorAsEnemy(ref DoorLock __instance) => !IsDoorBlocked(__instance);
 
         [HarmonyPatch(typeof(DoorLock), nameof(DoorLock.TryDoorHaunt))]
         [HarmonyPrefix]
-        private static bool OpenDoorAsHaunt(ref DoorLock __instance) => !IsDoorBlocked(ref __instance);
+        private static bool OpenDoorAsHaunt(ref DoorLock __instance) => !IsDoorBlocked(__instance);
 
         [HarmonyPatch(typeof(DoorLock), nameof(DoorLock.OpenOrCloseDoor))]
         [HarmonyPrefix]
         private static bool OpenDoorAsPlayer(ref DoorLock __instance, ref PlayerControllerB playerWhoTriggered)
         {
-            if (IsDoorBlocked(ref __instance))
-            {
-                if (GameNetworkManager.Instance.localPlayerController == playerWhoTriggered)
-                {
-                    HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_LOCKED_DOOR);
-                }
-                return false;
-            }
-            return true;
-        }
+            if (!IsDoorBlocked(__instance)) return true;
 
-        public static bool IsDoorBlocked(ref DoorLock doorLock)
-        {
-            if (blockedDoors.ContainsKey(doorLock))
-            {
-                return true;
-            }
+            if (GameNetworkManager.Instance.localPlayerController == playerWhoTriggered)
+                HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_LOCKED_DOOR);
             return false;
         }
+
+        public static bool IsDoorBlocked(DoorLock doorLock)
+            => blockedDoors.ContainsKey(doorLock);
     }
 }
