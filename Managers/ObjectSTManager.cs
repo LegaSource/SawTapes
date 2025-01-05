@@ -12,6 +12,7 @@ namespace SawTapes.Managers
             {
                 GameObject curseParticleEffect = Object.Instantiate(SawTapes.tapeParticle, grabbableObject.transform.position, Quaternion.identity);
                 curseParticleEffect.transform.SetParent(grabbableObject.transform);
+
                 if (grabbableObject is SawTape sawTape)
                     sawTape.particleEffect = curseParticleEffect;
                 else if (grabbableObject is Saw saw)
@@ -32,13 +33,17 @@ namespace SawTapes.Managers
 
         public static void ChangeObjectPosition(GrabbableObject grabbableObject, Vector3 position)
         {
-            grabbableObject.EnableItemMeshes(false);
-            grabbableObject.transform.localPosition = position;
-            grabbableObject.transform.position = position;
-            grabbableObject.startFallingPosition = position;
-            grabbableObject.FallToGround();
-            grabbableObject.EnableItemMeshes(true);
-            EnableBlackParticle(grabbableObject, true);
+            if (!grabbableObject.isHeld)
+            {
+                grabbableObject.EnableItemMeshes(false);
+                grabbableObject.transform.localPosition = position;
+                grabbableObject.transform.position = position;
+                grabbableObject.startFallingPosition = position;
+                grabbableObject.FallToGround();
+                grabbableObject.hasHitGround = false;
+                grabbableObject.EnableItemMeshes(true);
+                EnableBlackParticle(grabbableObject, true);
+            }
         }
     }
 }

@@ -22,6 +22,8 @@ namespace SawTapes.Behaviours.Items
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
+            base.ItemActivate(used, buttonDown);
+            
             if (playerHeldBy != null && buttonDown)
             {
                 if (!hasBeenUsedForEscapeGame)
@@ -106,6 +108,14 @@ namespace SawTapes.Behaviours.Items
 
             if (particleEffect != null)
                 SawTapesNetworkManager.Instance.EnableBlackParticleServerRpc(GetComponent<NetworkObject>(), false);
+        }
+
+        public override void OnDestroy()
+        {
+            if (particleEffect != null)
+                Destroy(particleEffect.gameObject);
+
+            base.OnDestroy();
         }
     }
 }

@@ -11,6 +11,7 @@ namespace SawTapes.Behaviours.Items
         public override void Start()
         {
             base.Start();
+
             if (billyLaugh == null)
                 billyLaugh = GetComponent<AudioSource>();
             if (billyLaugh == null)
@@ -20,6 +21,7 @@ namespace SawTapes.Behaviours.Items
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
+
             if (buttonDown && playerHeldBy != null)
                 BillyLaughServerRpc();
         }
@@ -33,6 +35,7 @@ namespace SawTapes.Behaviours.Items
         public override void GrabItem()
         {
             base.GrabItem();
+
             EnableItemMeshes(true);
             if (IsServer && billy?.thisNetworkObject && billy.thisNetworkObject.IsSpawned)
             {

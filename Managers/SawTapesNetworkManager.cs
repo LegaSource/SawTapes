@@ -119,6 +119,13 @@ namespace SawTapes.Managers
         }
 
         [ClientRpc]
+        public void PlayerEndPathGuideClientRpc(int playerId)
+        {
+            PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
+            SawGameSTManager.PlayerEndPathGuide(playerBehaviour);
+        }
+
+        [ClientRpc]
         public void SpawnPathParticleClientRpc(Vector3 leftPosition, Vector3 rightPosition, int[] playerIds)
         {
             if (GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer) return;

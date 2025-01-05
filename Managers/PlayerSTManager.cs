@@ -67,7 +67,7 @@ namespace SawTapes.Managers
         public static void TeleportSawToPlayer(PlayerSTBehaviour playerBehaviour)
         {
             if (playerBehaviour.escapeTape?.saw != null)
-                SawTapesNetworkManager.Instance.ChangeObjectPositionServerRpc(playerBehaviour.escapeTape.saw.GetComponent<NetworkObject>(), playerBehaviour.playerProperties.transform.position);
+                SawTapesNetworkManager.Instance.ChangeObjectPositionServerRpc(playerBehaviour.escapeTape.saw.GetComponent<NetworkObject>(), playerBehaviour.playerProperties.transform.position + Vector3.up * 0.5f);
         }
     }
 }

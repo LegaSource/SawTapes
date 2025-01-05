@@ -34,17 +34,6 @@ namespace SawTapes.Behaviours.Tapes
         [ServerRpc(RequireOwnership = false)]
         public void PostGameSetUpActionServerRpc() => StartCoroutine(SetUpChainsCouroutine());
 
-        public void AddPathGuide(PlayerControllerB player)
-        {
-            if (testedPlayers.Count == currentTestedPlayersIndex)
-            {
-                PathGuideBehaviour pathGuide = player.gameObject.AddComponent<PathGuideBehaviour>();
-                pathGuide.saw = saw;
-                pathGuide.sawTape = this;
-                pathGuide.players = testedPlayers;
-            }
-        }
-
         public IEnumerator SetUpChainsCouroutine()
         {
             if (testedPlayers.Count == currentTestedPlayersIndex)
@@ -59,13 +48,6 @@ namespace SawTapes.Behaviours.Tapes
             }
         }
 
-        public void SpawnSaw(Vector3 position)
-        {
-            position = STUtilities.GetFurthestPositionScrapSpawn(position, SawTapes.sawItem);
-            saw = RoundManagerPatch.SpawnItem(SawTapes.sawItem.spawnPrefab, position) as Saw;
-            SawTapesNetworkManager.Instance.SetScrapValueClientRpc(saw.GetComponent<NetworkObject>(), ConfigManager.sawValue.Value);
-        }
-
         public override void ExecutePreGameActionForServer(PlayerSTBehaviour playerBehaviour)
         {
             SpawnSaw(playerBehaviour.playerProperties.transform.position);
@@ -73,7 +55,25 @@ namespace SawTapes.Behaviours.Tapes
             billyValue = ConfigManager.escapeBillyValue.Value;
         }
 
+        public void SpawnSaw(Vector3 position)
+        {
+            position = STUtilities.GetFurthestPositionScrapSpawn(position, SawTapes.sawItem);
+            saw = RoundManagerPatch.SpawnItem(SawTapes.sawItem.spawnPrefab, position) as Saw;
+            SawTapesNetworkManager.Instance.SetScrapValueClientRpc(saw.GetComponent<NetworkObject>(), ConfigManager.sawValue.Value);
+        }
+
         public override void ExecuteStartGameActionForServer() => AddPathGuide(mainPlayer);
+
+        public void AddPathGuide(PlayerControllerB player)
+        {
+            if (testedPlayers.Count == currentTestedPlayersIndex)
+            {
+                PathGuideBehaviour pathGuide = player.gameObject.AddComponent<PathGuideBehaviour>();
+                pathGuide.saw = saw;
+                pathGuide.sawTape = this;
+                pathGuide.players = testedPlayers;
+            }
+        }
 
         public override bool DoGameForServer(int iterator)
             => !(testedPlayers.Any(p => p.isPlayerDead) || sawHasBeenUsed);

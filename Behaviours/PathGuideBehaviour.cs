@@ -76,6 +76,12 @@ namespace SawTapes.Behaviours
                             spawnWithBackFlushAgainstWall));
                 }
             }
+            foreach (EscapeHazard escapeHazard in eligibleHazards.ToList())
+            {
+                GameObject hazard = SearchHazard(escapeHazard);
+                if (hazard == null)
+                    eligibleHazards.Remove(escapeHazard);
+            }
         }
 
         public IEnumerator UpdatePathCoroutine()
@@ -187,7 +193,10 @@ namespace SawTapes.Behaviours
                     {
                         hazardPosition.y = hit.point.y;
                         EscapeHazard escapeHazard = eligibleHazards[new System.Random().Next(eligibleHazards.Count)];
-                        SearchHazard(hazardPosition, escapeHazard);
+                        GameObject hazard = SearchHazard(escapeHazard);
+                        // Positionne le piège légèrement au-dessus du sol pour éviter tout problème d'intersection
+                        if (hazard != null)
+                            SpawnHazard(hazard, hazardPosition + Vector3.up * 0.5f, escapeHazard);
                     }
 
                     // Met à jour distanceSinceLastTrap
@@ -201,7 +210,7 @@ namespace SawTapes.Behaviours
             }
         }
 
-        public void SearchHazard(Vector3 position, EscapeHazard escapeHazard)
+        public GameObject SearchHazard(EscapeHazard escapeHazard)
         {
             // Parcours de la liste des préfabriqués pour trouver le type de piège demandé
             GameObject hazard = null;
@@ -214,10 +223,7 @@ namespace SawTapes.Behaviours
                 }
                 if (hazard != null) break;
             }
-
-            // Positionne le piège légèrement au-dessus du sol pour éviter tout problème d'intersection
-            if (hazard != null)
-                SpawnHazard(hazard, position + Vector3.up * 0.5f, escapeHazard);
+            return hazard;
         }
 
         public void SpawnHazard(GameObject hazardPrefab, Vector3 position, EscapeHazard escapeHazard)
@@ -285,23 +291,11 @@ namespace SawTapes.Behaviours
             {
                 foreach (PlayerControllerB player in players)
                 {
-                    if (Vector3.Distance(saw.transform.position, player.transform.position) <= 5f)
-                        PlayerEndPathClientRpc((int)player.playerClientId);
+                    if (Vector3.Distance(saw.transform.position, player.transform.position) <= 5000f)
+                        SawTapesNetworkManager.Instance.PlayerEndPathGuideClientRpc((int)player.playerClientId);
                 }
                 GenerateParticlesAlongPath();
                 timer = 0f;
-            }
-        }
-
-        [ClientRpc]
-        public void PlayerEndPathClientRpc(int playerId)
-        {
-            PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
-            if (playerBehaviour.playerProperties == GameNetworkManager.Instance.localPlayerController
-                && playerBehaviour.currentControlTipState != (int)PlayerSTBehaviour.ControlTip.SAW_ITEM)
-            {
-                playerBehaviour.currentControlTipState = (int)PlayerSTBehaviour.ControlTip.SAW_ITEM;
-                HUDManager.Instance.ChangeControlTip(0, "Attract Saw : [Q]", clearAllOther: true);
             }
         }
 

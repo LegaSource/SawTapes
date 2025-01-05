@@ -8,6 +8,7 @@ namespace SawTapes.Behaviours.Items
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
+
             if (buttonDown && playerHeldBy != null)
             {
                 EnemyAI assignedEnemy = playerHeldBy.GetComponent<PlayerSTBehaviour>().huntingTape?.assignedEnemy;
