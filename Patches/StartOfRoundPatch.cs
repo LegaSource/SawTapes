@@ -15,27 +15,33 @@ namespace SawTapes.Patches
         [HarmonyPostfix]
         private static void StartRound(ref StartOfRound __instance)
         {
-            if (NetworkManager.Singleton.IsHost)
+            if (NetworkManager.Singleton.IsHost && SawTapesNetworkManager.Instance == null)
             {
-                if (SawTapesNetworkManager.Instance == null)
-                {
-                    GameObject gameObject = Object.Instantiate(SawTapes.managerPrefab, __instance.transform.parent);
-                    gameObject.GetComponent<NetworkObject>().Spawn();
-                    SawTapes.mls.LogInfo("Spawning SawTapesNetworkManager");
-                }
+                GameObject gameObject = Object.Instantiate(SawTapes.managerPrefab, __instance.transform.parent);
+                gameObject.GetComponent<NetworkObject>().Spawn();
+                SawTapes.mls.LogInfo("Spawning SawTapesNetworkManager");
             }
 
-            // Remplir les objets pour le déroulement du mini-jeu
-            SawTapes.allEnemies.Clear();
-            foreach (EnemyType enemyType in Resources.FindObjectsOfTypeAll<EnemyType>().Where(e => e?.enemyPrefab != null && e.enemyPrefab.TryGetComponent<EnemyAI>(out var enemyAI) && enemyAI != null).Distinct())
-                SawTapes.allEnemies.Add(enemyType);
-            SurvivalGameFile.LoadJSON();
+            AffectEnemiesForSawGames();
             SubtitleFile.LoadJSON();
+        }
+
+        public static void AffectEnemiesForSawGames()
+        {
+            SawTapes.allEnemies.Clear();
+            foreach (EnemyType enemyType in Resources.FindObjectsOfTypeAll<EnemyType>().Distinct())
+            {
+                if (enemyType == null || enemyType.enemyPrefab == null) continue;
+                if (!(enemyType.enemyPrefab.TryGetComponent<EnemyAI>(out var enemyAI) && enemyAI != null)) continue;
+
+                SawTapes.allEnemies.Add(enemyType);
+            }
         }
 
         [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.OnDisable))]
         [HarmonyPostfix]
-        public static void OnDisable() => SawTapesNetworkManager.Instance = null;
+        public static void OnDisable()
+            => SawTapesNetworkManager.Instance = null;
 
         [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.OnPlayerConnectedClientRpc))]
         [HarmonyPostfix]

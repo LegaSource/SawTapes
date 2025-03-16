@@ -16,7 +16,8 @@ namespace SawTapes.Behaviours
             wallhackMaterial = material;
         }
 
-        public void ClearTargetRenderers() => targetRenderers.Clear();
+        public void ClearTargetRenderers()
+            => targetRenderers.Clear();
 
         public override void Execute(CustomPassContext ctx)
         {

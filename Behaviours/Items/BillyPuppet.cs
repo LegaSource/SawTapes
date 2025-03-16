@@ -12,10 +12,8 @@ namespace SawTapes.Behaviours.Items
         {
             base.Start();
 
-            if (billyLaugh == null)
-                billyLaugh = GetComponent<AudioSource>();
-            if (billyLaugh == null)
-                SawTapes.mls.LogError("billyLaugh is not assigned and could not be found.");
+            if (billyLaugh == null) billyLaugh = GetComponent<AudioSource>();
+            if (billyLaugh == null) SawTapes.mls.LogError("billyLaugh is not assigned and could not be found.");
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
@@ -27,10 +25,12 @@ namespace SawTapes.Behaviours.Items
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void BillyLaughServerRpc() => BillyLaughClientRpc();
+        private void BillyLaughServerRpc()
+            => BillyLaughClientRpc();
 
         [ClientRpc]
-        private void BillyLaughClientRpc() => billyLaugh.Play();
+        private void BillyLaughClientRpc()
+            => billyLaugh.Play();
 
         public override void GrabItem()
         {

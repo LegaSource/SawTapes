@@ -1,6 +1,8 @@
 ﻿using GameNetcodeStuff;
 using SawTapes.Behaviours;
+using SawTapes.Behaviours.Tapes;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -8,13 +10,30 @@ namespace SawTapes.Managers
 {
     public class PlayerSTManager
     {
+        public static Dictionary<PlayerControllerB, PlayerSTBehaviour> playerBehavioursCache = new();
+
         public static void AddPlayerBehaviour(PlayerControllerB player)
         {
-            if (player.isPlayerControlled && player.GetComponent<PlayerSTBehaviour>() == null)
+            if (!player.isPlayerControlled || player.GetComponent<PlayerSTBehaviour>() != null) return;
+
+            PlayerSTBehaviour playerBehaviour = player.gameObject.AddComponent<PlayerSTBehaviour>();
+            playerBehaviour.playerProperties = player;
+        }
+
+        public static PlayerSTBehaviour GetPlayerBehaviour(PlayerControllerB player)
+        {
+            if (player == null) return null;
+            if (playerBehavioursCache.TryGetValue(player, out PlayerSTBehaviour playerBehaviour)) return playerBehaviour;
+            
+            playerBehaviour = player.GetComponent<PlayerSTBehaviour>();
+            if (playerBehaviour == null)
             {
-                PlayerSTBehaviour playerBehaviour = player.gameObject.AddComponent<PlayerSTBehaviour>();
-                playerBehaviour.playerProperties = player;
+                AddPlayerBehaviour(player);
+                playerBehaviour = playerBehavioursCache[player];
+                return playerBehaviour;
             }
+            playerBehavioursCache[player] = playerBehaviour;
+            return playerBehaviour;
         }
 
         public static IEnumerator SetUntargetablePlayerCoroutine(PlayerSTBehaviour playerBehaviour, float duration)
@@ -27,26 +46,22 @@ namespace SawTapes.Managers
         public static bool PreventTeleportPlayer(PlayerControllerB player)
         {
             PlayerSTBehaviour playerBehaviour = player.GetComponent<PlayerSTBehaviour>();
-            if (playerBehaviour != null
-                && playerBehaviour.isInGame
-                && (playerBehaviour.tileGame != null || playerBehaviour.hasBeenGassed))
-            {
-                player.KillPlayer(Vector3.zero, spawnBody: true, CauseOfDeath.Unknown);
-                if (player == GameNetworkManager.Instance.localPlayerController)
-                    HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_CHEAT);
-                return true;
-            }
-            return false;
+            if (playerBehaviour == null) return false;
+            if (!playerBehaviour.isInGame || !playerBehaviour.hasBeenGassed) return false;
+
+            if (player != GameNetworkManager.Instance.localPlayerController) return true;
+            HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_IMP_ACTION);
+            return true;
         }
 
-        public static void ResetPlayerGame(PlayerSTBehaviour playerBehaviour)
+        public static void ResetPlayerGame(PlayerControllerB player)
         {
-            playerBehaviour.campTime = 0;
+            PlayerSTBehaviour playerBehaviour = GetPlayerBehaviour(player);
+            if (playerBehaviour == null) return;
+
             playerBehaviour.isInGame = false;
-            playerBehaviour.tileGame = null;
             playerBehaviour.hasBeenGassed = false;
-            playerBehaviour.huntingTape = null;
-            playerBehaviour.escapeTape = null;
+            playerBehaviour.sawTape = null;
         }
 
         public static void SecondaryUsePerformed(PlayerSTBehaviour playerBehaviour)
@@ -58,16 +73,17 @@ namespace SawTapes.Managers
                 case (int)PlayerSTBehaviour.ControlTip.SAW_ITEM:
                     TeleportSawToPlayer(playerBehaviour);
                     break;
-
-                default:
-                    return;
             }
         }
 
         public static void TeleportSawToPlayer(PlayerSTBehaviour playerBehaviour)
         {
-            if (playerBehaviour.escapeTape?.saw != null)
-                SawTapesNetworkManager.Instance.ChangeObjectPositionServerRpc(playerBehaviour.escapeTape.saw.GetComponent<NetworkObject>(), playerBehaviour.playerProperties.transform.position + Vector3.up * 0.5f);
+            if (playerBehaviour == null) return;
+
+            EscapeTape escapeTape = playerBehaviour.sawTape as EscapeTape;
+            if (escapeTape == null || escapeTape.saw == null) return;
+            
+            SawTapesNetworkManager.Instance.ChangeObjectPositionServerRpc(escapeTape.saw.GetComponent<NetworkObject>(), playerBehaviour.playerProperties.transform.position + Vector3.up * 0.5f);
         }
     }
 }

@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace SawTapes.Behaviours.Tapes
 {
-    public class EscapeTape : SawTapeGassing
+    public class EscapeTape : SawTape
     {
         public Chain chain;
         public Saw saw;
@@ -22,73 +22,75 @@ namespace SawTapes.Behaviours.Tapes
 
             InstantiateAndAttachAudio(SawTapes.sawRecordingEscape);
             subtitlesGame = SubtitleFile.escapeGameSubtitles;
-            currentTestedPlayersIndex = 2;
+
+            minPlayersAmount = 2;
+            maxPlayersAmount = 2;
+
+            gameDuration = ConfigManager.escapeDuration.Value;
+            billyValue = ConfigManager.escapeBillyValue.Value;
         }
 
-        public override void ExecutePreGassedSetUpActionForClient() => SelectTestedPlayersServerRpc();
-
-        public override void SetSpecificFieldsForAllClients(PlayerSTBehaviour playerBehaviour) => playerBehaviour.escapeTape = this;
-
-        public override void ExecutePostGassedSetUpActionForClient() => PostGameSetUpActionServerRpc();
-
-        [ServerRpc(RequireOwnership = false)]
-        public void PostGameSetUpActionServerRpc() => StartCoroutine(SetUpChainsCouroutine());
+        public override void ExecutePostGasActionsForServer()
+        {
+            base.ExecutePostGasActionsForServer();
+            StartCoroutine(SetUpChainsCouroutine());
+        }
 
         public IEnumerator SetUpChainsCouroutine()
         {
-            if (testedPlayers.Count == currentTestedPlayersIndex)
+            PlayerControllerB[] players = base.players.ToArray();
+            if (players.Length == 2)
             {
-                PlayerControllerB selectedPlayer = testedPlayers.FirstOrDefault(p => p != mainPlayer);
+                yield return new WaitUntil(() => Vector3.Distance(players[0].transform.position, players[1].transform.position) < 8f);
 
-                yield return new WaitUntil(() => mainPlayer != null && selectedPlayer != null && Vector3.Distance(mainPlayer.transform.position, selectedPlayer.transform.position) < 8f);
-
-                Vector3 position = (mainPlayer.transform.position + selectedPlayer.transform.position) / 2f + Vector3.up * 1.2f;
+                Vector3 position = (players[0].transform.position + players[1].transform.position) / 2f + Vector3.up * 1.2f;
                 chain = RoundManagerPatch.SpawnItem(SawTapes.chainObj, position) as Chain;
-                chain.SetUpChainClientRpc((int)mainPlayer.playerClientId, (int)selectedPlayer.playerClientId);
+                chain.SetUpChainClientRpc((int)players[0].playerClientId, (int)players[1].playerClientId);
             }
         }
 
-        public override void ExecutePreGameActionForServer(PlayerSTBehaviour playerBehaviour)
+        public override void ExecuteStartGameActionsForServer()
         {
-            SpawnSaw(playerBehaviour.playerProperties.transform.position);
-            gameDuration = ConfigManager.escapeDuration.Value;
-            billyValue = ConfigManager.escapeBillyValue.Value;
+            base.ExecuteStartGameActionsForServer();
+
+            PlayerControllerB player = players.FirstOrDefault();
+            if (player == null) return;
+
+            SpawnSaw(player.transform.position);
+            AddPathGuide(player);
         }
 
         public void SpawnSaw(Vector3 position)
         {
             position = STUtilities.GetFurthestPositionScrapSpawn(position, SawTapes.sawItem);
             saw = RoundManagerPatch.SpawnItem(SawTapes.sawItem.spawnPrefab, position) as Saw;
-            SawTapesNetworkManager.Instance.SetScrapValueClientRpc(saw.GetComponent<NetworkObject>(), ConfigManager.sawValue.Value);
+            SawTapesNetworkManager.Instance.SetScrapValueClientRpc(saw.GetComponent<NetworkObject>(), ConfigManager.escapeSawValue.Value);
         }
-
-        public override void ExecuteStartGameActionForServer() => AddPathGuide(mainPlayer);
 
         public void AddPathGuide(PlayerControllerB player)
         {
-            if (testedPlayers.Count == currentTestedPlayersIndex)
-            {
-                PathGuideBehaviour pathGuide = player.gameObject.AddComponent<PathGuideBehaviour>();
-                pathGuide.saw = saw;
-                pathGuide.sawTape = this;
-                pathGuide.players = testedPlayers;
-            }
+            PathGuideBehaviour pathGuide = player.gameObject.AddComponent<PathGuideBehaviour>();
+            pathGuide.saw = saw;
+            pathGuide.sawTape = this;
+            pathGuide.players = players;
         }
 
         public override bool DoGameForServer(int iterator)
-            => !(testedPlayers.Any(p => p.isPlayerDead) || sawHasBeenUsed);
+            => !(players.Any(p => p.isPlayerDead) || sawHasBeenUsed);
 
         public override bool ExecutePreEndGameActionForServer(bool isGameCancelled)
         {
+            base.ExecutePreEndGameActionForServer(isGameCancelled);
+
             DestroyChain();
             DestroyPathGuide();
-            if (testedPlayers.Any(p => p.isPlayerDead) || !sawHasBeenUsed)
+            if (players.Any(p => p.isPlayerDead) || !sawHasBeenUsed)
             {
                 DestroySaw();
                 // On tue les joueurs encore en vie
                 if (!isGameCancelled)
                 {
-                    foreach (PlayerControllerB alivePlayer in testedPlayers.Where(p => !p.isPlayerDead))
+                    foreach (PlayerControllerB alivePlayer in players.Where(p => !p.isPlayerDead))
                         SawTapesNetworkManager.Instance.KillPlayerClientRpc((int)alivePlayer.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown);
                 }
                 return true;
@@ -101,29 +103,39 @@ namespace SawTapes.Behaviours.Tapes
             if (chain != null)
             {
                 NetworkObject networkObject = chain.GetComponent<NetworkObject>();
-                if (networkObject != null && networkObject.IsSpawned)
-                    networkObject.Despawn(destroy: true);
+                if (networkObject == null || !networkObject.IsSpawned) return;
+
+                networkObject.Despawn(destroy: true);
             }
         }
 
         public void DestroyPathGuide()
         {
-            PathGuideBehaviour pathGuide = mainPlayer?.GetComponent<PathGuideBehaviour>();
-            if (pathGuide != null)
-                Destroy(pathGuide);
+            PathGuideBehaviour pathGuide = players.Select(p => p.GetComponent<PathGuideBehaviour>()).FirstOrDefault();
+            if (pathGuide != null) Destroy(pathGuide);
         }
 
         public void DestroySaw()
         {
             if (saw != null)
-                SawTapesNetworkManager.Instance.DestroyObjectClientRpc(saw.GetComponent<NetworkObject>());
+            {
+                NetworkObject networkObject = saw.GetComponent<NetworkObject>();
+                if (networkObject == null || !networkObject.IsSpawned) return;
+
+                SawTapesNetworkManager.Instance.DestroyObjectClientRpc(networkObject);
+            }
         }
 
-        public override void EndGameResetsForAllClients(bool isGameOver, bool isGameCancelled)
+        public override void EndGameForAllClients(bool isGameEnded)
         {
-            base.EndGameResetsForAllClients(isGameOver, isGameCancelled);
+            base.EndGameForAllClients(isGameEnded);
+
             sawHasBeenUsed = false;
-            GameNetworkManager.Instance.localPlayerController.GetComponent<PlayerSTBehaviour>().currentControlTipState = (int)PlayerSTBehaviour.ControlTip.NONE;
+
+            PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(GameNetworkManager.Instance.localPlayerController);
+            if (playerBehaviour == null) return;
+
+            playerBehaviour.currentControlTipState = (int)PlayerSTBehaviour.ControlTip.NONE;
         }
     }
 }

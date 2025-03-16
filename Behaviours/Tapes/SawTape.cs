@@ -15,127 +15,261 @@ namespace SawTapes.Behaviours.Tapes
     {
         public bool isGameStarted = false;
         public bool isGameEnded = false;
+        public bool isPlayerFinded = false;
 
-        public AudioSource sawRecording;
+        public int gameDuration;
+        public int billyValue;
+
         public AudioSource sawTheme;
+        public AudioSource sawRecording;
         public HashSet<SubtitleMapping> subtitlesGame = new HashSet<SubtitleMapping>();
-        public GameObject particleEffect;
 
-        public int billyValue = 120;
-        public int gameDuration = 60;
+        public int minPlayersAmount = 1;
+        public int maxPlayersAmount = 1;
+        public int playersAmount;
+        public HashSet<PlayerControllerB> players = new HashSet<PlayerControllerB>();
 
-        public PlayerControllerB mainPlayer;
-        public HashSet<PlayerControllerB> testedPlayers = new HashSet<PlayerControllerB>();
-        public int currentTestedPlayersIndex = 0;
+        public override void Start()
+        {
+            base.Start();
+            isGameEnded = scrapValue != 0;
+        }
 
-        public void InstantiateAndAttachAudio(GameObject audioPrefab)
+        public virtual void InstantiateAndAttachAudio(GameObject audioPrefab)
         {
             GameObject audioObject = Instantiate(audioPrefab, transform.position, Quaternion.identity);
             audioObject.transform.SetParent(transform);
             sawRecording = audioObject.GetComponent<AudioSource>();
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void SelectTestedPlayersServerRpc()
+        public override void Update()
         {
-            for (int i = 1; i < currentTestedPlayersIndex; i++)
-            {
-                PlayerControllerB[] eligiblePlayers = StartOfRound.Instance.allPlayerScripts.Where(p => p.isPlayerControlled && !p.isPlayerDead && !testedPlayers.Contains(p)).ToArray();
-                if (eligiblePlayers.Length > 0)
-                {
-                    testedPlayers.Add(eligiblePlayers[new System.Random().Next(eligiblePlayers.Length)]);
-                    continue;
-                }
-            }
+            base.Update();
+            FindPlayerInRange();
+        }
 
-            if (testedPlayers.Count == currentTestedPlayersIndex)
+        public void FindPlayerInRange()
+        {
+            if (isGameStarted || isGameEnded || isPlayerFinded) return;
+
+            PlayerControllerB localPlayer = GameNetworkManager.Instance?.localPlayerController;
+            if (localPlayer == null) return;
+            if (!localPlayer.IsHost && !localPlayer.IsServer) return;
+
+            PlayerControllerB player = StartOfRound.Instance.allPlayerScripts
+                .FirstOrDefault(p =>
+                    p.isPlayerControlled
+                    && !p.isPlayerDead
+                    && Vector3.Distance(p.transform.position, transform.position) <= ConfigManager.gassingDistance.Value);
+            if (player == null) return;
+
+            isPlayerFinded = true;
+
+            players.Clear();
+            players.Add(player);
+
+            SetPlayersAmount();
+            SelectPlayers();
+        }
+
+        public void SetPlayersAmount()
+        {
+            playersAmount = StartOfRound.Instance.allPlayerScripts.Count(p => p.isPlayerControlled && !p.isPlayerDead);
+            if (playersAmount < minPlayersAmount) return;
+
+            /*
+             * Si minPlayersAmount = -1 -> on prend tous les joueurs
+             * Si maxPlayersAmount = -1 -> on prend un nombre de joueurs aléatoires entre le minPlayersAmount et le nombre de joueurs disponibles
+             */
+            if (maxPlayersAmount == -1)
             {
-                SelectTestedPlayersClientRpc(testedPlayers.Select(p => (int)p.playerClientId).ToArray());
-                ExecutePostSelectedPlayersForServer();
+                minPlayersAmount = minPlayersAmount == -1 ? playersAmount : minPlayersAmount;
+                maxPlayersAmount = playersAmount;
             }
-            else
+            playersAmount = new System.Random().Next(minPlayersAmount, Mathf.Min(playersAmount, maxPlayersAmount));
+        }
+
+        public void SelectPlayers()
+        {
+            for (int i = 1; i < playersAmount; i++)
             {
-                SawTapes.mls.LogWarning("Not enough players to play the game");
+                List<PlayerControllerB> eligiblePlayers = StartOfRound.Instance.allPlayerScripts
+                    .Where(p => p.isPlayerControlled && !p.isPlayerDead && !players.Contains(p))
+                    .ToList();
+
+                PlayerControllerB player = eligiblePlayers.Count > 0
+                    ? eligiblePlayers[Random.Range(0, eligiblePlayers.Count)]
+                    : null;
+
+                if (player == null)
+                {
+                    SawTapes.mls.LogWarning("Not enough players to play the game");
+                    isGameEnded = true;
+                    return;
+                }
+                players.Add(player);
+            }
+            AffectPlayersClientRpc(players.Select(p => (int)p.playerClientId).ToArray());
+            GasPlayersClientRpc();
+            ExecutePostGasActionsForServer();
+        }
+
+        [ClientRpc]
+        public void AffectPlayersClientRpc(int[] playerIds)
+        {
+            players.Clear();
+            foreach (int playerId in playerIds)
+            {
+                PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
+                if (playerBehaviour == null) return;
+
+                players.Add(playerBehaviour.playerProperties);
+                playerBehaviour.isInGame = true;
+                playerBehaviour.sawTape = this;
             }
         }
 
         [ClientRpc]
-        public void SelectTestedPlayersClientRpc(int[] playerIds)
+        public void GasPlayersClientRpc()
         {
-            testedPlayers.Clear();
-            foreach (int playerId in playerIds)
-            {
-                PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
-                testedPlayers.Add(playerBehaviour.playerProperties);
+            if (!players.Contains(GameNetworkManager.Instance.localPlayerController)) return;
+            StartCoroutine(GasPlayersCoroutine());
+        }
 
-                playerBehaviour.isInGame = true;
-                SetSpecificFieldsForAllClients(playerBehaviour);
+        public IEnumerator GasPlayersCoroutine()
+        {
+            PlayerControllerB localPlayer = GameNetworkManager.Instance.localPlayerController;
+
+            HUDManagerPatch.isFlashFilterUsed = true;
+            PlaySteamParticle(localPlayer);
+            float timePassed = 0f;
+            while (timePassed < 5f)
+            {
+                yield return new WaitForSeconds(0.2f);
+                timePassed += 0.2f;
+
+                ApplyGasEffects(true, intensity: timePassed);
+            }
+
+            yield return new WaitForSeconds(1f);
+
+            ExecutePostGasActionsForClient(localPlayer);
+        }
+
+        public void PlaySteamParticle(PlayerControllerB player)
+        {
+            // Steam particle
+            GameObject particleObject = Instantiate(SawTapes.steamParticle, player.gameplayCamera.transform.position, player.gameplayCamera.transform.rotation);
+            particleObject.transform.SetParent(player.transform);
+
+            ParticleSystem steamParticle = particleObject.GetComponent<ParticleSystem>();
+            Destroy(particleObject, steamParticle.main.duration + steamParticle.main.startLifetime.constantMax);
+
+            // Audio steam particle
+            GameObject audioObject = Instantiate(SawTapes.steamAudio, player.gameplayCamera.transform.position, Quaternion.identity);
+            audioObject.transform.SetParent(player.transform);
+
+            AudioSource steamAudio = audioObject.GetComponent<AudioSource>();
+            Destroy(steamAudio, steamAudio.clip.length);
+        }
+
+        public void ApplyGasEffects(bool isBeingGassed, float intensity = 0f)
+        {
+            HUDManager.Instance.HideHUD(isBeingGassed);
+            if (isBeingGassed)
+            {
+                HUDManager.Instance.flashbangScreenFilter.weight = Mathf.Min(1f, intensity / 5f);
+                return;
+            }
+            HUDManagerPatch.isFlashFilterUsed = false;
+            HUDManager.Instance.flashbangScreenFilter.weight = 0f;
+        }
+
+        public virtual void ExecutePostGasActionsForClient(PlayerControllerB player)
+        {
+            TeleportPlayer(player);
+            ApplyGasEffects(false);
+
+            PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(player);
+            if (playerBehaviour == null) return;
+
+            playerBehaviour.hasBeenGassed = true;
+        }
+
+        public void TeleportPlayer(PlayerControllerB player)
+        {
+            player.DropAllHeldItemsAndSync();
+            player.averageVelocity = 0f;
+            player.velocityLastFrame = Vector3.zero;
+            player.isInElevator = false;
+            player.isInHangarShipRoom = false;
+            player.isInsideFactory = true;
+
+            Transform entrancePoint = STUtilities.FindMainEntrancePoint();
+            player.TeleportPlayer(entrancePoint.position, withRotation: true, entrancePoint.eulerAngles.y);
+            player.SpawnPlayerAnimation();
+
+            TeleportPlayerServerRpc((int)player.playerClientId);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void TeleportPlayerServerRpc(int playerId)
+            => TeleportPlayerClientRpc(playerId);
+
+        [ClientRpc]
+        public void TeleportPlayerClientRpc(int playerId)
+        {
+            PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+            if (player != GameNetworkManager.Instance.localPlayerController)
+            {
+                Transform entrancePoint = STUtilities.FindMainEntrancePoint();
+                player.TeleportPlayer(entrancePoint.position, withRotation: true, entrancePoint.eulerAngles.y);
+                player.isInElevator = false;
+                player.isInHangarShipRoom = false;
+                player.isInsideFactory = true;
+            }
+            for (int i = 0; i < player.ItemSlots.Length; i++)
+            {
+                if (player.ItemSlots[i] == null) continue;
+                player.ItemSlots[i].isInFactory = true;
             }
         }
 
-        public virtual void SetSpecificFieldsForAllClients(PlayerSTBehaviour playerBehaviour) { }
-
-        public virtual void ExecutePostSelectedPlayersForServer() { }
-
-        public override void GrabItem()
+        public virtual void ExecutePostGasActionsForServer()
         {
-            base.GrabItem();
-
-            if (particleEffect != null)
-                SawTapesNetworkManager.Instance.EnableBlackParticleServerRpc(GetComponent<NetworkObject>(), false);
+            Transform entrancePoint = STUtilities.FindMainEntrancePoint();
+            SawTapesNetworkManager.Instance.ChangeObjectPositionServerRpc(GetComponent<NetworkObject>(), entrancePoint.position + entrancePoint.forward + Vector3.up * 0.5f);
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
 
-            if (buttonDown && playerHeldBy != null && !sawRecording.isPlaying)
+            if (!buttonDown || playerHeldBy == null || sawRecording.isPlaying) return;
+
+            PlayRecordingServerRpc();
+
+            if (isGameStarted || isGameEnded) return;
+
+            PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(playerHeldBy);
+            if (playerBehaviour == null || !playerBehaviour.isInGame)
             {
-                PlaySawTapeServerRpc();
-                PlayerSTBehaviour playerBehaviour = playerHeldBy.GetComponent<PlayerSTBehaviour>();
-                if (!isGameStarted && !isGameEnded)
-                {
-                    if (playerBehaviour.isInGame)
-                    {
-                        PlaySawThemeServerRpc();
-                        StartCoroutine(SawGameBeginCoroutine(playerBehaviour));
-                    }
-                    else
-                    {
-                        HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_TESTED_PLAYER);
-                    }
-                }
+                HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_TESTED_PLAYER);
+                return;
             }
+            PlaySawThemeServerRpc();
+            StartCoroutine(BeginSawGameCoroutine());
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void PlaySawTapeServerRpc() => PlaySawTapeClientRpc();
+        public void PlayRecordingServerRpc()
+            => PlayRecordingClientRpc();
 
         [ClientRpc]
-        public void PlaySawTapeClientRpc()
+        public void PlayRecordingClientRpc()
         {
             sawRecording.Play();
-            if (ConfigManager.isSubtitles.Value)
-                StartCoroutine(ShowSubtitles());
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void PlaySawThemeServerRpc() => PlaySawThemeClientRpc();
-
-        [ClientRpc]
-        public void PlaySawThemeClientRpc()
-        {
-            if (ConfigManager.isSawTheme.Value && (sawTheme == null || !sawTheme.isPlaying))
-            {
-                PlayerControllerB localPlayer = GameNetworkManager.Instance.localPlayerController;
-                if (playerHeldBy == localPlayer || testedPlayers.Contains(localPlayer))
-                {
-                    GameObject audioObject = Instantiate(SawTapes.sawTheme, playerHeldBy.transform.position, Quaternion.identity);
-                    sawTheme = audioObject.GetComponent<AudioSource>();
-                    sawTheme.Play();
-                    audioObject.transform.SetParent(playerHeldBy.transform);
-                }
-            }
+            if (ConfigManager.isSubtitles.Value) StartCoroutine(ShowSubtitles());
         }
 
         public IEnumerator ShowSubtitles()
@@ -155,62 +289,59 @@ namespace SawTapes.Behaviours.Tapes
             HUDManagerPatch.subtitleText.text = "";
         }
 
-        public IEnumerator SawGameBeginCoroutine(PlayerSTBehaviour playerBehaviour)
-        {
-            ExecutePreGameActionServerRpc((int)playerBehaviour.playerProperties.playerClientId);
+        [ServerRpc(RequireOwnership = false)]
+        public void PlaySawThemeServerRpc()
+            => PlaySawThemeClientRpc();
 
+        [ClientRpc]
+        public void PlaySawThemeClientRpc()
+        {
+            if (!ConfigManager.isSawTheme.Value) return;
+            if (sawTheme != null && sawTheme.isPlaying) return;
+
+            PlayerControllerB player = GameNetworkManager.Instance.localPlayerController;
+            if (!players.Contains(player)) return;
+
+            GameObject audioObject = Instantiate(SawTapes.sawTheme, player.transform.position, Quaternion.identity);
+            sawTheme = audioObject.GetComponent<AudioSource>();
+            sawTheme.Play();
+            audioObject.transform.SetParent(player.transform);
+        }
+
+        public IEnumerator BeginSawGameCoroutine()
+        {
             yield return new WaitUntil(() => sawRecording.isPlaying);
-            yield return new WaitWhile(() => sawRecording.isPlaying);
+            yield return new WaitUntil(() => !sawRecording.isPlaying);
 
-            if (sawTheme != null)
-                sawTheme.volume *= 1.5f;
-
-            StartSawGameServerRpc();
+            if (sawTheme != null) sawTheme.volume *= 1.5f;
+            BeginSawGameServerRpc();
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void ExecutePreGameActionServerRpc(int playerId)
+        public void BeginSawGameServerRpc()
         {
-            ExecutePreGameActionForServer(StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>());
-            ExecutePreGameActionClientRpc(playerId);
+            ExecuteStartGameActionsForServer();
+            StartGameClientRpc();
         }
 
-        public virtual void ExecutePreGameActionForServer(PlayerSTBehaviour playerBehaviour) { }
+        public virtual void ExecuteStartGameActionsForServer() { }
 
         [ClientRpc]
-        public void ExecutePreGameActionClientRpc(int playerId)
-            => ExecutePreGameActionForAllClients(StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>());
+        public void StartGameClientRpc()
+            => ExecuteStartGameActionsForAllClients();
 
-        public virtual void ExecutePreGameActionForAllClients(PlayerControllerB player)
+        public virtual void ExecuteStartGameActionsForAllClients()
         {
-            mainPlayer = player;
-            testedPlayers.Add(mainPlayer);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void StartSawGameServerRpc()
-        {
-            ExecuteStartGameActionForServer();
-            StartGameClientRpc(gameDuration);
-            StartCoroutine(StartSawGameCoroutine());
-        }
-
-        public virtual void ExecuteStartGameActionForServer() { }
-
-        [ClientRpc]
-        public void StartGameClientRpc(int gameDuration)
-            => ExecuteStartGameActionForAllClients(gameDuration);
-
-        public virtual void ExecuteStartGameActionForAllClients(int gameDuration)
-        {
-            // Envoyé par le serveur car c'est lui qui met à jour le gameDuration depuis l'enfant
-            if (testedPlayers.Contains(GameNetworkManager.Instance.localPlayerController))
-                HUDManager.Instance.StartCoroutine(HUDManagerPatch.StartChronoCoroutine(gameDuration));
-
             isGameStarted = true;
+            PlayerControllerB player = GameNetworkManager.Instance.localPlayerController;
+
+            if (player.IsHost || player.IsServer) StartCoroutine(StartGameCoroutine());
+
+            if (!players.Contains(player)) return;
+            HUDManager.Instance.StartCoroutine(HUDManagerPatch.StartChronoCoroutine(gameDuration));
         }
 
-        public IEnumerator StartSawGameCoroutine()
+        public IEnumerator StartGameCoroutine()
         {
             int timePassed = 0;
             while (timePassed < gameDuration)
@@ -226,18 +357,52 @@ namespace SawTapes.Behaviours.Tapes
 
         public virtual void EndGameForServer(bool isGameCancelled = false)
         {
+            PlayerControllerB player = players.FirstOrDefault(p => !p.isPlayerDead);
+
             bool isGameOver = ExecutePreEndGameActionForServer(isGameCancelled);
-            if (!isGameCancelled)
-            {
-                if (isGameOver)
-                    ObjectSTManager.EnableBlackParticle(this, true);
-                else
-                    StartCoroutine(SpawnBillyCoroutine(mainPlayer));
-            }
-            SendEndGameClientRpc(isGameOver, isGameCancelled);
+            EndGameClientRpc(!isGameOver || isGameCancelled);
+            
+            if (player == null) return;
+            if (isGameOver || isGameCancelled) return;
+
+            SawTapesNetworkManager.Instance.SetScrapValueClientRpc(GetComponent<NetworkObject>(), 15);
+            StartCoroutine(SpawnBillyCoroutine(player));
         }
 
         public virtual bool ExecutePreEndGameActionForServer(bool isGameCancelled) { return true; }
+
+        [ClientRpc]
+        public void EndGameClientRpc(bool isGameEnded)
+            => EndGameForAllClients(isGameEnded);
+
+        public virtual void EndGameForAllClients(bool isGameEnded)
+        {
+            isGameStarted = false;
+            this.isGameEnded = isGameEnded;
+            isPlayerFinded = isGameEnded;
+
+            PlayerControllerB mainPlayer = players.FirstOrDefault();
+            if (mainPlayer == null) return;
+
+            PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(mainPlayer);
+            if (playerBehaviour == null) return;
+
+            foreach (PlayerControllerB player in players)
+            {
+                PlayerSTManager.ResetPlayerGame(player);
+                if (player != GameNetworkManager.Instance.localPlayerController) continue;
+
+                if (sawTheme != null)
+                {
+                    sawTheme.Stop();
+                    Destroy(sawTheme.gameObject);
+                }
+
+                if (!HUDManagerPatch.chronoText.text.IsNullOrWhiteSpace()) HUDManagerPatch.isChronoEnded = true;
+            }
+
+            players.Clear();
+        }
 
         public IEnumerator SpawnBillyCoroutine(PlayerControllerB player)
         {
@@ -274,8 +439,7 @@ namespace SawTapes.Behaviours.Tapes
                     }
                 }
 
-                if (foundPosition)
-                    break;
+                if (foundPosition) break;
             }
 
             if (!foundPosition)
@@ -291,54 +455,15 @@ namespace SawTapes.Behaviours.Tapes
         [ClientRpc]
         public void SpawnBillyClientRpc(NetworkObjectReference enemyObject, int playerId, int billyValue)
         {
-            if (enemyObject.TryGet(out NetworkObject networkObject))
+            if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
+
+            EnemyAI enemy = networkObject.gameObject.GetComponentInChildren<EnemyAI>();
+            if (enemy != null && enemy is Billy billy)
             {
-                EnemyAI enemy = networkObject.gameObject.GetComponentInChildren<EnemyAI>();
-                if (enemy != null && enemy is Billy billy)
-                {
-                    billy.targetPlayer = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
-                    billy.billyValue = billyValue;
-                    if (IsServer)
-                        billy.StartFollowingPlayer();
-                }
+                billy.targetPlayer = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+                billy.billyValue = billyValue;
+                if (IsServer) billy.StartFollowingPlayer();
             }
-        }
-
-        [ClientRpc]
-        public void SendEndGameClientRpc(bool isGameOver, bool isGameCancelled) => EndGameResetsForAllClients(isGameOver, isGameCancelled);
-
-        public virtual void EndGameResetsForAllClients(bool isGameOver, bool isGameCancelled)
-        {
-            PlayerSTBehaviour playerBehaviour = mainPlayer.GetComponent<PlayerSTBehaviour>();
-
-            if (!isGameOver || isGameCancelled)
-            {
-                if (playerBehaviour.tileGame != null)
-                    SawTapes.eligibleTiles.RemoveAll(t => t == playerBehaviour.tileGame);
-                isGameEnded = true;
-            }
-
-            isGameStarted = false;
-            TileSTManager.OpenTileDoors(playerBehaviour);
-
-            foreach (PlayerControllerB player in testedPlayers)
-            {
-                PlayerSTManager.ResetPlayerGame(player.GetComponent<PlayerSTBehaviour>());
-                if (player == GameNetworkManager.Instance.localPlayerController)
-                {
-                    if (sawTheme != null)
-                    {
-                        sawTheme.Stop();
-                        Destroy(sawTheme.gameObject);
-                    }
-
-                    if (!HUDManagerPatch.chronoText.text.IsNullOrWhiteSpace())
-                        HUDManagerPatch.isChronoEnded = true;
-                }
-            }
-
-            mainPlayer = null;
-            testedPlayers.Clear();
         }
     }
 }

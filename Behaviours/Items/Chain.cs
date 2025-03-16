@@ -104,7 +104,8 @@ namespace SawTapes.Behaviours.Items
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void PullPlayerServerRpc(int playerId, Vector3 force) => PullPlayerClientRpc(playerId, force);
+        public void PullPlayerServerRpc(int playerId, Vector3 force)
+            => PullPlayerClientRpc(playerId, force);
 
         [ClientRpc]
         public void PullPlayerClientRpc(int playerId, Vector3 force)

@@ -21,10 +21,8 @@ namespace SawTapes.Behaviours
             enemyType = SawTapes.billyEnemy;
             base.Start();
 
-            if (bikeSqueek == null)
-                bikeSqueek = GetComponent<AudioSource>();
-            if (bikeSqueek == null)
-                SawTapes.mls.LogError("bikeSqueek is not assigned and could not be found.");
+            if (bikeSqueek == null) bikeSqueek = GetComponent<AudioSource>();
+            if (bikeSqueek == null) SawTapes.mls.LogError("bikeSqueek is not assigned and could not be found.");
 
             GameObject audioObject = Instantiate(SawTapes.billyRecordingSurvival, transform.position, Quaternion.identity);
             billyRecording = audioObject.GetComponent<AudioSource>();
@@ -34,13 +32,13 @@ namespace SawTapes.Behaviours
             updatePositionThreshold = 99999;
         }
 
-        public void StartFollowingPlayer() => isMoving = true;
+        public void StartFollowingPlayer()
+            => isMoving = true;
 
         public override void Update()
         {
             base.Update();
-            if (IsServer && isMoving && targetPlayer != null)
-                MoveTowardPlayer();
+            if (IsServer && isMoving && targetPlayer != null) MoveTowardPlayer();
         }
 
         public void MoveTowardPlayer()
@@ -76,8 +74,8 @@ namespace SawTapes.Behaviours
 
         public void PlayMovementSound()
         {
-            if (bikeSqueek != null && !bikeSqueek.isPlaying)
-                RoundManager.PlayRandomClip(bikeSqueek, [bikeSqueek.clip], randomize: true);
+            if (bikeSqueek == null || bikeSqueek.isPlaying) return;
+            RoundManager.PlayRandomClip(bikeSqueek, [bikeSqueek.clip], randomize: true);
         }
 
         public IEnumerator BillyAnnouncementCoroutine()
@@ -99,26 +97,25 @@ namespace SawTapes.Behaviours
         public void BillyAnnouncementClientRpc()
         {
             billyRecording.Play();
-            if (ConfigManager.isSubtitles.Value)
-                StartCoroutine(ShowSubtitlesCoroutine());
+            if (!ConfigManager.isSubtitles.Value) return;
+            StartCoroutine(ShowSubtitlesCoroutine());
         }
 
         [ClientRpc]
         public void SpawnBillyClientRpc(NetworkObjectReference obj)
         {
-            if (obj.TryGet(out var networkObject))
+            if (!obj.TryGet(out var networkObject)) return;
+            
+            billyPuppet = networkObject.gameObject.GetComponentInChildren<BillyPuppet>();
+            if (billyPuppet != null)
             {
-                billyPuppet = networkObject.gameObject.GetComponentInChildren<BillyPuppet>();
-                if (billyPuppet != null)
-                {
-                    billyPuppet.EnableItemMeshes(false);
-                    billyPuppet.SetScrapValue(billyValue);
-                    billyPuppet.billy = this;
-                }
-                else
-                {
-                    SawTapes.mls.LogError("billyPuppet could not be found.");
-                }
+                billyPuppet.EnableItemMeshes(false);
+                billyPuppet.SetScrapValue(billyValue);
+                billyPuppet.billy = this;
+            }
+            else
+            {
+                SawTapes.mls.LogError("billyPuppet could not be found.");
             }
         }
 

@@ -3,6 +3,7 @@ using HarmonyLib;
 using SawTapes.Behaviours;
 using SawTapes.Behaviours.Tapes;
 using SawTapes.Managers;
+using System.Linq;
 
 namespace SawTapes.Patches
 {
@@ -12,40 +13,47 @@ namespace SawTapes.Patches
         [HarmonyPostfix]
         private static void HitEnemy(ref EnemyAI __instance, int force = 1, PlayerControllerB playerWhoHit = null)
         {
-            EnemyAI assignedEnemy = playerWhoHit?.GetComponent<PlayerSTBehaviour>().huntingTape?.assignedEnemy;
-            if (!__instance.isEnemyDead
-                && __instance.enemyHP - force <= 0f
-                && GameNetworkManager.Instance.localPlayerController == playerWhoHit
-                && assignedEnemy != null
-                && assignedEnemy != __instance)
-            {
-                SawTapesNetworkManager.Instance.SpawnPursuerEyeServerRpc(__instance.transform.position);
-            }
+            if (GameNetworkManager.Instance.localPlayerController != playerWhoHit) return;
+            if (__instance.isEnemyDead || __instance.enemyHP - force > 0f) return;
+
+            PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(playerWhoHit);
+            if (playerBehaviour == null) return;
+
+            HuntingTape huntingTape = playerBehaviour.sawTape as HuntingTape;
+            if (huntingTape == null) return;
+            if (huntingTape.spawnedEnemies.Contains(__instance.thisNetworkObject)) return;
+
+            SawTapesNetworkManager.Instance.SpawnPursuerEyeServerRpc(__instance.transform.position);
         }
 
         [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.KillEnemy))]
         [HarmonyPostfix]
         private static void KillEnemy(ref EnemyAI __instance)
         {
-            if (GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer)
-            {
-                EnemyAI enemy = UnityEngine.Object.FindFirstObjectByType<HuntingTape>()?.assignedEnemy;
-                if (enemy != null && __instance == enemy)
-                    SawTapesNetworkManager.Instance.SpawnSawKeyServerRpc(__instance.transform.position);
-            }
+            PlayerControllerB player = GameNetworkManager.Instance.localPlayerController;
+            if (!player.IsHost && !player.IsServer) return;
+            SawTapes.mls.LogError("KillEnemy server");
+
+            HuntingTape huntingTape = StartOfRound.Instance.allPlayerScripts
+                .Select(p => PlayerSTManager.GetPlayerBehaviour(p)?.sawTape as HuntingTape)
+                .FirstOrDefault(h => h != null);
+            if (huntingTape == null) return;
+            SawTapes.mls.LogError("huntingTape trouvée");
+            if (!huntingTape.spawnedEnemies.Contains(__instance.thisNetworkObject)) return;
+            SawTapes.mls.LogError("spawnedEnemies contains thisNetworkObject");
+
+            RoundManagerPatch.SpawnItem(SawTapes.sawKeyObj, __instance.transform.position);
         }
 
         [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.PlayerIsTargetable))]
         [HarmonyPrefix]
         private static bool IsPlayerTargetable(ref bool __result, PlayerControllerB playerScript)
         {
-            PlayerSTBehaviour playerBehaviour = playerScript.GetComponent<PlayerSTBehaviour>();
-            if (playerBehaviour != null)
-            {
-                __result = playerBehaviour.isTargetable;
-                return playerBehaviour.isTargetable;
-            }
-            return true;
+            PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(playerScript);
+            if (playerBehaviour == null || playerBehaviour.isTargetable) return true;
+
+            __result = false;
+            return false;
         }
     }
 }

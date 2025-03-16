@@ -79,8 +79,7 @@ namespace SawTapes.Behaviours
             foreach (EscapeHazard escapeHazard in eligibleHazards.ToList())
             {
                 GameObject hazard = SearchHazard(escapeHazard);
-                if (hazard == null)
-                    eligibleHazards.Remove(escapeHazard);
+                if (hazard == null) eligibleHazards.Remove(escapeHazard);
             }
         }
 
@@ -124,9 +123,10 @@ namespace SawTapes.Behaviours
         [ClientRpc]
         public void SendErrPathMessageClientRpc()
         {
-            PlayerSTBehaviour playerBehaviour = GameNetworkManager.Instance.localPlayerController.GetComponent<PlayerSTBehaviour>();
-            if (playerBehaviour != null && playerBehaviour.isInGame)
-                HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_ERR_PATH_ESCAPE);
+            PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(GameNetworkManager.Instance.localPlayerController);
+            if (playerBehaviour == null || !playerBehaviour.isInGame) return;
+            
+            HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_ERR_PATH_ESCAPE);
         }
 
         public void AdjustPathForDoorways()
@@ -151,11 +151,11 @@ namespace SawTapes.Behaviours
             {
                 foreach (DoorLock doorLock in FindObjectsOfType<DoorLock>())
                 {
-                    if (Vector3.Distance(path.corners[i], doorLock.transform.position) < 2f)
-                    {
-                        TileSTManager.UnlockDoor(doorLock);
-                        break;
-                    }
+                    if (Vector3.Distance(path.corners[i], doorLock.transform.position) > 2f) continue;
+                    if (!doorLock.isLocked || doorLock.isPickingLock) continue;
+
+                    doorLock.UnlockDoorSyncWithServer();
+                    break;
                 }
             }
         }
@@ -195,8 +195,7 @@ namespace SawTapes.Behaviours
                         EscapeHazard escapeHazard = eligibleHazards[new System.Random().Next(eligibleHazards.Count)];
                         GameObject hazard = SearchHazard(escapeHazard);
                         // Positionne le piège légèrement au-dessus du sol pour éviter tout problème d'intersection
-                        if (hazard != null)
-                            SpawnHazard(hazard, hazardPosition + Vector3.up * 0.5f, escapeHazard);
+                        if (hazard != null) SpawnHazard(hazard, hazardPosition + Vector3.up * 0.5f, escapeHazard);
                     }
 
                     // Met à jour distanceSinceLastTrap
@@ -218,8 +217,8 @@ namespace SawTapes.Behaviours
             {
                 foreach (NetworkPrefab networkPrefab in networkPrefabList.PrefabList ?? Enumerable.Empty<NetworkPrefab>())
                 {
-                    if (networkPrefab.Prefab.name.Equals(escapeHazard.HazardName))
-                        hazard = networkPrefab.Prefab;
+                    if (!networkPrefab.Prefab.name.Equals(escapeHazard.HazardName)) continue;
+                    hazard = networkPrefab.Prefab;
                 }
                 if (hazard != null) break;
             }
@@ -253,12 +252,11 @@ namespace SawTapes.Behaviours
 
             // Instancie le piège à la position calculée
             GameObject hazardInstance = Instantiate(hazardPrefab, position, Quaternion.identity, RoundManager.Instance.mapPropsContainer.transform);
-            if (escapeHazard.SpawnFacingAwayFromWall)
-                gameObject.transform.eulerAngles = new Vector3(0f, RoundManager.Instance.YRotationThatFacesTheFarthestFromPosition(position + Vector3.up * 0.2f), 0f);
-            else if (escapeHazard.SpawnFacingWall)
-                gameObject.transform.eulerAngles = new Vector3(0f, RoundManager.Instance.YRotationThatFacesTheNearestFromPosition(position + Vector3.up * 0.2f), 0f);
-            else
-                gameObject.transform.eulerAngles = new Vector3(gameObject.transform.eulerAngles.x, random.Next(0, 360), gameObject.transform.eulerAngles.z);
+
+            if (escapeHazard.SpawnFacingAwayFromWall) gameObject.transform.eulerAngles = new Vector3(0f, RoundManager.Instance.YRotationThatFacesTheFarthestFromPosition(position + Vector3.up * 0.2f), 0f);
+            else if (escapeHazard.SpawnFacingWall) gameObject.transform.eulerAngles = new Vector3(0f, RoundManager.Instance.YRotationThatFacesTheNearestFromPosition(position + Vector3.up * 0.2f), 0f);
+            else gameObject.transform.eulerAngles = new Vector3(gameObject.transform.eulerAngles.x, random.Next(0, 360), gameObject.transform.eulerAngles.z);
+
             if (escapeHazard.SpawnWithBackToWall && Physics.Raycast(gameObject.transform.position, -gameObject.transform.forward, out var hitInfo, 100f, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
             {
                 gameObject.transform.position = hitInfo.point;
@@ -291,8 +289,8 @@ namespace SawTapes.Behaviours
             {
                 foreach (PlayerControllerB player in players)
                 {
-                    if (Vector3.Distance(saw.transform.position, player.transform.position) <= 5000f)
-                        SawTapesNetworkManager.Instance.PlayerEndPathGuideClientRpc((int)player.playerClientId);
+                    if (Vector3.Distance(saw.transform.position, player.transform.position) > 5000f) continue;
+                    SawTapesNetworkManager.Instance.PlayerEndPathGuideClientRpc((int)player.playerClientId);
                 }
                 GenerateParticlesAlongPath();
                 timer = 0f;
@@ -333,8 +331,8 @@ namespace SawTapes.Behaviours
 
         public void OnDestroy()
         {
-            if (tempAgent != null)
-                Destroy(tempAgent);
+            if (tempAgent != null) Destroy(tempAgent);
+
             foreach (GameObject hazard in hazards)
                 SawGameSTManager.DespawnHazard(hazard);
         }

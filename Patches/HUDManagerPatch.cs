@@ -80,11 +80,10 @@ namespace SawTapes.Patches
             if (interactTrigger == null) return;
 
             EntranceTeleport entranceTeleport = interactTrigger.GetComponent<EntranceTeleport>();
-            if (entranceTeleport != null && IsEntranceBlocked(entranceTeleport))
-            {
-                HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_LOCKED_ENTRANCE);
-                __result = false;
-            }
+            if (entranceTeleport == null || !IsEntranceBlocked(entranceTeleport)) return;
+
+            HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_INFO_IMP_ACTION);
+            __result = false;
         }
 
         public static bool IsEntranceBlocked(EntranceTeleport entranceTeleport)
@@ -92,6 +91,7 @@ namespace SawTapes.Patches
 
         [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SetScreenFilters))]
         [HarmonyPrefix]
-        private static bool UpdateScreenFilters() => !isFlashFilterUsed;
+        private static bool UpdateScreenFilters()
+            => !isFlashFilterUsed;
     }
 }

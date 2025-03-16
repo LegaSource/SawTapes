@@ -1,4 +1,6 @@
-﻿using SawTapes.Managers;
+﻿using SawTapes.Behaviours.Tapes;
+using SawTapes.Managers;
+using System.Collections.Generic;
 using Unity.Netcode;
 
 namespace SawTapes.Behaviours.Items
@@ -9,15 +11,21 @@ namespace SawTapes.Behaviours.Items
         {
             base.ItemActivate(used, buttonDown);
 
-            if (buttonDown && playerHeldBy != null)
+            if (!buttonDown || playerHeldBy == null) return;
+
+            HuntingTape huntingTape = PlayerSTManager.GetPlayerBehaviour(playerHeldBy)?.sawTape as HuntingTape;
+            if (huntingTape == null) return;
+
+            List<EnemyAI> enemies = new List<EnemyAI>();
+            foreach (NetworkObject spawnedEnemy in huntingTape.spawnedEnemies)
             {
-                EnemyAI assignedEnemy = playerHeldBy.GetComponent<PlayerSTBehaviour>().huntingTape?.assignedEnemy;
-                if (assignedEnemy != null)
-                {
-                    StartCoroutine(STUtilities.ShowEnemyCoroutine(assignedEnemy));
-                    SawTapesNetworkManager.Instance.DestroyObjectServerRpc(GetComponent<NetworkObject>());
-                }
+                if (spawnedEnemy == null || !spawnedEnemy.IsSpawned) continue;
+                enemies.Add(spawnedEnemy.GetComponentInChildren<EnemyAI>());
             }
+            if (enemies.Count == 0) return;
+
+            STUtilities.ShowAura(enemies);
+            SawTapesNetworkManager.Instance.DestroyObjectServerRpc(GetComponent<NetworkObject>());
         }
     }
 }

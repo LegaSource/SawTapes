@@ -10,7 +10,6 @@ using SawTapes.Patches;
 using System.Collections.Generic;
 using SawTapes.Managers;
 using SawTapes.Behaviours;
-using DunGen;
 using SawTapes.Values;
 using System;
 using SawTapes.Behaviours.Tapes;
@@ -23,7 +22,7 @@ namespace SawTapes
     {
         private const string modGUID = "Lega.SawTapes";
         private const string modName = "Saw Tapes";
-        private const string modVersion = "1.1.6";
+        private const string modVersion = "2.0.0";
 
         private readonly Harmony harmony = new Harmony(modGUID);
         private readonly static AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "sawtapes"));
@@ -50,7 +49,6 @@ namespace SawTapes
         public static GameObject steamAudio;
 
         // Particles
-        public static GameObject tapeParticle;
         public static GameObject spawnParticle;
         public static GameObject despawnParticle;
         public static GameObject steamParticle;
@@ -63,9 +61,6 @@ namespace SawTapes
         public static Material wallhackShader;
 
         public static HashSet<EnemyType> allEnemies = new HashSet<EnemyType>();
-        public static List<Tile> eligibleTiles = new List<Tile>();
-        public static HashSet<SurvivalRoom> rooms = new HashSet<SurvivalRoom>();
-        public static HashSet<SurvivalHorde> hordes = new HashSet<SurvivalHorde>();
 
         public void Awake()
         {
@@ -84,9 +79,6 @@ namespace SawTapes
             harmony.PatchAll(typeof(HUDManagerPatch));
             harmony.PatchAll(typeof(PlayerControllerBPatch));
             harmony.PatchAll(typeof(StartOfRoundPatch));
-            harmony.PatchAll(typeof(DungeonPatch));
-            harmony.PatchAll(typeof(TilePatch));
-            harmony.PatchAll(typeof(DoorLockPatch));
             harmony.PatchAll(typeof(ManualCameraRendererPatch));
             harmony.PatchAll(typeof(ShipTeleporterPatch));
             harmony.PatchAll(typeof(RoundManagerPatch));
@@ -108,8 +100,8 @@ namespace SawTapes
                 foreach (var method in methods)
                 {
                     var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
-                    if (attributes.Length > 0)
-                        method.Invoke(null, null);
+                    if (attributes.Length == 0) continue;
+                    method.Invoke(null, null);
                 }
             }
         }
@@ -118,9 +110,9 @@ namespace SawTapes
         {
             sawTapeValues = new List<SawTapeValue>
             {
-                new SawTapeValue(typeof(SurvivalTape), bundle.LoadAsset<Item>("Assets/SawTape/SurvivalTapeItem.asset"), ConfigManager.SurvivalRarity, true, ConfigManager.survivalInteriorExclusions.Value),
-                new SawTapeValue(typeof(HuntingTape), bundle.LoadAsset<Item>("Assets/SawTape/HuntingTapeItem.asset"), ConfigManager.HuntingRarity, false, ConfigManager.huntingInteriorExclusions.Value),
-                new SawTapeValue(typeof(EscapeTape), bundle.LoadAsset<Item>("Assets/SawTape/EscapeTapeItem.asset"), ConfigManager.EscapeRarity, false, ConfigManager.escapeInteriorExclusions.Value)
+                new SawTapeValue(typeof(SurvivalTape), bundle.LoadAsset<Item>("Assets/SawTape/SurvivalTapeItem.asset"), ConfigManager.SurvivalRarity, ConfigManager.survivalMinPlayers.Value, ConfigManager.survivalMaxPlayers.Value, ConfigManager.survivalInteriorExclusions.Value),
+                new SawTapeValue(typeof(HuntingTape), bundle.LoadAsset<Item>("Assets/SawTape/HuntingTapeItem.asset"), ConfigManager.HuntingRarity, ConfigManager.huntingMinPlayers.Value, ConfigManager.huntingMaxPlayers.Value, ConfigManager.huntingInteriorExclusions.Value),
+                new SawTapeValue(typeof(EscapeTape), bundle.LoadAsset<Item>("Assets/SawTape/EscapeTapeItem.asset"), ConfigManager.EscapeRarity, 2, 2, ConfigManager.escapeInteriorExclusions.Value)
             };
 
             foreach (SawTapeValue sawTapeValue in sawTapeValues)
@@ -163,7 +155,6 @@ namespace SawTapes
         {
             HashSet<GameObject> gameObjects = new HashSet<GameObject>
             {
-                (tapeParticle = bundle.LoadAsset<GameObject>("Assets/Particles/TapeParticle.prefab")),
                 (spawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/SpawnParticle.prefab")),
                 (despawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/DespawnParticle.prefab")),
                 (steamParticle = bundle.LoadAsset<GameObject>("Assets/Particles/SteamParticle.prefab")),

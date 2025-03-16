@@ -32,33 +32,32 @@ namespace SawTapes.Managers
             }
         }
 
-        public static void SetupCustomPassForEnemy(EnemyAI enemy)
+        public static void SetupCustomPassForObjects(GameObject[] objects)
         {
             LayerMask wallhackLayer = 524288;
-            List<Renderer> enemyRenderers = enemy.GetComponentsInChildren<Renderer>().Where(r => (wallhackLayer & (1 << r.gameObject.layer)) != 0).ToList();
-            if (enemyRenderers.Any(r => r.name.Contains("LOD")))
-                enemyRenderers.RemoveAll(r => !r.name.Contains("LOD"));
+            List<Renderer> allRenderers = new List<Renderer>();
 
-            if (enemyRenderers == null || enemyRenderers.Count == 0)
+            foreach (GameObject obj in objects)
             {
-                SawTapes.mls.LogError($"No renderer could be found on {enemy.enemyType.enemyName}.");
-                return;
+                List<Renderer> renderers = obj.GetComponentsInChildren<Renderer>().ToList();
+
+                // Filtrer les renderers avec le LayerMask (uniquement pour les ennemis)
+                if (obj.TryGetComponent<EnemyAI>(out _))
+                {
+                    renderers = renderers.Where(r => (wallhackLayer & (1 << r.gameObject.layer)) != 0).ToList();
+                    if (renderers.Any(r => r.name.Contains("LOD"))) renderers.RemoveAll(r => !r.name.Contains("LOD"));
+                }
+
+                if (renderers.Count == 0)
+                {
+                    SawTapes.mls.LogError($"No renderer could be found on {obj.name}.");
+                    continue;
+                }
+
+                allRenderers.AddRange(renderers);
             }
 
-            SetupCustomPass(enemyRenderers.ToArray());
-        }
-
-        public static void SetupCustomPassForObject(GrabbableObject grabbableObject)
-        {
-            List<Renderer> objectRenderers = grabbableObject.GetComponentsInChildren<Renderer>().ToList();
-
-            if (objectRenderers == null || objectRenderers.Count == 0)
-            {
-                SawTapes.mls.LogError($"No renderer could be found on {grabbableObject.itemProperties.itemName}.");
-                return;
-            }
-
-            SetupCustomPass(objectRenderers.ToArray());
+            if (allRenderers.Count > 0) SetupCustomPass(allRenderers.ToArray());
         }
 
         public static void SetupCustomPass(Renderer[] renderers)
@@ -79,6 +78,7 @@ namespace SawTapes.Managers
             wallhackPass.SetTargetRenderers(renderers, SawTapes.wallhackShader);
         }
 
-        public static void RemoveAura() => wallhackPass?.ClearTargetRenderers();
+        public static void RemoveAura()
+            => wallhackPass?.ClearTargetRenderers();
     }
 }
