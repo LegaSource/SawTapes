@@ -1,6 +1,8 @@
 ﻿using GameNetcodeStuff;
+using SawTapes.Behaviours.Items;
 using SawTapes.Files;
 using SawTapes.Managers;
+using SawTapes.Patches;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,6 @@ namespace SawTapes.Behaviours.Tapes
 {
     public class SurvivalTape : SawTape
     {
-        public ParticleSystem spawnParticle;
         public List<NetworkObject> spawnedEnemies = new List<NetworkObject>();
 
         public override void Start()
@@ -26,6 +27,35 @@ namespace SawTapes.Behaviours.Tapes
             
             gameDuration = ConfigManager.survivalDuration.Value;
             billyValue = ConfigManager.survivalBillyValue.Value;
+        }
+
+        public override void ExecutePostGasActionsForClient(PlayerControllerB player)
+        {
+            base.ExecutePostGasActionsForClient(player);
+            SpawnShovelServerRpc(player.gameplayCamera.transform.position + player.gameplayCamera.transform.forward);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SpawnShovelServerRpc(Vector3 position)
+            => SawGameSTManager.SpawnShovelForServer(position);
+
+        public override void ExecuteStartGameActionsForServer()
+        {
+            base.ExecuteStartGameActionsForServer();
+            SpawnPursuerEyes();
+        }
+
+        public void SpawnPursuerEyes()
+        {
+            foreach (RandomScrapSpawn randomScrapSpawn in FindObjectsOfType<RandomScrapSpawn>())
+            {
+                if (randomScrapSpawn == null) return;
+
+                if (!randomScrapSpawn.spawnedItemsCopyPosition)
+                    randomScrapSpawn.transform.position = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom) + Vector3.up * SawTapes.pursuerEye.verticalOffset;
+
+                RoundManagerPatch.SpawnItem(SawTapes.pursuerEye.spawnPrefab, randomScrapSpawn.transform.position + Vector3.up * 0.5f);
+            }
         }
 
         public override bool DoGameForServer(int iterator)
@@ -54,14 +84,21 @@ namespace SawTapes.Behaviours.Tapes
                     ? eligibleEnemies[Random.Range(0, eligibleEnemies.Count)]
                     : null;
 
-                StartCoroutine(SpawnEnemyCoroutine(enemyType, player.transform.position));
+                SpawnEnemyClientRpc(enemyType.enemyName, player.transform.position);
             }
         }
 
-        public IEnumerator SpawnEnemyCoroutine(EnemyType enemyType, Vector3 playerPosition)
+        [ClientRpc]
+        public void SpawnEnemyClientRpc(string enemyName, Vector3 position)
         {
-            Vector3 spawnPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(playerPosition, 5);
-            PlaySpawnParticleClientRpc(spawnPosition);
+            EnemyType enemyType = SawTapes.allEnemies.FirstOrDefault(e => enemyName.Equals(e.enemyName));
+            StartCoroutine(SpawnEnemyCoroutine(enemyType, position));
+        }
+
+        public IEnumerator SpawnEnemyCoroutine(EnemyType enemyType, Vector3 position)
+        {
+            Vector3 spawnPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5);
+            ParticleSystem spawnParticle = PlaySpawnParticle(spawnPosition);
 
             yield return new WaitUntil(() => !spawnParticle.isPlaying);
 
@@ -70,11 +107,42 @@ namespace SawTapes.Behaviours.Tapes
             spawnedEnemies.Add(networkObject);
         }
 
-        [ClientRpc]
-        public void PlaySpawnParticleClientRpc(Vector3 position)
+        public ParticleSystem PlaySpawnParticle(Vector3 position)
         {
             GameObject spawnObject = Instantiate(SawTapes.spawnParticle, position, Quaternion.identity);
-            spawnParticle = spawnObject.GetComponent<ParticleSystem>();
+            return spawnObject.GetComponent<ParticleSystem>();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void TeleportEnemyServerRpc(NetworkObjectReference enemyObject, Vector3 position)
+            => TeleportEnemyClientRpc(enemyObject, position);
+
+        [ClientRpc]
+        public void TeleportEnemyClientRpc(NetworkObjectReference enemyObject, Vector3 position)
+        {
+            if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
+
+            EnemyAI enemy = networkObject.gameObject.GetComponentInChildren<EnemyAI>();
+            if (enemy == null) return;
+
+            StartCoroutine(TeleportEnemyCoroutine(enemy, position));
+        }
+
+        public IEnumerator TeleportEnemyCoroutine(EnemyAI enemy, Vector3 position)
+        {
+            Vector3 teleportPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5);
+            ParticleSystem teleportParticle = PlayTeleportParticle(teleportPosition);
+
+            yield return new WaitUntil(() => !teleportParticle.isPlaying);
+
+            enemy.transform.position = teleportPosition;
+            Destroy(teleportParticle.gameObject);
+        }
+
+        public ParticleSystem PlayTeleportParticle(Vector3 position)
+        {
+            GameObject spawnObject = Instantiate(SawTapes.spawnParticle, position, Quaternion.identity);
+            return spawnObject.GetComponent<ParticleSystem>();
         }
 
         public void SetEnemiesTargets()
@@ -98,13 +166,8 @@ namespace SawTapes.Behaviours.Tapes
         {
             base.ExecutePreEndGameActionForServer(isGameCancelled);
 
-            foreach (NetworkObject spawnedEnemy in spawnedEnemies)
-            {
-                if (spawnedEnemy == null) continue;
-                if (!spawnedEnemy.IsSpawned) continue;
-
-                EnemySTManager.DespawnEnemy(spawnedEnemy);
-            }
+            EnemySTManager.DespawnEnemiesForServer(spawnedEnemies);
+            ObjectSTManager.DestroyObjectsOfTypeAllForServer<PursuerEye>();
             return players.All(p => p.isPlayerDead);
         }
 

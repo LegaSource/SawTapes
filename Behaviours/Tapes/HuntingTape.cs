@@ -3,6 +3,7 @@ using SawTapes.Behaviours.Items;
 using SawTapes.Files;
 using SawTapes.Managers;
 using SawTapes.Patches;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -13,6 +14,7 @@ namespace SawTapes.Behaviours.Tapes
     public class HuntingTape : SawTape
     {
         public List<NetworkObject> spawnedEnemies = new List<NetworkObject>();
+        public static Coroutine showAuraCoroutine;
 
         public override void Start()
         {
@@ -46,22 +48,7 @@ namespace SawTapes.Behaviours.Tapes
 
         [ServerRpc(RequireOwnership = false)]
         public void SpawnShovelServerRpc(Vector3 position)
-        {
-            GameObject shovel = null;
-            foreach (NetworkPrefabsList networkPrefabList in NetworkManager.Singleton.NetworkConfig.Prefabs.NetworkPrefabsLists ?? Enumerable.Empty<NetworkPrefabsList>())
-            {
-                foreach (NetworkPrefab networkPrefab in networkPrefabList.PrefabList ?? Enumerable.Empty<NetworkPrefab>())
-                {
-                    GrabbableObject grabbableObject = networkPrefab.Prefab.GetComponent<GrabbableObject>();
-                    if (grabbableObject == null || grabbableObject.itemProperties == null) continue;
-                    if (!grabbableObject.itemProperties.itemName.Equals(Constants.SHOVEL)) continue;
-
-                    shovel = networkPrefab.Prefab;
-                    if (shovel != null) break;
-                }
-            }
-            if (shovel != null) RoundManagerPatch.SpawnItem(shovel, position + Vector3.up * 0.5f);
-        }
+            => SawGameSTManager.SpawnShovelForServer(position);
 
         public override void ExecuteStartGameActionsForServer()
         {
@@ -119,7 +106,38 @@ namespace SawTapes.Behaviours.Tapes
                     spawnedEnemies.Add(networkObject);
                 }
             }
-            STUtilities.ShowAura(enemies);
+            ShowAura(ConfigManager.huntingAura.Value);
+        }
+
+        public void ShowAura(float duration)
+        {
+            if (showAuraCoroutine != null) HUDManager.Instance.StopCoroutine(showAuraCoroutine);
+
+            List<EnemyAI> enemies = new List<EnemyAI>();
+            foreach (NetworkObject spawnedEnemy in spawnedEnemies)
+            {
+                if (spawnedEnemy == null || !spawnedEnemy.IsSpawned) continue;
+                enemies.Add(spawnedEnemy.GetComponentInChildren<EnemyAI>());
+            }
+            if (enemies.Count == 0) return;
+
+            showAuraCoroutine = HUDManager.Instance.StartCoroutine(ShowAuraCoroutine(enemies, duration));
+        }
+
+        public IEnumerator ShowAuraCoroutine(List<EnemyAI> enemies, float duration)
+        {
+            List<GameObject> objects = enemies.Select(e => e.gameObject).ToList();
+            foreach (SawKey sawKey in Resources.FindObjectsOfTypeAll<SawKey>())
+            {
+                if (sawKey == null || !sawKey.IsSpawned) continue;
+                objects.Add(sawKey.gameObject);
+            }
+            CustomPassManager.SetupCustomPassForObjects(objects.ToArray());
+
+            yield return new WaitForSeconds(duration);
+
+            CustomPassManager.RemoveAura();
+            showAuraCoroutine = null;
         }
 
         public override bool DoGameForServer(int iterator)
@@ -140,52 +158,16 @@ namespace SawTapes.Behaviours.Tapes
                     continue;
                 }
 
-                DestroyReverseBearTrap(playerBehaviour.reverseBearTrap);
+                ObjectSTManager.DestroyReverseBearTrapForServer(playerBehaviour.playerProperties);
 
                 if (isGameCancelled || player.isPlayerDead) continue;
                 SawTapesNetworkManager.Instance.KillPlayerClientRpc((int)player.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown);
             }
-            DespawnEnemies();
-            DestroySawKeys();
+            EnemySTManager.DespawnEnemiesForServer(spawnedEnemies);
+            ObjectSTManager.DestroyObjectsOfTypeAllForServer<SawKey>();
+            ObjectSTManager.DestroyObjectsOfTypeAllForServer<PursuerEye>();
 
             return !hasLivingPlayer;
-        }
-
-        public void DestroyReverseBearTrap(ReverseBearTrap reverseBearTrap)
-        {
-            SawTapes.mls.LogError("DestroyReverseBearTrap");
-            NetworkObject networkObject = reverseBearTrap.GetComponent<NetworkObject>();
-            if (networkObject == null || !networkObject.IsSpawned) return;
-            SawTapes.mls.LogError("ReverseBearTrap IsSpawned");
-
-            SawTapesNetworkManager.Instance.DestroyObjectClientRpc(networkObject);
-        }
-
-        public void DespawnEnemies()
-        {
-            foreach (NetworkObject spawnedEnemy in spawnedEnemies)
-            {
-                if (spawnedEnemy == null) continue;
-
-                EnemyAI enemy = spawnedEnemy.GetComponentInChildren<EnemyAI>();
-                if (enemy?.thisNetworkObject == null || !enemy.thisNetworkObject.IsSpawned) continue;
-                if (enemy.isEnemyDead) continue;
-
-                EnemySTManager.DespawnEnemy(spawnedEnemy);
-            }
-        }
-
-        public void DestroySawKeys()
-        {
-            foreach (SawKey sawKey in Resources.FindObjectsOfTypeAll<SawKey>())
-            {
-                if (sawKey == null) continue;
-
-                NetworkObject networkObject = sawKey.GetComponent<NetworkObject>();
-                if (networkObject == null || !networkObject.IsSpawned) continue;
-
-                SawTapesNetworkManager.Instance.DestroyObjectClientRpc(sawKey.GetComponent<NetworkObject>());
-            }
         }
 
         public override void EndGameForAllClients(bool isGameEnded)

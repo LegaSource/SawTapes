@@ -16,12 +16,9 @@ namespace SawTapes.Patches
             if (GameNetworkManager.Instance.localPlayerController != playerWhoHit) return;
             if (__instance.isEnemyDead || __instance.enemyHP - force > 0f) return;
 
-            PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(playerWhoHit);
-            if (playerBehaviour == null) return;
-
-            HuntingTape huntingTape = playerBehaviour.sawTape as HuntingTape;
-            if (huntingTape == null) return;
-            if (huntingTape.spawnedEnemies.Contains(__instance.thisNetworkObject)) return;
+            SawTape sawTape = SawGameSTManager.GetSawTapeFromPlayer(playerWhoHit);
+            if (sawTape == null) return;
+            if (sawTape is not HuntingTape && sawTape is not SurvivalTape) return;
 
             SawTapesNetworkManager.Instance.SpawnPursuerEyeServerRpc(__instance.transform.position);
         }
@@ -32,17 +29,14 @@ namespace SawTapes.Patches
         {
             PlayerControllerB player = GameNetworkManager.Instance.localPlayerController;
             if (!player.IsHost && !player.IsServer) return;
-            SawTapes.mls.LogError("KillEnemy server");
 
             HuntingTape huntingTape = StartOfRound.Instance.allPlayerScripts
                 .Select(p => PlayerSTManager.GetPlayerBehaviour(p)?.sawTape as HuntingTape)
                 .FirstOrDefault(h => h != null);
             if (huntingTape == null) return;
-            SawTapes.mls.LogError("huntingTape trouvée");
             if (!huntingTape.spawnedEnemies.Contains(__instance.thisNetworkObject)) return;
-            SawTapes.mls.LogError("spawnedEnemies contains thisNetworkObject");
 
-            RoundManagerPatch.SpawnItem(SawTapes.sawKeyObj, __instance.transform.position);
+            RoundManagerPatch.SpawnItem(SawTapes.sawKey.spawnPrefab, __instance.transform.position);
         }
 
         [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.PlayerIsTargetable))]

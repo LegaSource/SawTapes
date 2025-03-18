@@ -35,8 +35,8 @@ namespace SawTapes
         public static List<SawTapeValue> sawTapeValues = new List<SawTapeValue>();
         public static GameObject billyPuppetObj;
         public static GameObject reverseBearTrapObj;
-        public static GameObject sawKeyObj;
-        public static GameObject pursuerEyeObj;
+        public static Item sawKey;
+        public static Item pursuerEye;
         public static Item sawItem;
         public static GameObject chainObj;
 
@@ -121,8 +121,8 @@ namespace SawTapes
             }
             billyPuppetObj = RegisterItem(typeof(BillyPuppet), bundle.LoadAsset<Item>("Assets/BillyPuppet/BillyPuppetItem.asset")).spawnPrefab;
             reverseBearTrapObj = RegisterItem(typeof(ReverseBearTrap), bundle.LoadAsset<Item>("Assets/ReverseBearTrap/ReverseBearTrapItem.asset")).spawnPrefab;
-            sawKeyObj = RegisterItem(typeof(SawKey), bundle.LoadAsset<Item>("Assets/SawKey/SawKeyItem.asset")).spawnPrefab;
-            pursuerEyeObj = RegisterItem(typeof(PursuerEye), bundle.LoadAsset<Item>("Assets/PursuerEye/PursuerEyeItem.asset")).spawnPrefab;
+            sawKey = RegisterItem(typeof(SawKey), bundle.LoadAsset<Item>("Assets/SawKey/SawKeyItem.asset"));
+            pursuerEye = RegisterItem(typeof(PursuerEye), bundle.LoadAsset<Item>("Assets/PursuerEye/PursuerEyeItem.asset"));
             sawItem = RegisterItem(typeof(Saw), bundle.LoadAsset<Item>("Assets/Saw/SawItem.asset"));
             chainObj = RegisterItem(typeof(Chain), bundle.LoadAsset<Item>("Assets/Chain/ChainItem.asset")).spawnPrefab;
         }

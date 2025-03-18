@@ -73,7 +73,7 @@ namespace SawTapes
             huntingDuration = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Duration", 150, $"Duration of the {Constants.HUNTING_GAME}");
             huntingBillyValue = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Billy value", 90, $"Billy value for the {Constants.HUNTING_GAME}");
             huntingReverseBearTrapValue = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Reverse bear trap value", 30, $"Reverse Bear Trap value for the {Constants.HUNTING_GAME}");
-            huntingAura = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Aura duration", 20f, "Duration for which the enemy's aura is visible through walls");
+            huntingAura = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Aura duration", 30f, "Duration for which the enemy's aura is visible through walls");
             huntingExclusions = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Enemies exclusion list", "Blob,Maneater,Lasso,Red pill", $"List of creatures that will not be selected by the {Constants.HUNTING_GAME}.\nYou can add enemies by separating them with a comma.");
             huntingInteriorExclusions = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Interiors exclusion list", "", $"List of interiors in which the {Constants.HUNTING_GAME} will not appear.");
             // ESCAPE GAME

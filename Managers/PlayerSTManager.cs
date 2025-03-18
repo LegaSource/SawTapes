@@ -24,12 +24,12 @@ namespace SawTapes.Managers
         {
             if (player == null) return null;
             if (playerBehavioursCache.TryGetValue(player, out PlayerSTBehaviour playerBehaviour)) return playerBehaviour;
-            
+
             playerBehaviour = player.GetComponent<PlayerSTBehaviour>();
             if (playerBehaviour == null)
             {
                 AddPlayerBehaviour(player);
-                playerBehaviour = playerBehavioursCache[player];
+                if (playerBehavioursCache.TryGetValue(player, out playerBehaviour)) return playerBehaviour;
                 return playerBehaviour;
             }
             playerBehavioursCache[player] = playerBehaviour;
@@ -45,7 +45,7 @@ namespace SawTapes.Managers
 
         public static bool PreventTeleportPlayer(PlayerControllerB player)
         {
-            PlayerSTBehaviour playerBehaviour = player.GetComponent<PlayerSTBehaviour>();
+            PlayerSTBehaviour playerBehaviour = GetPlayerBehaviour(player);
             if (playerBehaviour == null) return false;
             if (!playerBehaviour.isInGame || !playerBehaviour.hasBeenGassed) return false;
 
@@ -59,10 +59,14 @@ namespace SawTapes.Managers
             PlayerSTBehaviour playerBehaviour = GetPlayerBehaviour(player);
             if (playerBehaviour == null) return;
 
+            playerBehaviour.isTargetable = true;
             playerBehaviour.isInGame = false;
             playerBehaviour.hasBeenGassed = false;
             playerBehaviour.sawTape = null;
-        }
+            playerBehaviour.currentControlTipState = (int)PlayerSTBehaviour.ControlTip.NONE;
+            ObjectSTManager.DestroyReverseBearTrapForServer(playerBehaviour.playerProperties);
+            playerBehaviour.reverseBearTrap = null;
+    }
 
         public static void SecondaryUsePerformed(PlayerSTBehaviour playerBehaviour)
         {

@@ -1,6 +1,5 @@
-﻿using SawTapes.Behaviours.Items;
+﻿using GameNetcodeStuff;
 using SawTapes.Managers;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,8 +8,6 @@ namespace SawTapes
 {
     public class STUtilities
     {
-        public static Coroutine showAuraCoroutine;
-
         public static void Shuffle<T>(List<T> list)
         {
             for (int i = list.Count - 1; i > 0; i--)
@@ -18,28 +15,6 @@ namespace SawTapes
                 int randomIndex = Random.Range(0, i + 1);
                 (list[randomIndex], list[i]) = (list[i], list[randomIndex]);
             }
-        }
-
-        public static void ShowAura(List<EnemyAI> enemies)
-        {
-            if (showAuraCoroutine != null) HUDManager.Instance.StopCoroutine(showAuraCoroutine);
-            showAuraCoroutine = HUDManager.Instance.StartCoroutine(ShowAuraCoroutine(enemies));
-        }
-
-        public static IEnumerator ShowAuraCoroutine(List<EnemyAI> enemies)
-        {
-            List<GameObject> objects = enemies.Select(e => e.gameObject).ToList();
-            foreach (SawKey sawKey in Resources.FindObjectsOfTypeAll<SawKey>())
-            {
-                if (sawKey == null || !sawKey.IsSpawned) continue;
-                objects.Add(sawKey.gameObject);
-            }
-            CustomPassManager.SetupCustomPassForObjects(objects.ToArray());
-
-            yield return new WaitForSeconds(ConfigManager.huntingAura.Value);
-
-            CustomPassManager.RemoveAura();
-            showAuraCoroutine = null;
         }
 
         public static Transform FindMainEntrancePoint()
@@ -55,8 +30,8 @@ namespace SawTapes
         public static Vector3 GetFurthestPositionScrapSpawn(Vector3 position, Item itemToSpawn)
         {
             RandomScrapSpawn randomScrapSpawn = Object.FindObjectsOfType<RandomScrapSpawn>()
-                .Where(p => !p.spawnUsed)
-                .OrderByDescending(p => Vector3.Distance(position, p.transform.position))
+                .Where(s => !s.spawnUsed)
+                .OrderByDescending(s => Vector3.Distance(position, s.transform.position))
                 .FirstOrDefault();
 
             if (randomScrapSpawn == null)
@@ -72,5 +47,11 @@ namespace SawTapes
 
             return randomScrapSpawn.transform.position + Vector3.up * 0.5f;
         }
+
+        public static PlayerControllerB GetFurthestPlayer(PlayerControllerB player)
+            => StartOfRound.Instance.allPlayerScripts
+                .Where(p => p.isPlayerControlled && !p.isPlayerDead && PlayerSTManager.GetPlayerBehaviour(p) is { } playerBehaviour && playerBehaviour.isInGame)
+                .OrderByDescending(p => Vector3.Distance(player.transform.position, p.transform.position))
+                .FirstOrDefault();
     }
 }

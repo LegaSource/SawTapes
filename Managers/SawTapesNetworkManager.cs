@@ -59,7 +59,7 @@ namespace SawTapes.Managers
 
         [ServerRpc(RequireOwnership = false)]
         public void SpawnPursuerEyeServerRpc(Vector3 position)
-            => RoundManagerPatch.SpawnItem(SawTapes.pursuerEyeObj, position);
+            => RoundManagerPatch.SpawnItem(SawTapes.pursuerEye.spawnPrefab, position);
 
         [ClientRpc]
         public void PlayDespawnParticleClientRpc(Vector3 position)

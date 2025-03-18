@@ -50,7 +50,7 @@ namespace SawTapes.Patches
             while (!IsChronoEnded(seconds))
             {
                 seconds--;
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSecondsRealtime(1f);
             }
         }
 

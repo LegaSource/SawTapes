@@ -347,7 +347,7 @@ namespace SawTapes.Behaviours.Tapes
             while (timePassed < gameDuration)
             {
                 if (!DoGameForServer(timePassed)) break;
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSecondsRealtime(1f);
                 timePassed++;
             }
             EndGameForServer();
