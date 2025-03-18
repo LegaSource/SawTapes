@@ -16,6 +16,7 @@ namespace SawTapes.Behaviours.Tapes
         public bool isGameStarted = false;
         public bool isGameEnded = false;
         public bool isPlayerFinded = false;
+        public float delayTimer = 10f;
 
         public int gameDuration;
         public int billyValue;
@@ -24,8 +25,8 @@ namespace SawTapes.Behaviours.Tapes
         public AudioSource sawRecording;
         public HashSet<SubtitleMapping> subtitlesGame = new HashSet<SubtitleMapping>();
 
-        public int minPlayersAmount = 1;
-        public int maxPlayersAmount = 1;
+        public int minPlayersAmount;
+        public int maxPlayersAmount;
         public int playersAmount;
         public HashSet<PlayerControllerB> players = new HashSet<PlayerControllerB>();
 
@@ -52,6 +53,9 @@ namespace SawTapes.Behaviours.Tapes
         {
             if (isGameStarted || isGameEnded || isPlayerFinded) return;
 
+            delayTimer -= Time.deltaTime;
+            if (delayTimer > 0f) return;
+
             PlayerControllerB localPlayer = GameNetworkManager.Instance?.localPlayerController;
             if (localPlayer == null) return;
             if (!localPlayer.IsHost && !localPlayer.IsServer) return;
@@ -64,18 +68,19 @@ namespace SawTapes.Behaviours.Tapes
             if (player == null) return;
 
             isPlayerFinded = true;
+            delayTimer = 10f;
 
             players.Clear();
             players.Add(player);
 
-            SetPlayersAmount();
+            if (!SetPlayersAmount()) return;
             SelectPlayers();
         }
 
-        public void SetPlayersAmount()
+        public bool SetPlayersAmount()
         {
             playersAmount = StartOfRound.Instance.allPlayerScripts.Count(p => p.isPlayerControlled && !p.isPlayerDead);
-            if (playersAmount < minPlayersAmount) return;
+            if (playersAmount < minPlayersAmount) return false;
 
             /*
              * Si minPlayersAmount = -1 -> on prend tous les joueurs
@@ -87,6 +92,7 @@ namespace SawTapes.Behaviours.Tapes
                 maxPlayersAmount = playersAmount;
             }
             playersAmount = new System.Random().Next(minPlayersAmount, Mathf.Min(playersAmount, maxPlayersAmount));
+            return true;
         }
 
         public void SelectPlayers()
@@ -365,7 +371,7 @@ namespace SawTapes.Behaviours.Tapes
             if (player == null) return;
             if (isGameOver || isGameCancelled) return;
 
-            SawTapesNetworkManager.Instance.SetScrapValueClientRpc(GetComponent<NetworkObject>(), 15);
+            SawTapesNetworkManager.Instance.SetScrapValueClientRpc(GetComponent<NetworkObject>(), ConfigManager.sawTapeValue.Value);
             StartCoroutine(SpawnBillyCoroutine(player));
         }
 
@@ -448,7 +454,7 @@ namespace SawTapes.Behaviours.Tapes
                 spawnPosition = player.transform.position;
             }
 
-            NetworkObject networkObject = EnemySTManager.SpawnEnemy(SawTapes.billyEnemy, spawnPosition);
+            NetworkObject networkObject = EnemySTManager.SpawnEnemyForServer(SawTapes.billyEnemy, spawnPosition);
             SpawnBillyClientRpc(networkObject, (int)player.playerClientId, billyValue);
         }
 

@@ -25,7 +25,7 @@ namespace SawTapes.Behaviours.Items
 
         public void ShowAuraTargetedEnemy()
         {
-            if (Physics.Raycast(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), out RaycastHit hit, 10f, 524288, QueryTriggerInteraction.Collide))
+            if (Physics.Raycast(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), out RaycastHit hit, ConfigManager.eyeDistanceSurvival.Value, 524288, QueryTriggerInteraction.Collide))
             {
                 EnemyAICollisionDetect enemyCollision = hit.collider.GetComponent<EnemyAICollisionDetect>();
                 if (enemyCollision == null || enemyCollision.mainScript == null) return;
@@ -55,13 +55,13 @@ namespace SawTapes.Behaviours.Items
                 case HuntingTape huntingTape:
                     if (huntingTape == null) return;
 
-                    huntingTape.ShowAura(30f);
+                    huntingTape.ShowAura(ConfigManager.eyeAuraHunting.Value);
                     SawTapesNetworkManager.Instance.DestroyObjectServerRpc(GetComponent<NetworkObject>());
                     break;
                 case SurvivalTape survivalTape:
                     if (survivalTape == null || aimedEnemy == null) return;
 
-                    PlayerControllerB player = STUtilities.GetFurthestPlayer(playerHeldBy);
+                    PlayerControllerB player = STUtilities.GetFurthestInGamePlayer(playerHeldBy);
                     if (player == null || player == playerHeldBy) return;
 
                     survivalTape.TeleportEnemyServerRpc(aimedEnemy.thisNetworkObject, player.transform.position);

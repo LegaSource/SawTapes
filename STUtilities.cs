@@ -48,7 +48,7 @@ namespace SawTapes
             return randomScrapSpawn.transform.position + Vector3.up * 0.5f;
         }
 
-        public static PlayerControllerB GetFurthestPlayer(PlayerControllerB player)
+        public static PlayerControllerB GetFurthestInGamePlayer(PlayerControllerB player)
             => StartOfRound.Instance.allPlayerScripts
                 .Where(p => p.isPlayerControlled && !p.isPlayerDead && PlayerSTManager.GetPlayerBehaviour(p) is { } playerBehaviour && playerBehaviour.isInGame)
                 .OrderByDescending(p => Vector3.Distance(player.transform.position, p.transform.position))

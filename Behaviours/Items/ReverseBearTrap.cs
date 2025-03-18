@@ -32,7 +32,7 @@ namespace SawTapes.Behaviours.Items
             grabbableToEnemies = false;
             hasHitGround = false;
             EnablePhysics(enable: false);
-            SetScrapValue(ConfigManager.huntingReverseBearTrapValue.Value);
+            SetScrapValue(ConfigManager.reverseBearTrapValue.Value);
 
             if (GameNetworkManager.Instance.localPlayerController == player) parentObject = player.gameplayCamera.transform;
             else parentObject = player.playerGlobalHead.transform;

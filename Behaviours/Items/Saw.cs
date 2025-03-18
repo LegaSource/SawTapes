@@ -17,7 +17,7 @@ namespace SawTapes.Behaviours.Items
         public override void Start()
         {
             base.Start();
-            currentUsesLeft = ConfigManager.escapeSawMaxUse.Value;
+            currentUsesLeft = ConfigManager.sawMaxUse.Value;
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)

@@ -15,6 +15,9 @@ namespace SawTapes.Behaviours.Tapes
     {
         public List<NetworkObject> spawnedEnemies = new List<NetworkObject>();
 
+        public ParticleSystem spawnParticle;
+        public ParticleSystem endTeleportParticle;
+
         public override void Start()
         {
             base.Start();
@@ -84,41 +87,31 @@ namespace SawTapes.Behaviours.Tapes
                     ? eligibleEnemies[Random.Range(0, eligibleEnemies.Count)]
                     : null;
 
-                SpawnEnemyClientRpc(enemyType.enemyName, player.transform.position);
+                StartCoroutine(SpawnEnemyCoroutine(enemyType, player.transform.position));
             }
-        }
-
-        [ClientRpc]
-        public void SpawnEnemyClientRpc(string enemyName, Vector3 position)
-        {
-            EnemyType enemyType = SawTapes.allEnemies.FirstOrDefault(e => enemyName.Equals(e.enemyName));
-            StartCoroutine(SpawnEnemyCoroutine(enemyType, position));
         }
 
         public IEnumerator SpawnEnemyCoroutine(EnemyType enemyType, Vector3 position)
         {
             Vector3 spawnPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5);
-            ParticleSystem spawnParticle = PlaySpawnParticle(spawnPosition);
+            PlaySpawnParticleClientRpc(spawnPosition);
 
             yield return new WaitUntil(() => !spawnParticle.isPlaying);
 
             Destroy(spawnParticle.gameObject);
-            NetworkObject networkObject = EnemySTManager.SpawnEnemy(enemyType, spawnPosition);
+            NetworkObject networkObject = EnemySTManager.SpawnEnemyForServer(enemyType, spawnPosition);
             spawnedEnemies.Add(networkObject);
         }
 
-        public ParticleSystem PlaySpawnParticle(Vector3 position)
+        [ClientRpc]
+        public void PlaySpawnParticleClientRpc(Vector3 position)
         {
             GameObject spawnObject = Instantiate(SawTapes.spawnParticle, position, Quaternion.identity);
-            return spawnObject.GetComponent<ParticleSystem>();
+            spawnParticle = spawnObject.GetComponent<ParticleSystem>();
         }
 
         [ServerRpc(RequireOwnership = false)]
         public void TeleportEnemyServerRpc(NetworkObjectReference enemyObject, Vector3 position)
-            => TeleportEnemyClientRpc(enemyObject, position);
-
-        [ClientRpc]
-        public void TeleportEnemyClientRpc(NetworkObjectReference enemyObject, Vector3 position)
         {
             if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
 
@@ -130,19 +123,24 @@ namespace SawTapes.Behaviours.Tapes
 
         public IEnumerator TeleportEnemyCoroutine(EnemyAI enemy, Vector3 position)
         {
-            Vector3 teleportPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5);
-            ParticleSystem teleportParticle = PlayTeleportParticle(teleportPosition);
+            Vector3 endPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5);
+            PlayTeleportParticleClientRpc(enemy.transform.position, endPosition);
 
-            yield return new WaitUntil(() => !teleportParticle.isPlaying);
+            yield return new WaitUntil(() => !endTeleportParticle.isPlaying);
 
-            enemy.transform.position = teleportPosition;
-            Destroy(teleportParticle.gameObject);
+            Destroy(endTeleportParticle.gameObject);
+
+            if (enemy == null || enemy.isEnemyDead || !enemy.IsSpawned) yield break;
+            enemy.transform.position = endPosition;
         }
 
-        public ParticleSystem PlayTeleportParticle(Vector3 position)
+        [ClientRpc]
+        public void PlayTeleportParticleClientRpc(Vector3 startPosition, Vector3 endPosition)
         {
-            GameObject spawnObject = Instantiate(SawTapes.spawnParticle, position, Quaternion.identity);
-            return spawnObject.GetComponent<ParticleSystem>();
+            Instantiate(SawTapes.spawnParticle, startPosition, Quaternion.identity);
+
+            GameObject spawnObject = Instantiate(SawTapes.spawnParticle, endPosition, Quaternion.identity);
+            endTeleportParticle = spawnObject.GetComponent<ParticleSystem>();
         }
 
         public void SetEnemiesTargets()

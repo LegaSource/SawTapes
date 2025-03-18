@@ -64,7 +64,7 @@ namespace SawTapes.Behaviours.Tapes
         {
             position = STUtilities.GetFurthestPositionScrapSpawn(position, SawTapes.sawItem);
             saw = RoundManagerPatch.SpawnItem(SawTapes.sawItem.spawnPrefab, position) as Saw;
-            SawTapesNetworkManager.Instance.SetScrapValueClientRpc(saw.GetComponent<NetworkObject>(), ConfigManager.escapeSawValue.Value);
+            SawTapesNetworkManager.Instance.SetScrapValueClientRpc(saw.GetComponent<NetworkObject>(), ConfigManager.sawValue.Value);
         }
 
         public void AddPathGuide(PlayerControllerB player)

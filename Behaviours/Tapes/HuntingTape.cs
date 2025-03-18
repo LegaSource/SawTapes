@@ -78,14 +78,14 @@ namespace SawTapes.Behaviours.Tapes
         public void SpawnEnemy(Vector3 spawnPosition)
         {
             List<EnemyType> eligibleEnemies = SawTapes.allEnemies
-                .Where(e => e.canDie && !e.isOutsideEnemy && !ConfigManager.huntingExclusions.Value.Contains(e.enemyName))
+                .Where(e => e.canDie && !e.isOutsideEnemy && ConfigManager.huntingEnemies.Value.Contains(e.enemyName))
                 .ToList();
 
             EnemyType enemyType = eligibleEnemies.Count > 0
                 ? eligibleEnemies[Random.Range(0, eligibleEnemies.Count)]
                 : null;
 
-            NetworkObject networkObject = EnemySTManager.SpawnEnemy(enemyType, spawnPosition);
+            NetworkObject networkObject = EnemySTManager.SpawnEnemyForServer(enemyType, spawnPosition);
             spawnedEnemies.Add(networkObject);
         }
 

@@ -13,12 +13,14 @@
         // Configs
         public const string GLOBAL = "_Global_";
         public const string HUD = "_HUD_";
-        public const string GASSING_SYSTEM = "_Gassing system_";
         public const string SURVIVAL_GAME = "Survival Game";
         public const string HUNTING_GAME = "Hunting Game";
         public const string ESCAPE_GAME = "Escape Game";
         // Items
         public const string SHOVEL = "Shovel";
+        public const string PURSUER_EYE = "Pursuer Eye";
+        public const string REVERSE_BEAR_TRAP = "Reverse Bear Trap";
         public const string SAW = "Saw";
+        public const string SAW_TAPE = "Saw Tape";
     }
 }

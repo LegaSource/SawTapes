@@ -6,7 +6,7 @@ namespace SawTapes.Managers
 {
     public class EnemySTManager
     {
-        public static NetworkObject SpawnEnemy(EnemyType enemyType, Vector3 spawnPosition)
+        public static NetworkObject SpawnEnemyForServer(EnemyType enemyType, Vector3 spawnPosition)
         {
             GameObject gameObject = Object.Instantiate(enemyType.enemyPrefab, spawnPosition, Quaternion.identity);
             NetworkObject networkObject = gameObject.GetComponentInChildren<NetworkObject>();
