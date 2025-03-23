@@ -90,6 +90,43 @@ namespace SawTapes.Behaviours.Tapes
         public override bool DoGameForServer(int iterator)
             => !(players.All(p => p.isPlayerDead) || sawHasBeenUsed);
 
+        [ClientRpc]
+        public void PlayerEndPathGuideClientRpc(int playerId, NetworkObjectReference obj)
+        {
+            if (!obj.TryGet(out var networkObject)) return;
+
+            PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+            if (player != GameNetworkManager.Instance.localPlayerController) return;
+
+            Saw saw = networkObject.gameObject.GetComponentInChildren<GrabbableObject>() as Saw;
+            CustomPassManager.SetupCustomPassForObjects([saw.gameObject]);
+        }
+
+        [ClientRpc]
+        public void SpawnPathParticleClientRpc(Vector3 leftPosition, Vector3 rightPosition, int[] playerIds)
+        {
+            if (GameNetworkManager.Instance.localPlayerController.IsHost || GameNetworkManager.Instance.localPlayerController.IsServer) return;
+
+            foreach (int playerId in playerIds)
+            {
+                PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+                if (GameNetworkManager.Instance.localPlayerController == player)
+                {
+                    SawGameSTManager.SpawnPathParticle(leftPosition);
+                    SawGameSTManager.SpawnPathParticle(rightPosition);
+                }
+            }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void TeleportSawToPlayerServerRpc(int playerId)
+        {
+            PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+            if (Vector3.Distance(saw.transform.position, player.transform.position) > ConfigManager.escapeAuraDistance.Value) return;
+
+            SawTapesNetworkManager.Instance.ChangeObjectPositionClientRpc(saw.GetComponent<NetworkObject>(), player.transform.position + Vector3.up * 0.5f);
+        }
+
         public override bool ExecutePreEndGameActionForServer(bool isGameCancelled)
         {
             base.ExecutePreEndGameActionForServer(isGameCancelled);

@@ -1,6 +1,7 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
 using SawTapes.Behaviours;
+using SawTapes.Behaviours.Tapes;
 using SawTapes.Managers;
 
 namespace SawTapes.Patches
@@ -36,7 +37,7 @@ namespace SawTapes.Patches
             PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(__instance);
             if (playerBehaviour == null) return;
 
-            SawTapesNetworkManager.Instance.TeleportSawToPlayerServerRpc((int)playerBehaviour.playerProperties.playerClientId);
+            (playerBehaviour.sawTape as EscapeTape)?.TeleportSawToPlayerServerRpc((int)__instance.playerClientId);
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.KillPlayerClientRpc))]

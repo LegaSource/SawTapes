@@ -41,6 +41,7 @@ namespace SawTapes
         public static ConfigEntry<int> escapeDuration;
         public static ConfigEntry<int> escapeBillyValue;
         public static ConfigEntry<string> escapeHazards;
+        public static ConfigEntry<float> escapeAuraDistance;
         public static ConfigEntry<string> escapeInteriorExclusions;
 
         // Encapsulation des paramètres qui pourraient être modifiés
@@ -68,16 +69,16 @@ namespace SawTapes
             sawTapeValue = SawTapes.configFile.Bind(Constants.SAW_TAPE, $"{Constants.SAW_TAPE} Tape value", 15, $"{Constants.SAW_TAPE} value");
             // SURVIVAL GAME
             survivalRarity = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Rarity", 20, $"Default probability of the {Constants.SURVIVAL_GAME} mini-game appearing");
-            survivalMinPlayers = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Min players", 2, $"Minimum number of players for {Constants.SURVIVAL_GAME}");
-            survivalMaxPlayers = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Max players", -1, $"Maximum number of players for {Constants.SURVIVAL_GAME}");
+            survivalMinPlayers = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Min players", 2, $"Minimum number of players for {Constants.SURVIVAL_GAME} - Set to -1 to limit it to the number of connected players who can participate");
+            survivalMaxPlayers = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Max players", -1, $"Maximum number of players for {Constants.SURVIVAL_GAME} - Set to -1 to limit it to the number of connected players who can participate");
             survivalDuration = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Duration", 120, $"Duration of the {Constants.SURVIVAL_GAME}");
             survivalBillyValue = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Billy value", 120, $"Billy value for the {Constants.SURVIVAL_GAME}");
             survivalEnemies = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Enemies list", "Blob,Crawler,Bunker Spider,Flowerman,Puffer,Hoarding bug,Spring,Clay Surgeon,Masked,Nutcracker,Butler", $"List of creatures that will be selected by the {Constants.SURVIVAL_GAME}.\nYou can add enemies by separating them with a comma.");
             survivalInteriorExclusions = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Interiors exclusion list", "", $"List of interiors in which the {Constants.SURVIVAL_GAME} will not appear.");
             // HUNTING GAME
             huntingRarity = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Rarity", 20, $"Default probability of the {Constants.HUNTING_GAME} mini-game appearing");
-            huntingMinPlayers = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Min players", 2, $"Minimum number of players for {Constants.HUNTING_GAME}");
-            huntingMaxPlayers = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Max players", -1, $"Maximum number of players for {Constants.HUNTING_GAME}");
+            huntingMinPlayers = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Min players", 2, $"Minimum number of players for {Constants.HUNTING_GAME} - Set to -1 to limit it to the number of connected players who can participate");
+            huntingMaxPlayers = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Max players", -1, $"Maximum number of players for {Constants.HUNTING_GAME} - Set to -1 to limit it to the number of connected players who can participate");
             huntingDuration = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Duration", 150, $"Duration of the {Constants.HUNTING_GAME}");
             huntingBillyValue = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Billy value", 90, $"Billy value for the {Constants.HUNTING_GAME}");
             huntingAura = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Aura duration", 30f, "Duration for which the enemy's aura is visible through walls");
@@ -88,6 +89,7 @@ namespace SawTapes
             escapeDuration = SawTapes.configFile.Bind(Constants.ESCAPE_GAME, "Duration", 150, $"Duration of the {Constants.ESCAPE_GAME}");
             escapeBillyValue = SawTapes.configFile.Bind(Constants.ESCAPE_GAME, "Billy value", 90, $"Billy value for the {Constants.ESCAPE_GAME}");
             escapeHazards = SawTapes.configFile.Bind(Constants.ESCAPE_GAME, "Hazards list", "Landmine:2:false:false:false:false,SpikeRoofTrapHazard:3:false:true:true:true,TurretContainer:1:true:false:false:false,LaserTurret:2:false:false:false:false,FanTrapAnimated:2:false:false:false:false,FunctionalMicrowave:1:false:false:false:false", $"List of spawnable hazards for the {Constants.ESCAPE_GAME}.\nThe format is 'HazardName:Weight:SpawnFacingAwayFromWall:SpawnFacingWall:SpawnWithBackToWall:SpawnWithBackFlushAgainstWall'.");
+            escapeAuraDistance = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Aura distance", 25f, $"Maximum distance between players and the {Constants.SAW} to see its aura through walls");
             escapeInteriorExclusions = SawTapes.configFile.Bind(Constants.ESCAPE_GAME, "Interiors exclusion list", "GrandArmoryFlow,Level3Flow,StorehouseFlow", $"List of interiors in which the {Constants.ESCAPE_GAME} will not appear.");
         }
     }
