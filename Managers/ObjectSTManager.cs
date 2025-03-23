@@ -20,17 +20,20 @@ namespace SawTapes.Managers
             grabbableObject.EnableItemMeshes(true);
         }
 
+        public static void DestroyObjectOfTypeForServer<T>(T grabbableObject) where T : GrabbableObject
+        {
+            if (grabbableObject == null) return;
+
+            NetworkObject networkObject = grabbableObject.GetComponent<NetworkObject>();
+            if (networkObject == null || !networkObject.IsSpawned) return;
+
+            SawTapesNetworkManager.Instance.DestroyObjectClientRpc(grabbableObject.GetComponent<NetworkObject>());
+        }
+
         public static void DestroyObjectsOfTypeAllForServer<T>() where T : GrabbableObject
         {
             foreach (T grabbableObject in Resources.FindObjectsOfTypeAll<T>())
-            {
-                if (grabbableObject == null) continue;
-
-                NetworkObject networkObject = grabbableObject.GetComponent<NetworkObject>();
-                if (networkObject == null || !networkObject.IsSpawned) continue;
-
-                SawTapesNetworkManager.Instance.DestroyObjectClientRpc(grabbableObject.GetComponent<NetworkObject>());
-            }
+                DestroyObjectOfTypeForServer<T>(grabbableObject);
         }
 
         public static void DestroyReverseBearTrapForServer(PlayerControllerB player)

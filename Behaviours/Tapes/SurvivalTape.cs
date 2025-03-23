@@ -13,10 +13,11 @@ namespace SawTapes.Behaviours.Tapes
 {
     public class SurvivalTape : SawTape
     {
+        public HashSet<Shovel> shovels = new HashSet<Shovel>();
         public List<NetworkObject> spawnedEnemies = new List<NetworkObject>();
 
         public ParticleSystem spawnParticle;
-        public ParticleSystem endTeleportParticle;
+        public ParticleSystem teleportParticle;
 
         public override void Start()
         {
@@ -40,7 +41,7 @@ namespace SawTapes.Behaviours.Tapes
 
         [ServerRpc(RequireOwnership = false)]
         public void SpawnShovelServerRpc(Vector3 position)
-            => SawGameSTManager.SpawnShovelForServer(position);
+            => shovels.Add(SawGameSTManager.SpawnItemFromNameForServer(Constants.SHOVEL, position) as Shovel);
 
         public override void ExecuteStartGameActionsForServer()
         {
@@ -76,6 +77,7 @@ namespace SawTapes.Behaviours.Tapes
         public void SpawnEnemies(int iterator)
         {
             if (iterator % 5 != 0) return;
+            if (gameDuration - iterator <= 5f) return;
 
             foreach (PlayerControllerB player in players)
             {
@@ -126,21 +128,35 @@ namespace SawTapes.Behaviours.Tapes
             Vector3 endPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5);
             PlayTeleportParticleClientRpc(enemy.transform.position, endPosition);
 
-            yield return new WaitUntil(() => !endTeleportParticle.isPlaying);
+            yield return new WaitUntil(() => !teleportParticle.isPlaying);
 
-            Destroy(endTeleportParticle.gameObject);
+            Destroy(teleportParticle.gameObject);
 
             if (enemy == null || enemy.isEnemyDead || !enemy.IsSpawned) yield break;
-            enemy.transform.position = endPosition;
+            TeleportEnemyClientRpc(enemy.thisNetworkObject, endPosition);
         }
 
         [ClientRpc]
         public void PlayTeleportParticleClientRpc(Vector3 startPosition, Vector3 endPosition)
         {
-            Instantiate(SawTapes.spawnParticle, startPosition, Quaternion.identity);
+            Instantiate(SawTapes.teleportParticle, startPosition, Quaternion.identity);
 
-            GameObject spawnObject = Instantiate(SawTapes.spawnParticle, endPosition, Quaternion.identity);
-            endTeleportParticle = spawnObject.GetComponent<ParticleSystem>();
+            GameObject spawnObject = Instantiate(SawTapes.teleportParticle, endPosition, Quaternion.identity);
+            teleportParticle = spawnObject.GetComponent<ParticleSystem>();
+        }
+
+        [ClientRpc]
+        public void TeleportEnemyClientRpc(NetworkObjectReference enemyObject, Vector3 position)
+        {
+            if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
+
+            EnemyAI enemy = networkObject.gameObject.GetComponentInChildren<EnemyAI>();
+            if (enemy == null) return;
+
+            enemy.serverPosition = position;
+            enemy.transform.position = position;
+            enemy.agent.Warp(position);
+            enemy.SyncPositionToClients();
         }
 
         public void SetEnemiesTargets()
@@ -166,6 +182,8 @@ namespace SawTapes.Behaviours.Tapes
 
             EnemySTManager.DespawnEnemiesForServer(spawnedEnemies);
             ObjectSTManager.DestroyObjectsOfTypeAllForServer<PursuerEye>();
+            foreach (Shovel shovel in shovels) ObjectSTManager.DestroyObjectOfTypeForServer(shovel);
+
             return players.All(p => p.isPlayerDead);
         }
 

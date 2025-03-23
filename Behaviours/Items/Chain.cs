@@ -81,6 +81,19 @@ namespace SawTapes.Behaviours.Items
         {
             if (player1 == null || player2 == null) return;
 
+            if (player1.isPlayerDead)
+            {
+                attach1?.SetParent(player2?.playerGlobalHead);
+                player1 = null;
+                return;
+            }
+            if (player2.isPlayerDead)
+            {
+                attach2?.SetParent(player1?.playerGlobalHead);
+                player2 = null;
+                return;
+            }
+
             Vector3 direction = player2.transform.position - player1.transform.position;
             float distance = direction.magnitude;
             if (distance >= 8f)
@@ -124,16 +137,16 @@ namespace SawTapes.Behaviours.Items
 
         public override void LateUpdate()
         {
-            if (attach1 != null && attach2 != null)
-            {
-                // Ajustement de la rotation globale de la chaîne
-                Vector3 direction = attach2.position - attach1.position;
-                transform.forward = direction.normalized;
+            if (player1 == null || player2 == null) return;
+            if (attach1 == null || attach2 == null) return;
 
-                // Ajuster la rotation des attaches pour pointer vers l'autre joueur
-                attach1.LookAt(attach2.position);
-                attach2.LookAt(attach1.position);
-            }
+            // Ajustement de la rotation globale de la chaîne
+            Vector3 direction = attach2.position - attach1.position;
+            transform.forward = direction.normalized;
+
+            // Ajuster la rotation des attaches pour pointer vers l'autre joueur
+            attach1.LookAt(attach2.position);
+            attach2.LookAt(attach1.position);
         }
 
         public override void OnDestroy()

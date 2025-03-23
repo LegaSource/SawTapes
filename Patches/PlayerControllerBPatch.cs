@@ -36,7 +36,7 @@ namespace SawTapes.Patches
             PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(__instance);
             if (playerBehaviour == null) return;
 
-            PlayerSTManager.SecondaryUsePerformed(playerBehaviour);
+            SawTapesNetworkManager.Instance.TeleportSawToPlayerServerRpc((int)playerBehaviour.playerProperties.playerClientId);
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.KillPlayerClientRpc))]

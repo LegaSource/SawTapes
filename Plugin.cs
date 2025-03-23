@@ -50,6 +50,7 @@ namespace SawTapes
 
         // Particles
         public static GameObject spawnParticle;
+        public static GameObject teleportParticle;
         public static GameObject despawnParticle;
         public static GameObject steamParticle;
         public static GameObject pathParticle;
@@ -156,6 +157,7 @@ namespace SawTapes
             HashSet<GameObject> gameObjects = new HashSet<GameObject>
             {
                 (spawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/SpawnParticle.prefab")),
+                (teleportParticle = bundle.LoadAsset<GameObject>("Assets/Particles/TeleportParticle.prefab")),
                 (despawnParticle = bundle.LoadAsset<GameObject>("Assets/Particles/DespawnParticle.prefab")),
                 (steamParticle = bundle.LoadAsset<GameObject>("Assets/Particles/SteamParticle.prefab")),
                 (pathParticle = bundle.LoadAsset<GameObject>("Assets/Particles/PathParticle.prefab"))

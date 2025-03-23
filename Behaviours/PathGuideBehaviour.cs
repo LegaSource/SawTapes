@@ -289,8 +289,8 @@ namespace SawTapes.Behaviours
             {
                 foreach (PlayerControllerB player in players)
                 {
-                    if (Vector3.Distance(saw.transform.position, player.transform.position) > 5000f) continue;
-                    SawTapesNetworkManager.Instance.PlayerEndPathGuideClientRpc((int)player.playerClientId);
+                    if (Vector3.Distance(saw.transform.position, player.transform.position) > 15f) continue;
+                    SawTapesNetworkManager.Instance.PlayerEndPathGuideClientRpc((int)player.playerClientId, saw.GetComponent<NetworkObject>());
                 }
                 GenerateParticlesAlongPath();
                 timer = 0f;
@@ -299,6 +299,9 @@ namespace SawTapes.Behaviours
 
         public void GenerateParticlesAlongPath()
         {
+            PlayerControllerB player = players.FirstOrDefault(p => !p.isPlayerDead);
+            if (player == null) return;
+
             for (int i = 1; i < path.corners.Length; i++)
             {
                 Vector3 start = path.corners[i - 1];
@@ -310,21 +313,19 @@ namespace SawTapes.Behaviours
                 for (float distance = 0; distance < segmentLength; distance += new System.Random().Next(minParticleSpacing, maxParticleSpacing) )
                 {
                     Vector3 position = start + direction * distance;
+                    if (Vector3.Distance(position, player.transform.position) > 15f) continue;
 
-                    if (Vector3.Distance(position, transform.position) <= 15f)
+                    // Calcul des positions gauche et droite
+                    Vector3 perpendicular = Vector3.Cross(direction, Vector3.up).normalized * 1.25f;
+                    Vector3 leftPosition = position - perpendicular;
+                    Vector3 rightPosition = position + perpendicular;
+
+                    if (players.Contains(GameNetworkManager.Instance.localPlayerController))
                     {
-                        // Calcul des positions gauche et droite
-                        Vector3 perpendicular = Vector3.Cross(direction, Vector3.up).normalized * 1.25f;
-                        Vector3 leftPosition = position - perpendicular;
-                        Vector3 rightPosition = position + perpendicular;
-
-                        if (players.Contains(GameNetworkManager.Instance.localPlayerController))
-                        {
-                            SawGameSTManager.SpawnPathParticle(leftPosition);
-                            SawGameSTManager.SpawnPathParticle(rightPosition);
-                        }
-                        SawTapesNetworkManager.Instance.SpawnPathParticleClientRpc(leftPosition, rightPosition, players.Select(p => (int)p.playerClientId).ToArray());
+                        SawGameSTManager.SpawnPathParticle(leftPosition);
+                        SawGameSTManager.SpawnPathParticle(rightPosition);
                     }
+                    SawTapesNetworkManager.Instance.SpawnPathParticleClientRpc(leftPosition, rightPosition, players.Select(p => (int)p.playerClientId).ToArray());
                 }
             }
         }

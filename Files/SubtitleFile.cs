@@ -20,61 +20,36 @@ namespace SawTapes.Files
                 "  \"survival_game\": [\n" +
                 "    {\n" +
                 "      \"timestamp\": 0,\n" +
-                "      // Hello worker\n" +
-                "      \"text\": \"Bonjour travailleur\"\n" +
+                "      // Hello workers\n" +
+                "      \"text\": \"Bonjour travailleurs\"\n" +
                 "    },\n" +
                 "    {\n" +
                 "      \"timestamp\": 1.2,\n" +
-                "      // Until now\n" +
-                "      \"text\": \"Jusqu'à maintenant\"\n" +
+                "      // All your life, you have fled from responsibility\n" +
+                "      \"text\": \"Toute votre vie, vous avez fui toute responsabilité\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"timestamp\": 2.15,\n" +
-                "      // you have shown cowardice in crucial moments\n" +
-                "      \"text\": \"vous avez fait preuve de lâcheté dans les moments cruciaux\"\n" +
+                "      \"timestamp\": 4.01,\n" +
+                "      // sacrificing others to ensure your own survival\n" +
+                "      \"text\": \"sacrifiant les autres pour assurer votre propre survie\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"timestamp\": 4.56,\n" +
-                "      // abandoning those who relied on you and avoiding your responsibilities\n" +
-                "      \"text\": \"abandonnant ceux qui comptaient sur vous et évitant vos responsabilités\"\n" +
+                "      \"timestamp\": 7.59,\n" +
+                "      // But today, there is no escape\n" +
+                "      \"text\": \"Mais aujourd’hui, il n’y a plus d’échappatoire\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"timestamp\": 9.05,\n" +
-                "      // You now find yourself in a sealed room\n" +
-                "      \"text\": \"Vous vous trouvez maintenant dans une pièce scellée\"\n" +
+                "      \"timestamp\": 9.94,\n" +
+                "      // You are being hunted and you will inevitably draw the attention of the creatures lurking here\n" +
+                "      \"text\": \"Vous êtes traqués et vous attirerez inévitablement l’attention des créatures qui rôdent ici\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"timestamp\": 11.65,\n" +
-                "      // faced with a test of bravery\n" +
-                "      \"text\": \"et vous êtes confronté à une épreuve de bravoure\"\n" +
+                "      \"timestamp\": 15.11,\n" +
+                "      // A single eye may divert their gaze… but at the cost of another sacrifice\n" +
+                "      \"text\": \"Un œil peut détourner leur regard… mais au prix d’un autre sacrifice\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"timestamp\": 13.84,\n" +
-                "      // Terrifying and unpredictable creatures\n" +
-                "      \"text\": \"Des créatures terrifiantes et imprévisibles\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"timestamp\": 16.69,\n" +
-                "      // have been released here\n" +
-                "      \"text\": \"ont été relâchées ici\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"timestamp\": 18.11,\n" +
-                "      // If you manage to survive until the end of the allotted time\n" +
-                "      \"text\": \"Si vous parvenez à survivre jusqu'à la fin du temps imparti\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"timestamp\": 21.46,\n" +
-                "      // you will have overcome your own cowardice and proven\n" +
-                "      \"text\": \"vous aurez surmonté votre propre lâcheté et prouvé\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"timestamp\": 24.47,\n" +
-                "      // that you are capable of standing firm in critical moments\n" +
-                "      \"text\": \"que vous êtes capable de vous affirmer dans les moments critiques\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"timestamp\": 28.6,\n" +
+                "      \"timestamp\": 19.56,\n" +
                 "      // Let the game begin\n" +
                 "      \"text\": \"Que le jeu commence\"\n" +
                 "    }\n" +
@@ -82,43 +57,33 @@ namespace SawTapes.Files
                 "  \"hunting_game\": [\n" +
                 "    {\n" +
                 "      \"timestamp\": 0,\n" +
-                "      // Hello worker, I want to play a game\n" +
-                "      \"text\": \"Bonjour travailleur, je veux jouer à un jeu.\"\n" +
+                "      // Hello workers\n" +
+                "      \"text\": \"Bonjour travailleurs\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"timestamp\": 2.68,\n" +
-                "      // All your life, you've found satisfaction in violence\n" +
-                "      \"text\": \"Toute votre vie, vous avez trouvé votre satisfaction dans la violence\"\n" +
+                "      \"timestamp\": 1.25,\n" +
+                "      // All your life, you have spilled blood without consequences\n" +
+                "      \"text\": \"Toute votre vie, vous avez fait couler le sang sans conséquences\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"timestamp\": 6.07,\n" +
-                "      // disregarding the value of the lives you harm\n" +
-                "      \"text\": \"sans tenir compte de la valeur des vies que vous détruisez\"\n" +
+                "      \"timestamp\": 4.91,\n" +
+                "      // finding pleasure in the pain of others\n" +
+                "      \"text\": \"trouvant du plaisir dans la douleur des autres\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"timestamp\": 9.04,\n" +
-                "      // Today, the very violence you wield so easily has become your only chance at survival\n" +
-                "      \"text\": \"Aujourd'hui, la violence que vous exercez si facilement est devenue votre seule chance de survie\"\n" +
+                "      \"timestamp\": 7.44,\n" +
+                "      // Today, that brutality has become your only way out\n" +
+                "      \"text\": \"Aujourd’hui, cette brutalité est devenue votre seule issue\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"timestamp\": 15.6,\n" +
-                "      // A deadly device is affixed to your head\n" +
-                "      \"text\": \"Un dispositif mortel est fixé sur votre tête\"\n" +
+                "      \"timestamp\": 11.41,\n" +
+                "      // A key is your salvation, but it lies within the guts of beasts you must hunt\n" +
+                "      \"text\": \"Une clé est votre salut, mais elle repose dans les entrailles de bêtes que vous devrez traquer\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"timestamp\": 18.2,\n" +
-                "      // Your life depends on a key, hidden within the entrails of a creature you must confront\n" +
-                "      \"text\": \"Votre vie dépend d'une clé, cachée dans les entrailles d'une créature que vous devez affronter\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"timestamp\": 23.51,\n" +
-                "      // Can you set aside your thirst for destruction to rekindle the instinct to survive?\n" +
-                "      \"text\": \"Pouvez-vous mettre de côté votre soif de destruction pour raviver votre instinct de survie ?\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"timestamp\": 28.8,\n" +
+                "      \"timestamp\": 16.63,\n" +
                 "      // Live or die, the choice is yours\n" +
-                "      \"text\": \"Vivre ou mourir, à toi de choisir\"\n" +
+                "      \"text\": \"Vivre ou mourir, à vous de choisir\"\n" +
                 "    }\n" +
                 "  ],\n" +
                 "  \"escape_game\": [\n" +

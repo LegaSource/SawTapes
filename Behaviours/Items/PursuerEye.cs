@@ -71,5 +71,11 @@ namespace SawTapes.Behaviours.Items
                     break;
             }
         }
+
+        public override void PocketItem()
+        {
+            base.PocketItem();
+            CustomPassManager.RemoveAura();
+        }
     }
 }

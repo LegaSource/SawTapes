@@ -1,5 +1,7 @@
 ﻿using GameNetcodeStuff;
 using SawTapes.Behaviours;
+using SawTapes.Behaviours.Items;
+using SawTapes.Behaviours.Tapes;
 using SawTapes.Patches;
 using Unity.Netcode;
 using UnityEngine;
@@ -70,10 +72,15 @@ namespace SawTapes.Managers
         }
 
         [ClientRpc]
-        public void PlayerEndPathGuideClientRpc(int playerId)
+        public void PlayerEndPathGuideClientRpc(int playerId, NetworkObjectReference obj)
         {
-            PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
-            SawGameSTManager.PlayerEndPathGuide(playerBehaviour);
+            if (!obj.TryGet(out var networkObject)) return;
+
+            PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+            if (player != GameNetworkManager.Instance.localPlayerController) return;
+
+            Saw saw = networkObject.gameObject.GetComponentInChildren<GrabbableObject>() as Saw;
+            CustomPassManager.SetupCustomPassForObjects([saw.gameObject]);
         }
 
         [ClientRpc]
@@ -90,6 +97,20 @@ namespace SawTapes.Managers
                     SawGameSTManager.SpawnPathParticle(rightPosition);
                 }
             }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void TeleportSawToPlayerServerRpc(int playerId)
+        {
+            PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+            PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(player);
+            if (playerBehaviour == null) return;
+
+            EscapeTape escapeTape = playerBehaviour.sawTape as EscapeTape;
+            if (escapeTape == null || escapeTape.saw == null) return;
+            if (Vector3.Distance(escapeTape.saw.transform.position, player.transform.position) > 15f) return;
+
+            ChangeObjectPositionClientRpc(escapeTape.saw.GetComponent<NetworkObject>(), player.transform.position + Vector3.up * 0.5f);
         }
     }
 }

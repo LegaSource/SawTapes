@@ -13,6 +13,7 @@ namespace SawTapes.Behaviours.Tapes
 {
     public class HuntingTape : SawTape
     {
+        public HashSet<Shovel> shovels = new HashSet<Shovel>();
         public List<NetworkObject> spawnedEnemies = new List<NetworkObject>();
         public static Coroutine showAuraCoroutine;
 
@@ -48,7 +49,7 @@ namespace SawTapes.Behaviours.Tapes
 
         [ServerRpc(RequireOwnership = false)]
         public void SpawnShovelServerRpc(Vector3 position)
-            => SawGameSTManager.SpawnShovelForServer(position);
+            => shovels.Add(SawGameSTManager.SpawnItemFromNameForServer(Constants.SHOVEL, position) as Shovel);
 
         public override void ExecuteStartGameActionsForServer()
         {
@@ -166,6 +167,7 @@ namespace SawTapes.Behaviours.Tapes
             EnemySTManager.DespawnEnemiesForServer(spawnedEnemies);
             ObjectSTManager.DestroyObjectsOfTypeAllForServer<SawKey>();
             ObjectSTManager.DestroyObjectsOfTypeAllForServer<PursuerEye>();
+            foreach (Shovel shovel in shovels) ObjectSTManager.DestroyObjectOfTypeForServer(shovel);
 
             return !hasLivingPlayer;
         }

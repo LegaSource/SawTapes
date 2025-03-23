@@ -14,7 +14,7 @@ namespace SawTapes.Behaviours.Tapes
     public class SawTape : PhysicsProp
     {
         public bool isGameStarted = false;
-        public bool isGameEnded = false;
+        public bool isGameEnded;
         public bool isPlayerFinded = false;
         public float delayTimer = 10f;
 
@@ -33,7 +33,7 @@ namespace SawTapes.Behaviours.Tapes
         public override void Start()
         {
             base.Start();
-            isGameEnded = scrapValue != 0;
+            isGameEnded = scrapValue != 0 || STUtilities.FindMainEntrancePoint() == null;
         }
 
         public virtual void InstantiateAndAttachAudio(GameObject audioPrefab)
@@ -126,10 +126,11 @@ namespace SawTapes.Behaviours.Tapes
             players.Clear();
             foreach (int playerId in playerIds)
             {
-                PlayerSTBehaviour playerBehaviour = StartOfRound.Instance.allPlayerObjects[playerId].GetComponentInChildren<PlayerSTBehaviour>();
+                PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+                PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(player);
                 if (playerBehaviour == null) return;
 
-                players.Add(playerBehaviour.playerProperties);
+                players.Add(player);
                 playerBehaviour.isInGame = true;
                 playerBehaviour.sawTape = this;
             }
@@ -408,6 +409,7 @@ namespace SawTapes.Behaviours.Tapes
             }
 
             players.Clear();
+            CustomPassManager.RemoveAura();
         }
 
         public IEnumerator SpawnBillyCoroutine(PlayerControllerB player)

@@ -4,6 +4,7 @@ using SawTapes.Files;
 using SawTapes.Managers;
 using SawTapes.Patches;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace SawTapes.Behaviours.Tapes
     {
         public Chain chain;
         public Saw saw;
+        public HashSet<Shovel> shovels = new HashSet<Shovel>();
         public bool sawHasBeenUsed = false;
 
         public override void Start()
@@ -29,6 +31,16 @@ namespace SawTapes.Behaviours.Tapes
             gameDuration = ConfigManager.escapeDuration.Value;
             billyValue = ConfigManager.escapeBillyValue.Value;
         }
+
+        public override void ExecutePostGasActionsForClient(PlayerControllerB player)
+        {
+            base.ExecutePostGasActionsForClient(player);
+            SpawnShovelServerRpc(player.gameplayCamera.transform.position + player.gameplayCamera.transform.forward);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SpawnShovelServerRpc(Vector3 position)
+            => shovels.Add(SawGameSTManager.SpawnItemFromNameForServer(Constants.SHOVEL, position) as Shovel);
 
         public override void ExecutePostGasActionsForServer()
         {
@@ -72,11 +84,11 @@ namespace SawTapes.Behaviours.Tapes
             PathGuideBehaviour pathGuide = player.gameObject.AddComponent<PathGuideBehaviour>();
             pathGuide.saw = saw;
             pathGuide.sawTape = this;
-            pathGuide.players = players;
+            pathGuide.players = players.ToHashSet();
         }
 
         public override bool DoGameForServer(int iterator)
-            => !(players.Any(p => p.isPlayerDead) || sawHasBeenUsed);
+            => !(players.All(p => p.isPlayerDead) || sawHasBeenUsed);
 
         public override bool ExecutePreEndGameActionForServer(bool isGameCancelled)
         {
@@ -84,14 +96,17 @@ namespace SawTapes.Behaviours.Tapes
 
             DestroyChain();
             DestroyPathGuide();
-            if (players.Any(p => p.isPlayerDead) || !sawHasBeenUsed)
+            foreach (Shovel shovel in shovels) ObjectSTManager.DestroyObjectOfTypeForServer(shovel);
+            if (players.All(p => p.isPlayerDead) || !sawHasBeenUsed)
             {
-                DestroySaw();
-                // On tue les joueurs encore en vie
+                ObjectSTManager.DestroyObjectOfTypeForServer(saw);
                 if (!isGameCancelled)
                 {
-                    foreach (PlayerControllerB alivePlayer in players.Where(p => !p.isPlayerDead))
-                        SawTapesNetworkManager.Instance.KillPlayerClientRpc((int)alivePlayer.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown);
+                    foreach (PlayerControllerB player in players)
+                    {
+                        if (player.isPlayerDead) continue;
+                        SawTapesNetworkManager.Instance.KillPlayerClientRpc((int)player.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown);
+                    }
                 }
                 return true;
             }
@@ -115,27 +130,10 @@ namespace SawTapes.Behaviours.Tapes
             if (pathGuide != null) Destroy(pathGuide);
         }
 
-        public void DestroySaw()
-        {
-            if (saw != null)
-            {
-                NetworkObject networkObject = saw.GetComponent<NetworkObject>();
-                if (networkObject == null || !networkObject.IsSpawned) return;
-
-                SawTapesNetworkManager.Instance.DestroyObjectClientRpc(networkObject);
-            }
-        }
-
         public override void EndGameForAllClients(bool isGameEnded)
         {
             base.EndGameForAllClients(isGameEnded);
-
             sawHasBeenUsed = false;
-
-            PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(GameNetworkManager.Instance.localPlayerController);
-            if (playerBehaviour == null) return;
-
-            playerBehaviour.currentControlTipState = (int)PlayerSTBehaviour.ControlTip.NONE;
         }
     }
 }

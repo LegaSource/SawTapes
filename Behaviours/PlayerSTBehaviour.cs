@@ -21,8 +21,6 @@ namespace SawTapes.Behaviours
         public bool isInGame = false;
         public bool hasBeenGassed = false;
 
-        public int currentControlTipState = (int)ControlTip.NONE;
-
         // HUNTING GAME
         public ReverseBearTrap reverseBearTrap;
     }

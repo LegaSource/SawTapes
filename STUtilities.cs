@@ -18,7 +18,7 @@ namespace SawTapes
         }
 
         public static Transform FindMainEntrancePoint()
-            => Object.FindObjectsOfType<EntranceTeleport>().FirstOrDefault(e => e.entranceId == 0 && !e.isEntranceToBuilding).entrancePoint;
+            => Object.FindObjectsOfType<EntranceTeleport>().FirstOrDefault(e => e.entranceId == 0 && !e.isEntranceToBuilding)?.entrancePoint;
 
         public static Vector3[] GetFurthestPositions(Vector3 position, int amount)
             => RoundManager.Instance.insideAINodes

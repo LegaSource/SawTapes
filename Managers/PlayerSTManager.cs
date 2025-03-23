@@ -1,9 +1,7 @@
 ﻿using GameNetcodeStuff;
 using SawTapes.Behaviours;
-using SawTapes.Behaviours.Tapes;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace SawTapes.Managers
@@ -63,31 +61,8 @@ namespace SawTapes.Managers
             playerBehaviour.isInGame = false;
             playerBehaviour.hasBeenGassed = false;
             playerBehaviour.sawTape = null;
-            playerBehaviour.currentControlTipState = (int)PlayerSTBehaviour.ControlTip.NONE;
             ObjectSTManager.DestroyReverseBearTrapForServer(playerBehaviour.playerProperties);
             playerBehaviour.reverseBearTrap = null;
-    }
-
-        public static void SecondaryUsePerformed(PlayerSTBehaviour playerBehaviour)
-        {
-            switch (playerBehaviour.currentControlTipState)
-            {
-                case (int)PlayerSTBehaviour.ControlTip.NONE:
-                    return;
-                case (int)PlayerSTBehaviour.ControlTip.SAW_ITEM:
-                    TeleportSawToPlayer(playerBehaviour);
-                    break;
-            }
-        }
-
-        public static void TeleportSawToPlayer(PlayerSTBehaviour playerBehaviour)
-        {
-            if (playerBehaviour == null) return;
-
-            EscapeTape escapeTape = playerBehaviour.sawTape as EscapeTape;
-            if (escapeTape == null || escapeTape.saw == null) return;
-            
-            SawTapesNetworkManager.Instance.ChangeObjectPositionServerRpc(escapeTape.saw.GetComponent<NetworkObject>(), playerBehaviour.playerProperties.transform.position + Vector3.up * 0.5f);
         }
     }
 }
