@@ -4,54 +4,82 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace SawTapes
+namespace SawTapes;
+
+public class STUtilities
 {
-    public class STUtilities
+    public static void Shuffle<T>(List<T> list)
     {
-        public static void Shuffle<T>(List<T> list)
+        for (int i = list.Count - 1; i > 0; i--)
         {
-            for (int i = list.Count - 1; i > 0; i--)
-            {
-                int randomIndex = Random.Range(0, i + 1);
-                (list[randomIndex], list[i]) = (list[i], list[randomIndex]);
-            }
+            int randomIndex = Random.Range(0, i + 1);
+            (list[randomIndex], list[i]) = (list[i], list[randomIndex]);
+        }
+    }
+
+    public static Transform FindMainEntrancePoint()
+        => Object.FindObjectsOfType<EntranceTeleport>().FirstOrDefault(e => e.entranceId == 0 && !e.isEntranceToBuilding)?.entrancePoint;
+
+    public static Vector3[] GetFurthestPositions(Vector3 position, int amount)
+        => RoundManager.Instance.insideAINodes
+            .Select(n => n.transform.position)
+            .OrderByDescending(p => Vector3.Distance(position, p))
+            .Take(amount)
+            .ToArray();
+
+    public static Vector3 GetFurthestPositionScrapSpawn(Vector3 position, Item itemToSpawn)
+    {
+        RandomScrapSpawn randomScrapSpawn = Object.FindObjectsOfType<RandomScrapSpawn>()
+            .Where(s => !s.spawnUsed)
+            .OrderByDescending(s => Vector3.Distance(position, s.transform.position))
+            .FirstOrDefault();
+
+        if (randomScrapSpawn == null)
+        {
+            // Au cas où, mieux vaut prendre un spawn déjà utilisé que de le faire apparaître devant le joueur
+            randomScrapSpawn = Object.FindObjectsOfType<RandomScrapSpawn>()
+                .OrderByDescending(p => Vector3.Distance(position, p.transform.position))
+                .FirstOrDefault();
         }
 
-        public static Transform FindMainEntrancePoint()
-            => Object.FindObjectsOfType<EntranceTeleport>().FirstOrDefault(e => e.entranceId == 0 && !e.isEntranceToBuilding)?.entrancePoint;
+        if (randomScrapSpawn.spawnedItemsCopyPosition) randomScrapSpawn.spawnUsed = true;
+        else randomScrapSpawn.transform.position = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom) + (Vector3.up * itemToSpawn.verticalOffset);
 
-        public static Vector3[] GetFurthestPositions(Vector3 position, int amount)
-            => RoundManager.Instance.insideAINodes
-                .Select(n => n.transform.position)
-                .OrderByDescending(p => Vector3.Distance(position, p))
-                .Take(amount)
-                .ToArray();
+        return randomScrapSpawn.transform.position + (Vector3.up * 0.5f);
+    }
 
-        public static Vector3 GetFurthestPositionScrapSpawn(Vector3 position, Item itemToSpawn)
+    public static PlayerControllerB GetFurthestInGamePlayer(PlayerControllerB player)
+        => StartOfRound.Instance.allPlayerScripts
+            .Where(p => p.isPlayerControlled && !p.isPlayerDead && PlayerSTManager.GetPlayerBehaviour(p) is { } playerBehaviour && playerBehaviour.isInGame)
+            .OrderByDescending(p => Vector3.Distance(player.transform.position, p.transform.position))
+            .FirstOrDefault();
+
+    public static void ForceGrabObject(GrabbableObject grabbableObject, PlayerControllerB player)
+    {
+        player.currentlyGrabbingObject = grabbableObject;
+        player.grabInvalidated = false;
+
+        player.currentlyGrabbingObject.InteractItem();
+
+        if (player.currentlyGrabbingObject.grabbable && player.FirstEmptyItemSlot() != -1)
         {
-            RandomScrapSpawn randomScrapSpawn = Object.FindObjectsOfType<RandomScrapSpawn>()
-                .Where(s => !s.spawnUsed)
-                .OrderByDescending(s => Vector3.Distance(position, s.transform.position))
-                .FirstOrDefault();
+            player.playerBodyAnimator.SetBool("GrabInvalidated", value: false);
+            player.playerBodyAnimator.SetBool("GrabValidated", value: false);
+            player.playerBodyAnimator.SetBool("cancelHolding", value: false);
+            player.playerBodyAnimator.ResetTrigger("Throw");
+            player.SetSpecialGrabAnimationBool(setTrue: true);
+            player.isGrabbingObjectAnimation = true;
+            player.cursorIcon.enabled = false;
+            player.cursorTip.text = "";
+            player.twoHanded = player.currentlyGrabbingObject.itemProperties.twoHanded;
+            player.carryWeight = Mathf.Clamp(player.carryWeight + (player.currentlyGrabbingObject.itemProperties.weight - 1f), 1f, 10f);
+            player.grabObjectAnimationTime = player.currentlyGrabbingObject.itemProperties.grabAnimationTime > 0f
+                ? player.currentlyGrabbingObject.itemProperties.grabAnimationTime
+                : 0.4f;
 
-            if (randomScrapSpawn == null)
-            {
-                // Au cas où, mieux vaut prendre un spawn déjà utilisé que de le faire apparaître devant le joueur
-                randomScrapSpawn = Object.FindObjectsOfType<RandomScrapSpawn>()
-                    .OrderByDescending(p => Vector3.Distance(position, p.transform.position))
-                    .FirstOrDefault();
-            }
-
-            if (randomScrapSpawn.spawnedItemsCopyPosition) randomScrapSpawn.spawnUsed = true;
-            else randomScrapSpawn.transform.position = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom) + Vector3.up * itemToSpawn.verticalOffset;
-
-            return randomScrapSpawn.transform.position + Vector3.up * 0.5f;
+            if (!player.isTestingPlayer) player.GrabObjectServerRpc(player.currentlyGrabbingObject.NetworkObject);
+            if (player.grabObjectCoroutine != null) player.StopCoroutine(player.grabObjectCoroutine);
+            player.grabObjectCoroutine = player.StartCoroutine(player.GrabObject());
         }
-
-        public static PlayerControllerB GetFurthestInGamePlayer(PlayerControllerB player)
-            => StartOfRound.Instance.allPlayerScripts
-                .Where(p => p.isPlayerControlled && !p.isPlayerDead && PlayerSTManager.GetPlayerBehaviour(p) is { } playerBehaviour && playerBehaviour.isInGame)
-                .OrderByDescending(p => Vector3.Distance(player.transform.position, p.transform.position))
-                .FirstOrDefault();
     }
 }

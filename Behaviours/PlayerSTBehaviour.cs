@@ -3,25 +3,16 @@ using SawTapes.Behaviours.Items;
 using SawTapes.Behaviours.Tapes;
 using UnityEngine;
 
-namespace SawTapes.Behaviours
+namespace SawTapes.Behaviours;
+
+public class PlayerSTBehaviour : MonoBehaviour
 {
-    public class PlayerSTBehaviour : MonoBehaviour
-    {
-        public enum ControlTip
-        {
-            NONE,
-            SAW_ITEM
-        }
+    // GLOBAL 
+    public PlayerControllerB playerProperties;
+    public SawTape sawTape;
+    public ReverseBearTrap reverseBearTrap;
 
-        // GLOBAL
-        public PlayerControllerB playerProperties;
-        public SawTape sawTape;
-
-        public bool isTargetable = true;
-        public bool isInGame = false;
-        public bool hasBeenGassed = false;
-
-        // HUNTING GAME
-        public ReverseBearTrap reverseBearTrap;
-    }
+    public bool isTargetable = true;
+    public bool isInGame = false;
+    public bool hasBeenGassed = false;
 }

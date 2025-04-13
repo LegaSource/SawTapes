@@ -2,34 +2,31 @@
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 
-namespace SawTapes.Behaviours
+namespace SawTapes.Behaviours;
+
+public class WallhackCustomPass : CustomPass
 {
-    public class WallhackCustomPass : CustomPass
+    public Material wallhackMaterial;
+    public List<Renderer> targetRenderers = [];
+
+    public void SetTargetRenderers(Renderer[] renderers, Material material)
     {
-        public Material wallhackMaterial;
-        public List<Renderer> targetRenderers = new List<Renderer>();
+        targetRenderers.Clear();
+        targetRenderers.AddRange(renderers);
+        wallhackMaterial = material;
+    }
 
-        public void SetTargetRenderers(Renderer[] renderers, Material material)
+    public void ClearTargetRenderers()
+        => targetRenderers.Clear();
+
+    public override void Execute(CustomPassContext ctx)
+    {
+        if (targetRenderers == null || wallhackMaterial == null) return;
+
+        foreach (Renderer renderer in targetRenderers)
         {
-            targetRenderers.Clear();
-            targetRenderers.AddRange(renderers);
-            wallhackMaterial = material;
-        }
-
-        public void ClearTargetRenderers()
-            => targetRenderers.Clear();
-
-        public override void Execute(CustomPassContext ctx)
-        {
-            if (targetRenderers == null || wallhackMaterial == null) return;
-
-            foreach (Renderer renderer in targetRenderers)
-            {
-                if (renderer == null || renderer.sharedMaterials == null) continue;
-
-                for (int i = 0; i < renderer.sharedMaterials.Length; i++)
-                    ctx.cmd.DrawRenderer(renderer, wallhackMaterial);
-            }
+            if (renderer == null || renderer.sharedMaterials == null) continue;
+            for (int i = 0; i < renderer.sharedMaterials.Length; i++) ctx.cmd.DrawRenderer(renderer, wallhackMaterial);
         }
     }
 }

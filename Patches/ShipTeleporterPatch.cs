@@ -2,20 +2,17 @@
 using SawTapes.Behaviours;
 using SawTapes.Managers;
 
-namespace SawTapes.Patches
+namespace SawTapes.Patches;
+
+internal class ShipTeleporterPatch
 {
-    internal class ShipTeleporterPatch
+    [HarmonyPatch(typeof(ShipTeleporter), nameof(ShipTeleporter.PressTeleportButtonOnLocalClient))]
+    [HarmonyPrefix]
+    private static bool PreventTeleport(ref ShipTeleporter __instance)
     {
-        [HarmonyPatch(typeof(ShipTeleporter), nameof(ShipTeleporter.PressTeleportButtonOnLocalClient))]
-        [HarmonyPrefix]
-        private static bool PreventTeleport(ref ShipTeleporter __instance)
-        {
-            if (__instance.isInverseTeleporter || StartOfRound.Instance.mapScreen.targetedPlayer == null) return true;
+        if (__instance.isInverseTeleporter || StartOfRound.Instance.mapScreen.targetedPlayer == null) return true;
 
-            PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(StartOfRound.Instance.mapScreen.targetedPlayer);
-            if (playerBehaviour == null || !playerBehaviour.isInGame) return true;
-
-            return false;
-        }
+        PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(StartOfRound.Instance.mapScreen.targetedPlayer);
+        return playerBehaviour == null || !playerBehaviour.isInGame;
     }
 }
