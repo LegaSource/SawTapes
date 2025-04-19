@@ -113,7 +113,7 @@ public class Chain : PhysicsProp
         PullPlayerServerRpc((int)otherPlayer.playerClientId, force);
 
         // Ralentir le joueur
-        slowDownCoroutine ??= StartCoroutine(SlowDownPlayerCoroutine());
+        slowDownCoroutine ??= StartCoroutine(SlowDownPlayerCoroutine(targetPlayer));
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -124,14 +124,14 @@ public class Chain : PhysicsProp
     public void PullPlayerClientRpc(int playerId, Vector3 force)
         => StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>().thisController.Move(force);
 
-    public IEnumerator SlowDownPlayerCoroutine()
+    public IEnumerator SlowDownPlayerCoroutine(PlayerControllerB player)
     {
-        movementSpeed = GameNetworkManager.Instance.localPlayerController.movementSpeed;
-        GameNetworkManager.Instance.localPlayerController.movementSpeed /= 2f;
+        movementSpeed = player.movementSpeed;
+        player.movementSpeed /= 2f;
 
         yield return new WaitForSeconds(1f);
 
-        GameNetworkManager.Instance.localPlayerController.movementSpeed = movementSpeed;
+        player.movementSpeed = movementSpeed;
         slowDownCoroutine = null;
     }
 
@@ -153,7 +153,11 @@ public class Chain : PhysicsProp
     {
         // Réinitialiser les états des joueurs
         if (slowDownCoroutine != null)
+        {
             GameNetworkManager.Instance.localPlayerController.movementSpeed = movementSpeed;
+            StopCoroutine(slowDownCoroutine);
+            slowDownCoroutine = null;
+        }
 
         // Supprimer les maillons aux extrémités
         if (attach1 != null)

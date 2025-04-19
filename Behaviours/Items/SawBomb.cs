@@ -1,4 +1,5 @@
 ﻿using GameNetcodeStuff;
+using SawTapes.Behaviours.Tapes;
 using SawTapes.Managers;
 using System;
 using System.Collections;
@@ -11,12 +12,23 @@ public class SawBomb : PhysicsProp
 {
     public bool hasExploded = false;
     public bool isTransferred = false;
+    public bool hasBeenDefused = false;
+
+    public PlayerControllerB aimedPlayer;
+    public float movementSpeed;
 
     public AudioSource bombAudio;
     public AudioClip tickingSound;
 
-    public Coroutine transferBombCoroutine;
     public Coroutine tickingCoroutine;
+    public Coroutine transferBombCoroutine;
+    public Coroutine slowDownCoroutine;
+
+    public override void Start()
+    {
+        base.Start();
+        movementSpeed = GameNetworkManager.Instance.localPlayerController.movementSpeed;
+    }
 
     public void StartTickingForServer()
     {
@@ -64,12 +76,27 @@ public class SawBomb : PhysicsProp
         DestroyObjectInHand(playerHeldBy);
     }
 
-    public override void ItemActivate(bool used, bool buttonDown = true)
+    public override void Update()
     {
-        base.ItemActivate(used, buttonDown);
+        base.Update();
 
-        if (!buttonDown || playerHeldBy == null || transferBombCoroutine != null) return;
+        if (!isHeld || isPocketed || playerHeldBy == null || transferBombCoroutine != null) return;
+        if (playerHeldBy != GameNetworkManager.Instance.localPlayerController) return;
 
+        if (hasBeenDefused)
+        {
+            // code classique si bombe désamorcée
+            return;
+        }
+
+        SawTape sawTape = SawGameSTManager.GetSawTapeFromPlayer(playerHeldBy);
+        if (sawTape == null || sawTape is not ExplosiveTape) return;
+
+        ShowAuraTargetedPlayer();
+    }
+
+    public void ShowAuraTargetedPlayer()
+    {
         Ray ray = new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward);
         RaycastHit[] hits = Physics.RaycastAll(ray, 3f);
         Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
@@ -82,15 +109,21 @@ public class SawBomb : PhysicsProp
             if (targetedPlayer == null) continue;
 
             PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(targetedPlayer);
-            if (playerBehaviour == null || !playerBehaviour.isInGame)
-            {
-                HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_NOT_SUBJECT);
-                continue;
-            }
+            if (playerBehaviour == null || !playerBehaviour.isInGame) continue;
 
-            TransferBombServerRpc((int)playerHeldBy.playerClientId, (int)targetedPlayer.playerClientId);
-            break;
+            aimedPlayer = targetedPlayer;
+            CustomPassManager.SetupAuraForObjects([targetedPlayer.gameObject], SawTapes.yellowTransparentShader);
+            return;
         }
+        RemoveAuraFromPlayer();
+    }
+
+    public override void ItemActivate(bool used, bool buttonDown = true)
+    {
+        base.ItemActivate(used, buttonDown);
+
+        if (!buttonDown || playerHeldBy == null || transferBombCoroutine != null) return;
+        if (aimedPlayer != null) TransferBombServerRpc((int)playerHeldBy.playerClientId, (int)aimedPlayer.playerClientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -110,7 +143,11 @@ public class SawBomb : PhysicsProp
         PlayerControllerB localPlayer = GameNetworkManager.Instance.localPlayerController;
         isTransferred = true;
 
-        if (holdingPlayer == localPlayer) holdingPlayer.DropAllHeldItemsAndSync();
+        if (holdingPlayer == localPlayer)
+        {
+            holdingPlayer.DropAllHeldItemsAndSync();
+            RemoveAuraFromPlayer();
+        }
 
         if (tickingCoroutine != null)
         {
@@ -128,8 +165,8 @@ public class SawBomb : PhysicsProp
 
             yield return new WaitForSeconds(0.2f);
 
-            _ = StartCoroutine(SlowDownPlayerCoroutine(targetedPlayer));
-            STUtilities.ForceGrabObject(this, targetedPlayer);
+            slowDownCoroutine ??= StartCoroutine(SlowDownCoroutine(targetedPlayer));
+            ObjectSTManager.ForceGrabObject(this, targetedPlayer);
         }
 
         if (localPlayer.IsHost || localPlayer.IsServer) StartTickingForServer();
@@ -140,20 +177,44 @@ public class SawBomb : PhysicsProp
         transferBombCoroutine = null;
     }
 
-    public IEnumerator SlowDownPlayerCoroutine(PlayerControllerB player)
+    public IEnumerator SlowDownCoroutine(PlayerControllerB player)
     {
-        float savedMovementSpeed = player.movementSpeed;
+        movementSpeed = player.movementSpeed;
         player.movementSpeed /= 2f;
 
         yield return new WaitForSeconds(4f);
 
-        player.movementSpeed = savedMovementSpeed;
+        player.movementSpeed = movementSpeed;
+        slowDownCoroutine = null;
+    }
+
+    public override void PocketItem()
+    {
+        base.PocketItem();
+        RemoveAuraFromPlayer();
     }
 
     public override void DiscardItem()
     {
         base.DiscardItem();
+
+        RemoveAuraFromPlayer();
+        if (slowDownCoroutine != null)
+        {
+            GameNetworkManager.Instance.localPlayerController.movementSpeed = movementSpeed;
+            StopCoroutine(slowDownCoroutine);
+            slowDownCoroutine = null;
+        }
+
         if (isTransferred || deactivated) return;
         SpawnExplosion();
+    }
+
+    private void RemoveAuraFromPlayer()
+    {
+        if (aimedPlayer == null) return;
+
+        CustomPassManager.RemoveAuraFromObjects([aimedPlayer.gameObject]);
+        aimedPlayer = null;
     }
 }

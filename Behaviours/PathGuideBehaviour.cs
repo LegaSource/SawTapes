@@ -197,7 +197,11 @@ public class PathGuideBehaviour : MonoBehaviour
                     EscapeHazard escapeHazard = eligibleHazards[new System.Random().Next(eligibleHazards.Count)];
                     GameObject hazard = SearchHazard(escapeHazard);
                     // Positionne le piège légèrement au-dessus du sol pour éviter tout problème d'intersection
-                    if (hazard != null) SpawnHazard(hazard, hazardPosition + (Vector3.up * 0.5f), escapeHazard);
+                    if (hazard != null)
+                    {
+                        GameObject hazardInstance = SawGameSTManager.SpawnHazard(hazard, hazardPosition, escapeHazard.SpawnFacingAwayFromWall, escapeHazard.SpawnFacingWall, escapeHazard.SpawnWithBackToWall, escapeHazard.SpawnWithBackFlushAgainstWall);
+                        if (hazardInstance != null) _ = hazards.Add(hazardInstance);
+                    }
                 }
 
                 // Met à jour distanceSinceLastTrap
@@ -225,53 +229,6 @@ public class PathGuideBehaviour : MonoBehaviour
             if (hazard != null) break;
         }
         return hazard;
-    }
-
-    public void SpawnHazard(GameObject hazardPrefab, Vector3 position, EscapeHazard escapeHazard)
-    {
-        System.Random random = new System.Random(StartOfRound.Instance.randomMapSeed + 587);
-
-        List<RandomMapObject> nearbyMapObjects = FindObjectsOfType<RandomMapObject>().Where(m => Vector3.Distance(position, m.transform.position) <= 5f).ToList();
-        // Recherche de la meilleure position de spawn autour de la position donnée
-        if (nearbyMapObjects.Any())
-        {
-            // Prendre le premier objet proche, et placer la box à proximité de cet objet
-            RandomMapObject nearestMapObject = nearbyMapObjects.First();
-            position = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(nearestMapObject.transform.position, 2f, default, random);
-        }
-
-        // Ajout de légers ajustements à la position pour placer le piège au sol
-        if (Physics.Raycast(position + (Vector3.up * 2f), Vector3.down, out RaycastHit hit, 80f, 268437760, QueryTriggerInteraction.Ignore))
-        {
-            position = hit.point;
-        }
-        else
-        {
-            SawTapes.mls.LogWarning("No surface detected to place the trap.");
-            return;
-        }
-
-        // Instancie le piège à la position calculée
-        GameObject hazardInstance = Instantiate(hazardPrefab, position, Quaternion.identity, RoundManager.Instance.mapPropsContainer.transform);
-
-        hazardInstance.transform.eulerAngles = escapeHazard.SpawnFacingAwayFromWall
-            ? new Vector3(0f, RoundManager.Instance.YRotationThatFacesTheFarthestFromPosition(position + (Vector3.up * 0.2f)), 0f)
-            : escapeHazard.SpawnFacingWall
-                ? new Vector3(0f, RoundManager.Instance.YRotationThatFacesTheNearestFromPosition(position + (Vector3.up * 0.2f)), 0f)
-                : new Vector3(hazardInstance.transform.eulerAngles.x, random.Next(0, 360), hazardInstance.transform.eulerAngles.z);
-
-        if (escapeHazard.SpawnWithBackToWall && Physics.Raycast(hazardInstance.transform.position, -hazardInstance.transform.forward, out RaycastHit hitInfo, 100f, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
-        {
-            hazardInstance.transform.position = hitInfo.point;
-            if (escapeHazard.SpawnWithBackFlushAgainstWall)
-            {
-                hazardInstance.transform.forward = hitInfo.normal;
-                hazardInstance.transform.eulerAngles = new Vector3(0f, hazardInstance.transform.eulerAngles.y, 0f);
-            }
-        }
-
-        hazardInstance.GetComponent<NetworkObject>().Spawn(destroyWithScene: true);
-        _ = hazards.Add(hazardInstance);
     }
 
     public void Update()

@@ -410,7 +410,7 @@ public class SawTape : PhysicsProp
         }
 
         players.Clear();
-        CustomPassManager.RemoveAura();
+        CustomPassManager.ClearAura();
     }
 
     public IEnumerator SpawnBillyCoroutine(PlayerControllerB player)

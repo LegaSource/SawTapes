@@ -33,13 +33,13 @@ public class SawTapes : BaseUnityPlugin
 
     // Items
     public static List<SawTapeValue> sawTapeValues = [];
-    public static GameObject billyPuppetObj;
-    public static GameObject reverseBearTrapObj;
+    public static Item billyPuppet;
+    public static Item reverseBearTrap;
     public static Item sawKey;
     public static Item pursuerEye;
     public static Item sawItem;
-    public static GameObject chainObj;
-    public static GameObject sawBombObj;
+    public static Item chain;
+    public static Item sawBomb;
 
     // Hazards
     public static GameObject sawBoxObj;
@@ -64,7 +64,10 @@ public class SawTapes : BaseUnityPlugin
     public static EnemyType billyEnemy;
 
     // Shaders
-    public static Material wallhackShader;
+    public static Material redWallhackShader;
+    public static Material redTransparentShader;
+    public static Material yellowWallhackShader;
+    public static Material yellowTransparentShader;
 
     public static HashSet<EnemyType> allEnemies = [];
 
@@ -122,18 +125,15 @@ public class SawTapes : BaseUnityPlugin
             new SawTapeValue(typeof(EscapeTape), bundle.LoadAsset<Item>("Assets/SawTape/EscapeTapeItem.asset"), ConfigManager.EscapeRarity, 2, 2, ConfigManager.escapeInteriorExclusions.Value),
             new SawTapeValue(typeof(ExplosiveTape), bundle.LoadAsset<Item>("Assets/SawTape/ExplosiveTapeItem.asset"), ConfigManager.ExplosiveRarity, ConfigManager.explosiveMinPlayers.Value, ConfigManager.explosiveMaxPlayers.Value, ConfigManager.explosiveInteriorExclusions.Value)
         ];
+        foreach (SawTapeValue sawTapeValue in sawTapeValues) _ = RegisterItem(sawTapeValue.Type, sawTapeValue.Item);
 
-        foreach (SawTapeValue sawTapeValue in sawTapeValues)
-        {
-            _ = RegisterItem(sawTapeValue.Type, sawTapeValue.Item);
-        }
-        billyPuppetObj = RegisterItem(typeof(BillyPuppet), bundle.LoadAsset<Item>("Assets/BillyPuppet/BillyPuppetItem.asset")).spawnPrefab;
-        reverseBearTrapObj = RegisterItem(typeof(ReverseBearTrap), bundle.LoadAsset<Item>("Assets/ReverseBearTrap/ReverseBearTrapItem.asset")).spawnPrefab;
+        billyPuppet = RegisterItem(typeof(BillyPuppet), bundle.LoadAsset<Item>("Assets/BillyPuppet/BillyPuppetItem.asset"));
+        reverseBearTrap = RegisterItem(typeof(ReverseBearTrap), bundle.LoadAsset<Item>("Assets/ReverseBearTrap/ReverseBearTrapItem.asset"));
         sawKey = RegisterItem(typeof(SawKey), bundle.LoadAsset<Item>("Assets/SawKey/SawKeyItem.asset"));
         pursuerEye = RegisterItem(typeof(PursuerEye), bundle.LoadAsset<Item>("Assets/PursuerEye/PursuerEyeItem.asset"));
         sawItem = RegisterItem(typeof(Saw), bundle.LoadAsset<Item>("Assets/Saw/SawItem.asset"));
-        chainObj = RegisterItem(typeof(Chain), bundle.LoadAsset<Item>("Assets/Chain/ChainItem.asset")).spawnPrefab;
-        sawBombObj = RegisterItem(typeof(SawBomb), bundle.LoadAsset<Item>("Assets/SawBomb/SawBombItem.asset")).spawnPrefab;
+        chain = RegisterItem(typeof(Chain), bundle.LoadAsset<Item>("Assets/Chain/ChainItem.asset"));
+        sawBomb = RegisterItem(typeof(SawBomb), bundle.LoadAsset<Item>("Assets/SawBomb/SawBombItem.asset"));
     }
 
     public Item RegisterItem(Type type, Item item)
@@ -209,5 +209,10 @@ public class SawTapes : BaseUnityPlugin
     }
 
     public static void LoadShaders()
-        => wallhackShader = bundle.LoadAsset<Material>("Assets/Shaders/WallhackMaterial.mat");
+    {
+        redWallhackShader = bundle.LoadAsset<Material>("Assets/Shaders/RedWallhackMaterial.mat");
+        redTransparentShader = bundle.LoadAsset<Material>("Assets/Shaders/RedTransparentMaterial.mat");
+        yellowWallhackShader = bundle.LoadAsset<Material>("Assets/Shaders/YellowWallhackMaterial.mat");
+        yellowTransparentShader = bundle.LoadAsset<Material>("Assets/Shaders/YellowTransparentMaterial.mat");
+    }
 }

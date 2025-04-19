@@ -43,7 +43,7 @@ public class HuntingTape : SawTape
     public void SpawnReverseBearTrapServerRpc(int playerId)
     {
         PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
-        ReverseBearTrap reverseBearTrap = RoundManagerPatch.SpawnItem(SawTapes.reverseBearTrapObj, player.gameplayCamera.transform.position, player.gameplayCamera.transform.rotation) as ReverseBearTrap;
+        ReverseBearTrap reverseBearTrap = RoundManagerPatch.SpawnItem(SawTapes.reverseBearTrap.spawnPrefab, player.gameplayCamera.transform.position, player.gameplayCamera.transform.rotation) as ReverseBearTrap;
         reverseBearTrap.InitializeReverseBearTrapClientRpc((int)player.playerClientId);
     }
 
@@ -133,11 +133,11 @@ public class HuntingTape : SawTape
             if (sawKey == null || !sawKey.IsSpawned) continue;
             objects.Add(sawKey.gameObject);
         }
-        CustomPassManager.SetupCustomPassForObjects(objects.ToArray());
+        CustomPassManager.SetupAuraForObjects(objects.ToArray(), SawTapes.redWallhackShader);
 
         yield return new WaitForSeconds(duration);
 
-        CustomPassManager.RemoveAura();
+        CustomPassManager.RemoveAuraFromObjects(objects.ToArray());
         showAuraCoroutine = null;
     }
 

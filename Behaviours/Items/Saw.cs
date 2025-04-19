@@ -46,7 +46,7 @@ public class Saw : PhysicsProp
 
             EnemyAI enemy = collisionDetect.mainScript;
             if (enemy.enemyType.canDie && !enemy.enemyType.destroyOnDeath) KillEnemyServerRpc(enemy.NetworkObject);
-            else KillEnemyServerRpc(enemy.NetworkObject, true);
+            /*else KillEnemyServerRpc(enemy.NetworkObject, true);*/
         }
     }
 
@@ -65,11 +65,11 @@ public class Saw : PhysicsProp
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void KillEnemyServerRpc(NetworkObjectReference enemyObject, bool overrideDestroy = false)
+    public void KillEnemyServerRpc(NetworkObjectReference enemyObject/*, bool overrideDestroy = false*/)
     {
         if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
 
-        networkObject.gameObject.GetComponentInChildren<EnemyAI>().KillEnemyOnOwnerClient(overrideDestroy);
+        networkObject.gameObject.GetComponentInChildren<EnemyAI>().KillEnemyOnOwnerClient(/*overrideDestroy*/);
         UpdateUsesLeftClientRpc();
     }
 

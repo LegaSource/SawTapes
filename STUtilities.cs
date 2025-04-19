@@ -20,12 +20,14 @@ public class STUtilities
     public static Transform FindMainEntrancePoint()
         => Object.FindObjectsOfType<EntranceTeleport>().FirstOrDefault(e => e.entranceId == 0 && !e.isEntranceToBuilding)?.entrancePoint;
 
-    public static Vector3[] GetFurthestPositions(Vector3 position, int amount)
-        => RoundManager.Instance.insideAINodes
+    public static Vector3[] GetFurthestPositions(Vector3 position, int? amount = null)
+    {
+        IOrderedEnumerable<Vector3> allPositions = RoundManager.Instance.insideAINodes
             .Select(n => n.transform.position)
-            .OrderByDescending(p => Vector3.Distance(position, p))
-            .Take(amount)
-            .ToArray();
+            .OrderByDescending(p => Vector3.Distance(position, p));
+
+        return amount.HasValue ? allPositions.Take(amount.Value).ToArray() : allPositions.ToArray();
+    }
 
     public static Vector3 GetFurthestPositionScrapSpawn(Vector3 position, Item itemToSpawn)
     {
@@ -53,33 +55,4 @@ public class STUtilities
             .Where(p => p.isPlayerControlled && !p.isPlayerDead && PlayerSTManager.GetPlayerBehaviour(p) is { } playerBehaviour && playerBehaviour.isInGame)
             .OrderByDescending(p => Vector3.Distance(player.transform.position, p.transform.position))
             .FirstOrDefault();
-
-    public static void ForceGrabObject(GrabbableObject grabbableObject, PlayerControllerB player)
-    {
-        player.currentlyGrabbingObject = grabbableObject;
-        player.grabInvalidated = false;
-
-        player.currentlyGrabbingObject.InteractItem();
-
-        if (player.currentlyGrabbingObject.grabbable && player.FirstEmptyItemSlot() != -1)
-        {
-            player.playerBodyAnimator.SetBool("GrabInvalidated", value: false);
-            player.playerBodyAnimator.SetBool("GrabValidated", value: false);
-            player.playerBodyAnimator.SetBool("cancelHolding", value: false);
-            player.playerBodyAnimator.ResetTrigger("Throw");
-            player.SetSpecialGrabAnimationBool(setTrue: true);
-            player.isGrabbingObjectAnimation = true;
-            player.cursorIcon.enabled = false;
-            player.cursorTip.text = "";
-            player.twoHanded = player.currentlyGrabbingObject.itemProperties.twoHanded;
-            player.carryWeight = Mathf.Clamp(player.carryWeight + (player.currentlyGrabbingObject.itemProperties.weight - 1f), 1f, 10f);
-            player.grabObjectAnimationTime = player.currentlyGrabbingObject.itemProperties.grabAnimationTime > 0f
-                ? player.currentlyGrabbingObject.itemProperties.grabAnimationTime
-                : 0.4f;
-
-            if (!player.isTestingPlayer) player.GrabObjectServerRpc(player.currentlyGrabbingObject.NetworkObject);
-            if (player.grabObjectCoroutine != null) player.StopCoroutine(player.grabObjectCoroutine);
-            player.grabObjectCoroutine = player.StartCoroutine(player.GrabObject());
-        }
-    }
 }

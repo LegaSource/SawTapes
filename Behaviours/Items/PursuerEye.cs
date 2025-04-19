@@ -31,11 +31,10 @@ public class PursuerEye : PhysicsProp
             if (enemyCollision == null || enemyCollision.mainScript == null) return;
 
             aimedEnemy = enemyCollision.mainScript;
-            CustomPassManager.SetupCustomPassForObjects([enemyCollision.mainScript.gameObject]);
+            CustomPassManager.SetupAuraForObjects([enemyCollision.mainScript.gameObject], SawTapes.redTransparentShader);
             return;
         }
-        aimedEnemy = null;
-        CustomPassManager.RemoveAura();
+        RemoveAuraFromEnemy();
     }
 
     public override void ItemActivate(bool used, bool buttonDown = true)
@@ -65,8 +64,7 @@ public class PursuerEye : PhysicsProp
                 if (player == null || player == playerHeldBy) return;
 
                 survivalTape.TeleportEnemyServerRpc(aimedEnemy.thisNetworkObject, player.transform.position);
-                aimedEnemy = null;
-                CustomPassManager.RemoveAura();
+                RemoveAuraFromEnemy();
                 SawTapesNetworkManager.Instance.DestroyObjectServerRpc(GetComponent<NetworkObject>());
                 break;
         }
@@ -75,6 +73,20 @@ public class PursuerEye : PhysicsProp
     public override void PocketItem()
     {
         base.PocketItem();
-        CustomPassManager.RemoveAura();
+        RemoveAuraFromEnemy();
+    }
+
+    public override void DiscardItem()
+    {
+        base.DiscardItem();
+        RemoveAuraFromEnemy();
+    }
+
+    private void RemoveAuraFromEnemy()
+    {
+        if (aimedEnemy == null) return;
+
+        CustomPassManager.RemoveAuraFromObjects([aimedEnemy.gameObject]);
+        aimedEnemy = null;
     }
 }

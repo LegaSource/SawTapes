@@ -9,7 +9,6 @@ public class Constants
     public const string MESSAGE_IMPAC_KEY = "This key is needed by the tested player to survive";
     public const string MESSAGE_IMPAC_SAW = "This saw is needed by the tested players to survive";
     public const string MESSAGE_IMPAC_TESTED_PLAYER = "You are not a tested player, the game can't start";
-    public const string MESSAGE_IMPAC_NOT_SUBJECT = "This player's trial has not yet begun — not a subject of the game";
     public const string MESSAGE_INFO_ERR_PATH_ESCAPE = "An error occurred while determining the path, the game has been cancelled";
     // Configs
     public const string GLOBAL = "_Global_";

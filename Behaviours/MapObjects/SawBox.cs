@@ -3,6 +3,7 @@ using SawTapes.Behaviours.Items;
 using SawTapes.Behaviours.Tapes;
 using SawTapes.Managers;
 using Unity.Netcode;
+using UnityEngine;
 
 namespace SawTapes.Behaviours.MapObjects;
 
@@ -10,16 +11,18 @@ public class SawBox : NetworkBehaviour
 {
     public InteractTrigger boxTrigger;
 
-    public void PreBoxInteraction()
-        => RemoveBoxAuraServerRpc();
+    public void Update()
+    {
+        PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(GameNetworkManager.Instance.localPlayerController);
+        if (playerBehaviour == null || !playerBehaviour.isInGame || playerBehaviour.sawTape is not ExplosiveTape) return;
 
-    [ServerRpc(RequireOwnership = false)]
-    public void RemoveBoxAuraServerRpc()
-        => RemoveBoxAuraClientRpc();
-
-    [ClientRpc]
-    public void RemoveBoxAuraClientRpc()
-        => CustomPassManager.RemoveAura();
+        if (Vector3.Distance(playerBehaviour.playerProperties.transform.position, transform.position) > 20f)
+        {
+            CustomPassManager.SetupAuraForObjects([gameObject], SawTapes.yellowWallhackShader);
+            return;
+        }
+        CustomPassManager.RemoveAuraFromObjects([gameObject]);
+    }
 
     public void BoxInteraction()
         => BoxInteractionByTape();

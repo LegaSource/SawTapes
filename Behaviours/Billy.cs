@@ -91,7 +91,7 @@ public class Billy : EnemyAI
         if (billyPuppet == null)
         {
             Vector3 position = transform.position;
-            billyPuppet = RoundManagerPatch.SpawnItem(SawTapes.billyPuppetObj, position) as BillyPuppet;
+            billyPuppet = RoundManagerPatch.SpawnItem(SawTapes.billyPuppet.spawnPrefab, position) as BillyPuppet;
             SpawnBillyClientRpc(billyPuppet.GetComponent<NetworkObject>());
         }
     }

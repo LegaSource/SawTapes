@@ -56,7 +56,7 @@ public class EscapeTape : SawTape
             yield return new WaitUntil(() => Vector3.Distance(players[0].transform.position, players[1].transform.position) < 8f);
 
             Vector3 position = ((players[0].transform.position + players[1].transform.position) / 2f) + (Vector3.up * 1.2f);
-            chain = RoundManagerPatch.SpawnItem(SawTapes.chainObj, position) as Chain;
+            chain = RoundManagerPatch.SpawnItem(SawTapes.chain.spawnPrefab, position) as Chain;
             chain.SetUpChainClientRpc((int)players[0].playerClientId, (int)players[1].playerClientId);
         }
     }
@@ -99,7 +99,7 @@ public class EscapeTape : SawTape
         if (player != GameNetworkManager.Instance.localPlayerController) return;
 
         Saw saw = networkObject.gameObject.GetComponentInChildren<GrabbableObject>() as Saw;
-        CustomPassManager.SetupCustomPassForObjects([saw.gameObject]);
+        CustomPassManager.SetupAuraForObjects([saw.gameObject], SawTapes.yellowWallhackShader);
     }
 
     [ClientRpc]

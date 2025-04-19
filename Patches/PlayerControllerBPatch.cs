@@ -13,10 +13,10 @@ internal class PlayerControllerBPatch
     private static void StartPlayerControllerB(ref PlayerControllerB __instance)
         => PlayerSTManager.AddPlayerBehaviour(__instance);
 
-    [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.TeleportPlayer))]
+    /*[HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.TeleportPlayer))]
     [HarmonyPrefix]
     private static bool TeleportPlayer(ref PlayerControllerB __instance)
-        => !PlayerSTManager.PreventTeleportPlayer(__instance);
+        => !PlayerSTManager.PreventTeleportPlayer(__instance);*/
 
     [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.spawnPlayerAnimTimer))]
     [HarmonyPrefix]
