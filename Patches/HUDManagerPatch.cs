@@ -1,9 +1,7 @@
-﻿using DunGen;
-using HarmonyLib;
+﻿using HarmonyLib;
 using SawTapes.Managers;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -13,8 +11,9 @@ internal class HUDManagerPatch
 {
     public static TextMeshProUGUI chronoText;
     public static TextMeshProUGUI subtitleText;
+
     public static bool isChronoEnded = false;
-    public static Dictionary<EntranceTeleport, Tile> blockedEntrances = [];
+    public static int remainedTime;
     public static bool isFlashFilterUsed = false;
 
     [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.Start))]
@@ -47,9 +46,10 @@ internal class HUDManagerPatch
 
     public static IEnumerator StartChronoCoroutine(int seconds)
     {
-        while (!IsChronoEnded(seconds))
+        remainedTime = seconds;
+        while (!IsChronoEnded(remainedTime))
         {
-            seconds--;
+            remainedTime--;
             yield return new WaitForSecondsRealtime(1f);
         }
     }
@@ -67,27 +67,9 @@ internal class HUDManagerPatch
             isChronoEnded = false;
             return true;
         }
+
         return false;
     }
-
-    [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.HoldInteractionFill))]
-    [HarmonyPostfix]
-    private static void HoldInteraction(ref bool __result)
-    {
-        if (!__result) return;
-
-        InteractTrigger interactTrigger = GameNetworkManager.Instance.localPlayerController.hoveringOverTrigger;
-        if (interactTrigger == null) return;
-
-        EntranceTeleport entranceTeleport = interactTrigger.GetComponent<EntranceTeleport>();
-        if (entranceTeleport == null || !IsEntranceBlocked(entranceTeleport)) return;
-
-        HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_INFO_IMP_ACTION);
-        __result = false;
-    }
-
-    public static bool IsEntranceBlocked(EntranceTeleport entranceTeleport)
-        => blockedEntrances.ContainsKey(entranceTeleport);
 
     [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SetScreenFilters))]
     [HarmonyPrefix]

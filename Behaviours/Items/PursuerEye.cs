@@ -82,7 +82,7 @@ public class PursuerEye : PhysicsProp
         RemoveAuraFromEnemy();
     }
 
-    private void RemoveAuraFromEnemy()
+    public void RemoveAuraFromEnemy()
     {
         if (aimedEnemy == null) return;
 

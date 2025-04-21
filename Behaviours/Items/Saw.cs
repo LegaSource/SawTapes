@@ -7,12 +7,12 @@ namespace SawTapes.Behaviours.Items;
 
 public class Saw : PhysicsProp
 {
+    public bool hasBeenUsedForEscapeGame = false;
+    public int currentUsesLeft;
+
     public AudioSource sawAudio;
     public AudioClip[] hitSFX;
     public AudioClip[] swingSFX;
-    public GameObject particleEffect;
-    public bool hasBeenUsedForEscapeGame = false;
-    public int currentUsesLeft;
 
     public override void Start()
     {
@@ -46,7 +46,6 @@ public class Saw : PhysicsProp
 
             EnemyAI enemy = collisionDetect.mainScript;
             if (enemy.enemyType.canDie && !enemy.enemyType.destroyOnDeath) KillEnemyServerRpc(enemy.NetworkObject);
-            /*else KillEnemyServerRpc(enemy.NetworkObject, true);*/
         }
     }
 
@@ -65,11 +64,11 @@ public class Saw : PhysicsProp
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void KillEnemyServerRpc(NetworkObjectReference enemyObject/*, bool overrideDestroy = false*/)
+    public void KillEnemyServerRpc(NetworkObjectReference enemyObject)
     {
         if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
 
-        networkObject.gameObject.GetComponentInChildren<EnemyAI>().KillEnemyOnOwnerClient(/*overrideDestroy*/);
+        networkObject.gameObject.GetComponentInChildren<EnemyAI>().KillEnemyOnOwnerClient();
         UpdateUsesLeftClientRpc();
     }
 
@@ -91,11 +90,5 @@ public class Saw : PhysicsProp
     {
         itemProperties.toolTips[1] = $"[Uses Left : {currentUsesLeft}]";
         HUDManager.Instance.ChangeControlTipMultiple(itemProperties.toolTips, holdingItem: true, itemProperties);
-    }
-
-    public override void OnDestroy()
-    {
-        if (particleEffect != null) Destroy(particleEffect.gameObject);
-        base.OnDestroy();
     }
 }

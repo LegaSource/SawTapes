@@ -10,12 +10,16 @@ namespace SawTapes.Behaviours.Items;
 
 public class SawBomb : PhysicsProp
 {
-    public bool hasExploded = false;
+    public bool hasBeenUsedForExplosiveGame = false;
     public bool isTransferred = false;
+    public bool isContained = false;
     public bool hasBeenDefused = false;
 
     public PlayerControllerB aimedPlayer;
     public float movementSpeed;
+
+    public EnemyAI aimedEnemy;
+    public EnemyAI attachedEnemy;
 
     public AudioSource bombAudio;
     public AudioClip tickingSound;
@@ -54,6 +58,7 @@ public class SawBomb : PhysicsProp
         yield return new WaitUntil(() => !bombAudio.isPlaying);
 
         SpawnExplosion();
+        attachedEnemy?.KillEnemyOnOwnerClient(true);
     }
 
     [ClientRpc]
@@ -62,8 +67,6 @@ public class SawBomb : PhysicsProp
 
     public void SpawnExplosion()
     {
-        if (hasExploded) return;
-
         if (tickingCoroutine != null)
         {
             StopCoroutine(tickingCoroutine);
@@ -72,7 +75,7 @@ public class SawBomb : PhysicsProp
 
         bombAudio.Stop();
         Landmine.SpawnExplosion(transform.position + Vector3.up, spawnExplosionEffect: true, 15f, 15f);
-        hasExploded = true;
+        hasBeenUsedForExplosiveGame = true;
         DestroyObjectInHand(playerHeldBy);
     }
 
@@ -80,19 +83,34 @@ public class SawBomb : PhysicsProp
     {
         base.Update();
 
-        if (!isHeld || isPocketed || playerHeldBy == null || transferBombCoroutine != null) return;
+        if (!isHeld || isPocketed || playerHeldBy == null) return;
+        if (isContained || transferBombCoroutine != null) return;
         if (playerHeldBy != GameNetworkManager.Instance.localPlayerController) return;
-
         if (hasBeenDefused)
         {
-            // code classique si bombe désamorcée
+            ShowAuraTargetedEnemy();
             return;
         }
+        if (hasBeenUsedForExplosiveGame) return;
 
         SawTape sawTape = SawGameSTManager.GetSawTapeFromPlayer(playerHeldBy);
         if (sawTape == null || sawTape is not ExplosiveTape) return;
 
         ShowAuraTargetedPlayer();
+    }
+
+    public void ShowAuraTargetedEnemy()
+    {
+        if (Physics.Raycast(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), out RaycastHit hit, ConfigManager.eyeDistanceSurvival.Value, 524288, QueryTriggerInteraction.Collide))
+        {
+            EnemyAICollisionDetect enemyCollision = hit.collider.GetComponent<EnemyAICollisionDetect>();
+            if (enemyCollision == null || enemyCollision.mainScript == null) return;
+
+            aimedEnemy = enemyCollision.mainScript;
+            CustomPassManager.SetupAuraForObjects([enemyCollision.mainScript.gameObject], SawTapes.redTransparentShader);
+            return;
+        }
+        RemoveAuraFromEnemy();
     }
 
     public void ShowAuraTargetedPlayer()
@@ -123,7 +141,36 @@ public class SawBomb : PhysicsProp
         base.ItemActivate(used, buttonDown);
 
         if (!buttonDown || playerHeldBy == null || transferBombCoroutine != null) return;
+        if (aimedEnemy != null) AttachBombServerRpc((int)playerHeldBy.playerClientId, aimedEnemy.thisNetworkObject);
         if (aimedPlayer != null) TransferBombServerRpc((int)playerHeldBy.playerClientId, (int)aimedPlayer.playerClientId);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AttachBombServerRpc(int playerId, NetworkObjectReference enemyObject)
+        => AttachBombClientRpc(playerId, enemyObject);
+
+    [ClientRpc]
+    public void AttachBombClientRpc(int playerId, NetworkObjectReference enemyObject)
+    {
+        if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
+
+        _ = StartCoroutine(AttachBombCoroutine(StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>(),
+            networkObject.GetComponentInChildren<EnemyAI>()));
+    }
+
+    public IEnumerator AttachBombCoroutine(PlayerControllerB player, EnemyAI enemy)
+    {
+        PlayerControllerB localPlayer = GameNetworkManager.Instance.localPlayerController;
+        if (player == localPlayer) player.DropAllHeldItemsAndSync();
+
+        yield return new WaitForSeconds(0.2f);
+
+        attachedEnemy = enemy;
+        parentObject = enemy.transform;
+        hasHitGround = false;
+        EnablePhysics(false);
+        EnableItemMeshes(false);
+        if (localPlayer.IsHost || localPlayer.IsServer) StartTickingForServer();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -142,12 +189,7 @@ public class SawBomb : PhysicsProp
     {
         PlayerControllerB localPlayer = GameNetworkManager.Instance.localPlayerController;
         isTransferred = true;
-
-        if (holdingPlayer == localPlayer)
-        {
-            holdingPlayer.DropAllHeldItemsAndSync();
-            RemoveAuraFromPlayer();
-        }
+        if (holdingPlayer == localPlayer) holdingPlayer.DropAllHeldItemsAndSync();
 
         if (tickingCoroutine != null)
         {
@@ -191,6 +233,8 @@ public class SawBomb : PhysicsProp
     public override void PocketItem()
     {
         base.PocketItem();
+
+        RemoveAuraFromEnemy();
         RemoveAuraFromPlayer();
     }
 
@@ -198,6 +242,7 @@ public class SawBomb : PhysicsProp
     {
         base.DiscardItem();
 
+        RemoveAuraFromEnemy();
         RemoveAuraFromPlayer();
         if (slowDownCoroutine != null)
         {
@@ -206,11 +251,19 @@ public class SawBomb : PhysicsProp
             slowDownCoroutine = null;
         }
 
-        if (isTransferred || deactivated) return;
+        if (isTransferred || isContained || hasBeenDefused || deactivated) return;
         SpawnExplosion();
     }
 
-    private void RemoveAuraFromPlayer()
+    public void RemoveAuraFromEnemy()
+    {
+        if (aimedEnemy == null) return;
+
+        CustomPassManager.RemoveAuraFromObjects([aimedEnemy.gameObject]);
+        aimedEnemy = null;
+    }
+
+    public void RemoveAuraFromPlayer()
     {
         if (aimedPlayer == null) return;
 

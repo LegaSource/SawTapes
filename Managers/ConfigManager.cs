@@ -49,7 +49,9 @@ public class ConfigManager
     public static ConfigEntry<int> explosiveMinPlayers;
     public static ConfigEntry<int> explosiveMaxPlayers;
     public static ConfigEntry<int> explosiveDuration;
+    public static ConfigEntry<int> explosiveExtraDuration;
     public static ConfigEntry<int> explosiveBillyValue;
+    public static ConfigEntry<float> explosiveAura;
     public static ConfigEntry<string> explosiveInteriorExclusions;
 
     // Encapsulation des paramètres qui pourraient être modifiés
@@ -104,8 +106,10 @@ public class ConfigManager
         explosiveRarity = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Rarity", 20, $"Default probability of the {Constants.EXPLOSIVE_GAME} mini-game appearing");
         explosiveMinPlayers = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Min players", 2, $"Minimum number of players for {Constants.EXPLOSIVE_GAME} - Set to -1 to limit it to the number of connected players who can participate");
         explosiveMaxPlayers = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Max players", -1, $"Maximum number of players for {Constants.EXPLOSIVE_GAME} - Set to -1 to limit it to the number of connected players who can participate");
-        explosiveDuration = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Duration", 120, $"Duration of the {Constants.EXPLOSIVE_GAME}");
+        explosiveDuration = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Duration", 150, $"Duration of the {Constants.EXPLOSIVE_GAME}");
+        explosiveExtraDuration = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Extra duration", 90, $"Extra duration added to the basic one for the second part of the {Constants.EXPLOSIVE_GAME}");
         explosiveBillyValue = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Billy value", 60, $"Billy value for the {Constants.EXPLOSIVE_GAME}");
+        explosiveAura = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Aura duration", 30f, "Duration for which the Hoarding bug's aura is visible through walls");
         explosiveInteriorExclusions = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Interiors exclusion list", "", $"List of interiors in which the {Constants.EXPLOSIVE_GAME} will not appear.");
     }
 }

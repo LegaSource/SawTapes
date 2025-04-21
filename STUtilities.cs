@@ -3,6 +3,7 @@ using SawTapes.Managers;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace SawTapes;
 
@@ -27,6 +28,41 @@ public class STUtilities
             .OrderByDescending(p => Vector3.Distance(position, p));
 
         return amount.HasValue ? allPositions.Take(amount.Value).ToArray() : allPositions.ToArray();
+    }
+
+    public static Vector3? GetFurthestValidPosition(Vector3 position, NavMeshAgent agent, GameObject[] nodes)
+    {
+        Vector3? bestPosition = null;
+        float maxDistance = -1f;
+
+        foreach (GameObject node in nodes)
+        {
+            Vector3 nodePosition = node.transform.position;
+            NavMeshPath path = new NavMeshPath();
+
+            if (!agent.CalculatePath(nodePosition, path)) continue;
+            if (Vector3.Distance(path.corners[path.corners.Length - 1], nodePosition) > 1.55f) continue;
+
+            float distance = Vector3.Distance(position, nodePosition);
+            if (distance > maxDistance)
+            {
+                maxDistance = distance;
+                bestPosition = nodePosition;
+            }
+        }
+
+        return bestPosition;
+    }
+
+    public static Vector3? GetClosestPositionScrapSpawn(Vector3 position, float minDistance, Item itemToSpawn)
+    {
+        RandomScrapSpawn randomScrapSpawn = Object.FindObjectsOfType<RandomScrapSpawn>()
+            .Where(s => Vector3.Distance(position, s.transform.position) >= minDistance)
+            .OrderBy(s => Vector3.Distance(position, s.transform.position))
+            .FirstOrDefault();
+
+        if (!randomScrapSpawn.spawnedItemsCopyPosition) randomScrapSpawn.transform.position = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom) + (Vector3.up * itemToSpawn.verticalOffset);
+        return randomScrapSpawn.transform.position + (Vector3.up * 0.5f);
     }
 
     public static Vector3 GetFurthestPositionScrapSpawn(Vector3 position, Item itemToSpawn)

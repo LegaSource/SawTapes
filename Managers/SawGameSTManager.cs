@@ -1,6 +1,8 @@
 ﻿using GameNetcodeStuff;
+using SawTapes.Behaviours.Items;
 using SawTapes.Behaviours.Tapes;
 using SawTapes.Patches;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -12,6 +14,20 @@ public class SawGameSTManager
 {
     public static SawTape GetSawTapeFromPlayer(PlayerControllerB player)
         => PlayerSTManager.GetPlayerBehaviour(player)?.sawTape;
+
+    public static IEnumerator ShowAuraForHuntCoroutine(EnemyAI[] enemies, float duration)
+    {
+        GameObject[] enemiesObjects = enemies.Select(e => e.gameObject).ToArray();
+        if (enemiesObjects.Length > 0) CustomPassManager.SetupAuraForObjects(enemiesObjects, SawTapes.redWallhackShader);
+
+        GameObject[] objects = Resources.FindObjectsOfTypeAll<SawKey>().Where(s => s != null && s.IsSpawned).Select(s => s.gameObject).ToArray();
+        if (objects.Length > 0) CustomPassManager.SetupAuraForObjects(objects, SawTapes.yellowWallhackShader);
+
+        yield return new WaitForSeconds(duration);
+
+        if (enemiesObjects.Length > 0) CustomPassManager.RemoveAuraFromObjects(enemiesObjects);
+        if (objects.Length > 0) CustomPassManager.RemoveAuraFromObjects(objects);
+    }
 
     public static GrabbableObject SpawnItemFromNameForServer(string name, Vector3 position)
     {

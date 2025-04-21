@@ -8,8 +8,8 @@ namespace SawTapes.Behaviours.Items;
 
 public class ReverseBearTrap : PhysicsProp
 {
-    public BoxCollider scanNodeCollider;
     public bool isReleased = false;
+    public BoxCollider scanNodeCollider;
 
     public override void Start()
     {

@@ -55,9 +55,7 @@ public class SurvivalTape : SawTape
         {
             if (randomScrapSpawn == null) return;
 
-            if (!randomScrapSpawn.spawnedItemsCopyPosition)
-                randomScrapSpawn.transform.position = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom) + (Vector3.up * SawTapes.pursuerEye.verticalOffset);
-
+            if (!randomScrapSpawn.spawnedItemsCopyPosition) randomScrapSpawn.transform.position = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom) + (Vector3.up * SawTapes.pursuerEye.verticalOffset);
             _ = RoundManagerPatch.SpawnItem(SawTapes.pursuerEye.spawnPrefab, randomScrapSpawn.transform.position + (Vector3.up * 0.5f));
         }
     }
@@ -95,7 +93,7 @@ public class SurvivalTape : SawTape
 
     public IEnumerator SpawnEnemyCoroutine(EnemyType enemyType, Vector3 position)
     {
-        Vector3 spawnPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5);
+        Vector3 spawnPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5f);
         PlaySpawnParticleClientRpc(spawnPosition);
 
         yield return new WaitUntil(() => !spawnParticle.isPlaying);
@@ -125,7 +123,7 @@ public class SurvivalTape : SawTape
 
     public IEnumerator TeleportEnemyCoroutine(EnemyAI enemy, Vector3 position)
     {
-        Vector3 endPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5);
+        Vector3 endPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5f);
         PlayTeleportParticleClientRpc(enemy.transform.position, endPosition);
 
         yield return new WaitUntil(() => !teleportParticle.isPlaying);

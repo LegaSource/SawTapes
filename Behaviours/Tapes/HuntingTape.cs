@@ -3,11 +3,11 @@ using SawTapes.Behaviours.Items;
 using SawTapes.Files;
 using SawTapes.Managers;
 using SawTapes.Patches;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.ProBuilder;
 
 namespace SawTapes.Behaviours.Tapes;
 
@@ -15,7 +15,7 @@ public class HuntingTape : SawTape
 {
     public HashSet<Shovel> shovels = [];
     public List<NetworkObject> spawnedEnemies = [];
-    public static Coroutine showAuraCoroutine;
+    public Coroutine showAuraCoroutine;
 
     public override void Start()
     {
@@ -112,33 +112,21 @@ public class HuntingTape : SawTape
 
     public void ShowAura(float duration)
     {
-        if (showAuraCoroutine != null) HUDManager.Instance.StopCoroutine(showAuraCoroutine);
+        if (showAuraCoroutine != null)
+        {
+            StopCoroutine(showAuraCoroutine);
+            showAuraCoroutine = null;
+        }
 
-        List<EnemyAI> enemies = [];
+        EnemyAI[] enemies = [];
         foreach (NetworkObject spawnedEnemy in spawnedEnemies)
         {
             if (spawnedEnemy == null || !spawnedEnemy.IsSpawned) continue;
-            enemies.Add(spawnedEnemy.GetComponentInChildren<EnemyAI>());
+            _ = enemies.Add(spawnedEnemy.GetComponentInChildren<EnemyAI>());
         }
-        if (enemies.Count == 0) return;
+        if (enemies.Length == 0) return;
 
-        showAuraCoroutine = HUDManager.Instance.StartCoroutine(ShowAuraCoroutine(enemies, duration));
-    }
-
-    public IEnumerator ShowAuraCoroutine(List<EnemyAI> enemies, float duration)
-    {
-        List<GameObject> objects = enemies.Select(e => e.gameObject).ToList();
-        foreach (SawKey sawKey in Resources.FindObjectsOfTypeAll<SawKey>())
-        {
-            if (sawKey == null || !sawKey.IsSpawned) continue;
-            objects.Add(sawKey.gameObject);
-        }
-        CustomPassManager.SetupAuraForObjects(objects.ToArray(), SawTapes.redWallhackShader);
-
-        yield return new WaitForSeconds(duration);
-
-        CustomPassManager.RemoveAuraFromObjects(objects.ToArray());
-        showAuraCoroutine = null;
+        showAuraCoroutine = StartCoroutine(SawGameSTManager.ShowAuraForHuntCoroutine(enemies, duration));
     }
 
     public override bool DoGameForServer(int iterator)
