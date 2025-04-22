@@ -30,6 +30,7 @@ public class PursuerEye : PhysicsProp
             EnemyAICollisionDetect enemyCollision = hit.collider.GetComponent<EnemyAICollisionDetect>();
             if (enemyCollision == null || enemyCollision.mainScript == null) return;
 
+            if (aimedEnemy != null && aimedEnemy != enemyCollision.mainScript) RemoveAuraFromEnemy();
             aimedEnemy = enemyCollision.mainScript;
             CustomPassManager.SetupAuraForObjects([enemyCollision.mainScript.gameObject], SawTapes.redTransparentShader);
             return;

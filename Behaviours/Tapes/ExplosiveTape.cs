@@ -162,7 +162,7 @@ public class ExplosiveTape : SawTape
     {
         _ = base.ExecutePreEndGameActionForServer(isGameCancelled);
 
-        sawBomb.SpawnExplosionClientRpc();
+        if (!sawBomb.hasBeenUsedForExplosiveGame) sawBomb.SpawnExplosionClientRpc();
         SawGameSTManager.DespawnHazard(sawBox.gameObject);
 
         if (sawKey != null) ObjectSTManager.DestroyObjectOfTypeForServer(sawKey);

@@ -100,7 +100,7 @@ public class ConfigManager
         escapeDuration = SawTapes.configFile.Bind(Constants.ESCAPE_GAME, "Duration", 150, $"Duration of the {Constants.ESCAPE_GAME}");
         escapeBillyValue = SawTapes.configFile.Bind(Constants.ESCAPE_GAME, "Billy value", 90, $"Billy value for the {Constants.ESCAPE_GAME}");
         escapeHazards = SawTapes.configFile.Bind(Constants.ESCAPE_GAME, "Hazards list", "Landmine:2:false:false:false:false,SpikeRoofTrapHazard:3:false:true:true:true,TurretContainer:1:true:false:false:false,LaserTurret:2:false:false:false:false,FanTrapAnimated:2:false:false:false:false,FunctionalMicrowave:1:false:false:false:false", $"List of spawnable hazards for the {Constants.ESCAPE_GAME}.\nThe format is 'HazardName:Weight:SpawnFacingAwayFromWall:SpawnFacingWall:SpawnWithBackToWall:SpawnWithBackFlushAgainstWall'.");
-        escapeAuraDistance = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Aura distance", 25f, $"Maximum distance between players and the {Constants.SAW} to see its aura through walls");
+        escapeAuraDistance = SawTapes.configFile.Bind(Constants.ESCAPE_GAME, "Aura distance", 25f, $"Maximum distance between players and the {Constants.SAW} to see its aura through walls");
         escapeInteriorExclusions = SawTapes.configFile.Bind(Constants.ESCAPE_GAME, "Interiors exclusion list", "GrandArmoryFlow,Level3Flow,StorehouseFlow", $"List of interiors in which the {Constants.ESCAPE_GAME} will not appear.");
         // EXPLOSIVE GAME
         explosiveRarity = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Rarity", 20, $"Default probability of the {Constants.EXPLOSIVE_GAME} mini-game appearing");

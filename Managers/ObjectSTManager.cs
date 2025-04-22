@@ -70,7 +70,7 @@ public class ObjectSTManager
         if (!GameNetworkManager.Instance.localPlayerController.IsHost && !GameNetworkManager.Instance.localPlayerController.IsServer) return;
 
         PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(player);
-        if (playerBehaviour == null || playerBehaviour.reverseBearTrap == null) return;
+        if (playerBehaviour == null || playerBehaviour.reverseBearTrap == null || playerBehaviour.reverseBearTrap.isReleased) return;
 
         NetworkObject networkObject = playerBehaviour.reverseBearTrap.GetComponent<NetworkObject>();
         if (networkObject == null || !networkObject.IsSpawned) return;

@@ -88,7 +88,7 @@ public class STUtilities
 
     public static PlayerControllerB GetFurthestInGamePlayer(PlayerControllerB player)
         => StartOfRound.Instance.allPlayerScripts
-            .Where(p => p.isPlayerControlled && !p.isPlayerDead && PlayerSTManager.GetPlayerBehaviour(p) is { } playerBehaviour && playerBehaviour.isInGame)
+            .Where(p => p != player && p.isPlayerControlled && !p.isPlayerDead && PlayerSTManager.GetPlayerBehaviour(p) is { } playerBehaviour && playerBehaviour.isInGame)
             .OrderByDescending(p => Vector3.Distance(player.transform.position, p.transform.position))
             .FirstOrDefault();
 }

@@ -70,7 +70,10 @@ public class CustomPassManager : MonoBehaviour
 
         foreach (GameObject obj in objects)
         {
+            if (obj == null) continue;
+
             List<Renderer> renderers = obj.GetComponentsInChildren<Renderer>().ToList();
+            if (renderers.Count == 0) continue;
 
             if (obj.TryGetComponent<EnemyAI>(out _))
             {

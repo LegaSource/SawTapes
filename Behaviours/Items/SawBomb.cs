@@ -106,6 +106,7 @@ public class SawBomb : PhysicsProp
             EnemyAICollisionDetect enemyCollision = hit.collider.GetComponent<EnemyAICollisionDetect>();
             if (enemyCollision == null || enemyCollision.mainScript == null) return;
 
+            if (aimedEnemy != null && aimedEnemy != enemyCollision.mainScript) RemoveAuraFromEnemy();
             aimedEnemy = enemyCollision.mainScript;
             CustomPassManager.SetupAuraForObjects([enemyCollision.mainScript.gameObject], SawTapes.redTransparentShader);
             return;
@@ -129,6 +130,7 @@ public class SawBomb : PhysicsProp
             PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(targetedPlayer);
             if (playerBehaviour == null || !playerBehaviour.isInGame) continue;
 
+            if (aimedPlayer != null && aimedPlayer != targetedPlayer) RemoveAuraFromPlayer();
             aimedPlayer = targetedPlayer;
             CustomPassManager.SetupAuraForObjects([targetedPlayer.gameObject], SawTapes.yellowTransparentShader);
             return;
@@ -251,7 +253,7 @@ public class SawBomb : PhysicsProp
             slowDownCoroutine = null;
         }
 
-        if (isTransferred || isContained || hasBeenDefused || deactivated) return;
+        if (hasBeenUsedForExplosiveGame || isTransferred || isContained || hasBeenDefused || deactivated) return;
         SpawnExplosion();
     }
 

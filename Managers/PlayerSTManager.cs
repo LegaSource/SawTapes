@@ -60,7 +60,7 @@ public class PlayerSTManager
         playerBehaviour.isInGame = false;
         playerBehaviour.hasBeenGassed = false;
         playerBehaviour.sawTape = null;
-        ObjectSTManager.DestroyReverseBearTrapForServer(playerBehaviour.playerProperties);
+        ObjectSTManager.DestroyReverseBearTrapForServer(player);
         playerBehaviour.reverseBearTrap = null;
     }
 }

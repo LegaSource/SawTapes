@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.ProBuilder;
 
 namespace SawTapes.Behaviours.Tapes;
 
@@ -118,15 +117,16 @@ public class HuntingTape : SawTape
             showAuraCoroutine = null;
         }
 
-        EnemyAI[] enemies = [];
+        List<EnemyAI> enemies = [];
         foreach (NetworkObject spawnedEnemy in spawnedEnemies)
         {
             if (spawnedEnemy == null || !spawnedEnemy.IsSpawned) continue;
-            _ = enemies.Add(spawnedEnemy.GetComponentInChildren<EnemyAI>());
+            EnemyAI enemyAI = spawnedEnemy.GetComponentInChildren<EnemyAI>();
+            if (enemyAI != null) enemies.Add(enemyAI);
         }
-        if (enemies.Length == 0) return;
+        if (enemies.Count == 0) return;
 
-        showAuraCoroutine = StartCoroutine(SawGameSTManager.ShowAuraForHuntCoroutine(enemies, duration));
+        showAuraCoroutine = StartCoroutine(SawGameSTManager.ShowAuraForHuntCoroutine(enemies.ToArray(), duration));
     }
 
     public override bool DoGameForServer(int iterator)
@@ -140,14 +140,15 @@ public class HuntingTape : SawTape
         foreach (PlayerControllerB player in players)
         {
             PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(player);
-            if (playerBehaviour?.reverseBearTrap == null
-                || (!player.isPlayerDead && playerBehaviour.reverseBearTrap.isReleased))
+            if (playerBehaviour == null || playerBehaviour.reverseBearTrap == null) continue;
+
+            if (!player.isPlayerDead && playerBehaviour.reverseBearTrap.isReleased)
             {
                 hasLivingPlayer = true;
                 continue;
             }
 
-            ObjectSTManager.DestroyReverseBearTrapForServer(playerBehaviour.playerProperties);
+            ObjectSTManager.DestroyReverseBearTrapForServer(player);
 
             if (isGameCancelled || player.isPlayerDead) continue;
             SawTapesNetworkManager.Instance.KillPlayerClientRpc((int)player.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown);
