@@ -1,5 +1,4 @@
-﻿using GameNetcodeStuff;
-using HarmonyLib;
+﻿using HarmonyLib;
 using SawTapes.Files;
 using SawTapes.Managers;
 using System.Linq;
@@ -32,7 +31,7 @@ internal class StartOfRoundPatch
         foreach (EnemyType enemyType in Resources.FindObjectsOfTypeAll<EnemyType>().Distinct())
         {
             if (enemyType == null || enemyType.enemyPrefab == null) continue;
-            if (!(enemyType.enemyPrefab.TryGetComponent<EnemyAI>(out EnemyAI enemyAI) && enemyAI != null)) continue;
+            if (!(enemyType.enemyPrefab.TryGetComponent(out EnemyAI enemyAI) && enemyAI != null)) continue;
 
             _ = SawTapes.allEnemies.Add(enemyType);
         }
@@ -42,12 +41,4 @@ internal class StartOfRoundPatch
     [HarmonyPostfix]
     public static void OnDisable()
         => SawTapesNetworkManager.Instance = null;
-
-    [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.OnPlayerConnectedClientRpc))]
-    [HarmonyPostfix]
-    private static void PlayerConnection(ref StartOfRound __instance)
-    {
-        foreach (PlayerControllerB player in __instance.allPlayerScripts)
-            PlayerSTManager.AddPlayerBehaviour(player);
-    }
 }

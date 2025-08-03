@@ -20,7 +20,7 @@ internal class HUDManagerPatch
     [HarmonyPostfix]
     private static void StartHUDManager()
     {
-        chronoText = HUDSTManager.CreateUIElement(
+        chronoText = CreateUIElement(
             name: "ChronoUI",
             anchorMin: new Vector2(0f, 1f),
             anchorMax: new Vector2(0f, 1f),
@@ -32,7 +32,7 @@ internal class HUDManagerPatch
 
         if (ConfigManager.isSubtitles.Value)
         {
-            subtitleText = HUDSTManager.CreateUIElement(
+            subtitleText = CreateUIElement(
                 name: "SubtitleUI",
                 anchorMin: new Vector2(0.5f, 0.5f),
                 anchorMax: new Vector2(0.5f, 0.5f),
@@ -42,6 +42,28 @@ internal class HUDManagerPatch
                 alignment: TextAlignmentOptions.Center
             );
         }
+    }
+
+    public static TextMeshProUGUI CreateUIElement(string name, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 anchoredPosition, Vector2 sizeDelta, TextAlignmentOptions alignment)
+    {
+        Transform parent = GameObject.Find("Systems/UI/Canvas/Panel/GameObject/PlayerScreen").transform;
+        GameObject uiElement = new GameObject(name);
+        uiElement.transform.localPosition = Vector3.zero;
+
+        RectTransform rectTransform = uiElement.AddComponent<RectTransform>();
+        rectTransform.SetParent(parent, worldPositionStays: false);
+        rectTransform.anchorMin = anchorMin;
+        rectTransform.anchorMax = anchorMax;
+        rectTransform.pivot = pivot;
+        rectTransform.anchoredPosition = anchoredPosition;
+        rectTransform.sizeDelta = sizeDelta;
+
+        TextMeshProUGUI textMesh = uiElement.AddComponent<TextMeshProUGUI>();
+        textMesh.alignment = alignment;
+        textMesh.font = HUDManager.Instance.controlTipLines[0].font;
+        textMesh.fontSize = 14f;
+
+        return textMesh;
     }
 
     public static IEnumerator StartChronoCoroutine(int seconds)

@@ -19,10 +19,14 @@ public class Constants
     public const string HUNTING_GAME = "Hunting Game";
     public const string ESCAPE_GAME = "Escape Game";
     public const string EXPLOSIVE_GAME = "Explosive Game";
+    public const string JIGSAW_JUDGEMENT = "Jigsaw Judgement";
     // Items
     public const string SHOVEL = "Shovel";
-    public const string PURSUER_EYE = "Pursuer Eye";
+    public const string MONSTER_EYE = "Monster Eye";
     public const string REVERSE_BEAR_TRAP = "Reverse Bear Trap";
     public const string SAW = "Saw";
     public const string SAW_TAPE = "Saw Tape";
+    // Addons
+    public const string JIGSAW_JUDGEMENT_NAME = "Jigsaw's Judgement";
+    public const string BLEEDING_CHAINS = "Bleeding Chains";
 }

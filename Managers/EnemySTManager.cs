@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using LegaFusionCore.Managers.NetworkManagers;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -30,12 +31,12 @@ public class EnemySTManager
 
     public static void DespawnEnemy(NetworkObject spawnedEnemy)
     {
-        EnemyAI enemy = spawnedEnemy.GetComponentInChildren<EnemyAI>();
+        EnemyAI enemy = spawnedEnemy?.GetComponentInChildren<EnemyAI>();
         if (enemy == null || enemy.isEnemyDead) return;
 
-        SawTapesNetworkManager.Instance.PlayDespawnParticleClientRpc(spawnedEnemy.transform.position);
+        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}SmokeParticle", spawnedEnemy.transform.position, Quaternion.Euler(-90, 0, 0));
         if (enemy is NutcrackerEnemyAI nutcrackerEnemyAI && nutcrackerEnemyAI.gun != null)
-            SawTapesNetworkManager.Instance.DestroyObjectClientRpc(nutcrackerEnemyAI.gun.GetComponent<NetworkObject>());
+            LFCNetworkManager.Instance.DestroyObjectClientRpc(nutcrackerEnemyAI.gun.GetComponent<NetworkObject>());
         spawnedEnemy.Despawn();
     }
 }

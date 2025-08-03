@@ -1,7 +1,8 @@
 ﻿using GameNetcodeStuff;
+using LegaFusionCore.Registries;
 using SawTapes.Managers;
-using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,17 +10,31 @@ namespace SawTapes;
 
 public class STUtilities
 {
-    public static void Shuffle<T>(List<T> list)
+    public static bool IsEligiblePlayer(PlayerControllerB player)
+        => player.isPlayerControlled
+            && !player.isPlayerDead
+            && (string.IsNullOrEmpty(ConfigManager.excludedPlayers.Value) || !ConfigManager.excludedPlayers.Value.Contains(player.playerUsername));
+
+    public static GameObject GetPrefabFromNameForServer(string name)
     {
-        for (int i = list.Count - 1; i > 0; i--)
+        GameObject item = null;
+        foreach (NetworkPrefabsList networkPrefabList in NetworkManager.Singleton.NetworkConfig.Prefabs.NetworkPrefabsLists ?? Enumerable.Empty<NetworkPrefabsList>())
         {
-            int randomIndex = Random.Range(0, i + 1);
-            (list[randomIndex], list[i]) = (list[i], list[randomIndex]);
+            foreach (NetworkPrefab networkPrefab in networkPrefabList.PrefabList ?? Enumerable.Empty<NetworkPrefab>())
+            {
+                GrabbableObject grabbableObject = networkPrefab.Prefab.GetComponent<GrabbableObject>();
+                if (grabbableObject == null || grabbableObject.itemProperties == null) continue;
+                if (!grabbableObject.itemProperties.itemName.Equals(name)) continue;
+
+                item = networkPrefab.Prefab;
+                if (item != null) break;
+            }
         }
+        return item;
     }
 
     public static Transform FindMainEntrancePoint()
-        => Object.FindObjectsOfType<EntranceTeleport>().FirstOrDefault(e => e.entranceId == 0 && !e.isEntranceToBuilding)?.entrancePoint;
+        => LFCSpawnRegistry.GetAllAs<EntranceTeleport>().FirstOrDefault(e => e.entranceId == 0 && !e.isEntranceToBuilding)?.entrancePoint;
 
     public static Vector3[] GetFurthestPositions(Vector3 position, int? amount = null)
     {
@@ -85,10 +100,4 @@ public class STUtilities
 
         return randomScrapSpawn.transform.position + (Vector3.up * 0.5f);
     }
-
-    public static PlayerControllerB GetFurthestInGamePlayer(PlayerControllerB player)
-        => StartOfRound.Instance.allPlayerScripts
-            .Where(p => p != player && p.isPlayerControlled && !p.isPlayerDead && PlayerSTManager.GetPlayerBehaviour(p) is { } playerBehaviour && playerBehaviour.isInGame)
-            .OrderByDescending(p => Vector3.Distance(player.transform.position, p.transform.position))
-            .FirstOrDefault();
 }

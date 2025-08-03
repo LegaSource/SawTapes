@@ -1,11 +1,12 @@
-﻿using Unity.Netcode;
+﻿using SawTapes.Behaviours.Enemies;
+using Unity.Netcode;
 using UnityEngine;
 
-namespace SawTapes.Behaviours.Items;
+namespace SawTapes.Behaviours.Billy;
 
 public class BillyPuppet : PhysicsProp
 {
-    public Billy billy;
+    public BillyAnnouncement billy;
     public AudioSource billyLaugh;
 
     public override void Start()

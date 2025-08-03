@@ -1,50 +1,37 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using SawTapes.Behaviours;
-using SawTapes.Behaviours.Tapes;
-using SawTapes.Managers;
+using LegaFusionCore.Utilities;
+using SawTapes.Behaviours.Items.Addons;
+using System.Collections;
 
 namespace SawTapes.Patches;
 
 internal class PlayerControllerBPatch
 {
-    [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.ConnectClientToPlayerObject))]
-    [HarmonyPostfix]
-    private static void StartPlayerControllerB(ref PlayerControllerB __instance)
-        => PlayerSTManager.AddPlayerBehaviour(__instance);
-
-    [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.TeleportPlayer))]
-    [HarmonyPrefix]
-    private static bool TeleportPlayer(ref PlayerControllerB __instance)
-        => !PlayerSTManager.PreventTeleportPlayer(__instance);
+    public static bool isTargetable = true;
 
     [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.spawnPlayerAnimTimer))]
-    [HarmonyPrefix]
-    private static void SpawnPlayerAnim(ref PlayerControllerB __instance)
-    {
-        PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(__instance);
-        if (playerBehaviour == null) return;
-
-        _ = __instance.StartCoroutine(PlayerSTManager.SetUntargetablePlayerCoroutine(playerBehaviour, 4f));
-    }
-
-    [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.ItemSecondaryUse_performed))]
-    [HarmonyPrefix]
-    private static void SecondaryUsePerformed(ref PlayerControllerB __instance)
-    {
-        if (__instance != GameNetworkManager.Instance.localPlayerController) return;
-
-        PlayerSTBehaviour playerBehaviour = PlayerSTManager.GetPlayerBehaviour(__instance);
-        if (playerBehaviour == null) return;
-
-        (playerBehaviour.sawTape as EscapeTape)?.TeleportSawToPlayerServerRpc((int)__instance.playerClientId);
-    }
-
-    [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.KillPlayerClientRpc))]
     [HarmonyPostfix]
-    private static void KillPlayerForClient(ref PlayerControllerB __instance, int playerId)
+    private static IEnumerator SpawnPlayerAnim(IEnumerator __result)
     {
-        PlayerControllerB player = __instance.playersManager.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
-        PlayerSTManager.ResetPlayerGame(player);
+        isTargetable = false;
+        while (__result.MoveNext()) yield return __result.Current;
+        isTargetable = true;
+    }
+
+    [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.KillPlayer))]
+    [HarmonyPrefix]
+    private static bool PreKillPlayer(ref PlayerControllerB __instance)
+    {
+        if (StartOfRound.Instance.shipIsLeaving || __instance != GameNetworkManager.Instance.localPlayerController || SawTapes.bathroom != null) return true;
+
+        JigsawJudgement jigsawJudgement = LFCUtilities.GetAddonComponent<JigsawJudgement>(__instance);
+        if (jigsawJudgement != null && !jigsawJudgement.onCooldown)
+        {
+            __instance.DropAllHeldItemsAndSync();
+            jigsawJudgement.ActivateAddonAbility();
+            return false;
+        }
+        return true;
     }
 }
