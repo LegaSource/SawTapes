@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using LegaFusionCore.Registries;
 using SawTapes.Files;
 using SawTapes.Managers;
 using System.Linq;
@@ -36,6 +37,11 @@ internal class StartOfRoundPatch
             _ = SawTapes.allEnemies.Add(enemyType);
         }
     }
+
+    [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.ShipLeave))]
+    [HarmonyPostfix]
+    public static void EndRound()
+        => LFCStatRegistry.RemoveModifier(LegaFusionCore.Constants.STAT_SPEED, $"{SawTapes.modName}JigsawJudgement");
 
     [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.OnDisable))]
     [HarmonyPostfix]

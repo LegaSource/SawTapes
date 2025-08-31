@@ -1,8 +1,4 @@
-﻿using LegaFusionCore.Behaviours.Shaders;
-using LegaFusionCore.Managers.NetworkManagers;
-using LegaFusionCore.Registries;
-using SawTapes.Behaviours.Games.HuntingGame;
-using System.Collections;
+﻿using LegaFusionCore.Managers.NetworkManagers;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -12,20 +8,6 @@ namespace SawTapes.Managers;
 
 public class SawGameSTManager
 {
-    public static IEnumerator ShowAuraForHuntCoroutine(EnemyAI[] enemies, float duration)
-    {
-        GameObject[] enemiesObjects = enemies.Select(e => e.gameObject).ToArray();
-        if (enemiesObjects.Length > 0) CustomPassManager.SetupAuraForObjects(enemiesObjects, LegaFusionCore.LegaFusionCore.wallhackShader, SawTapes.modName, Color.red);
-
-        GameObject[] objects = LFCSpawnRegistry.GetAllAs<SawKeyHunting>().Select(s => s.gameObject).ToArray();
-        if (objects.Length > 0) CustomPassManager.SetupAuraForObjects(objects, LegaFusionCore.LegaFusionCore.wallhackShader, SawTapes.modName, Color.yellow);
-
-        yield return new WaitForSeconds(duration);
-
-        if (enemiesObjects.Length > 0) CustomPassManager.RemoveAuraFromObjects(enemiesObjects, SawTapes.modName);
-        if (objects.Length > 0) CustomPassManager.RemoveAuraFromObjects(objects, SawTapes.modName);
-    }
-
     public static GameObject SpawnHazard(GameObject hazardPrefab, Vector3 position, bool spawnFacingAwayFromWall, bool spawnFacingWall, bool spawnWithBackToWall, bool spawnWithBackFlushAgainstWall)
     {
         System.Random random = new System.Random(StartOfRound.Instance.randomMapSeed + 587);
@@ -76,7 +58,7 @@ public class SawGameSTManager
     {
         if (hazard == null || hazard.transform == null) return;
 
-        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}SmokeParticle", hazard.transform.position, Quaternion.Euler(-90, 0, 0));
+        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.smokeParticle.name}", hazard.transform.position, Quaternion.Euler(-90, 0, 0));
         hazard.GetComponent<NetworkObject>().Despawn(destroy: true);
     }
 }

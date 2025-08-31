@@ -1,5 +1,4 @@
 ﻿using GameNetcodeStuff;
-using SawTapes.Managers;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
@@ -32,7 +31,7 @@ public class RBTrapHunting : PhysicsProp
         grabbableToEnemies = false;
         hasHitGround = false;
         EnablePhysics(enable: false);
-        SetScrapValue(ConfigManager.reverseBearTrapValue.Value);
+        SetScrapValue(30);
 
         parentObject = GameNetworkManager.Instance.localPlayerController == player
             ? player.gameplayCamera.transform

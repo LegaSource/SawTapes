@@ -117,10 +117,10 @@ public class EscapeTape : SawTape
     public override void ExecuteStartGameActionsForServer()
     {
         base.ExecuteStartGameActionsForServer();
-        SpawnSaw();
+        SpawnSawForServer();
     }
 
-    public void SpawnSaw()
+    public void SpawnSawForServer()
     {
         Vector3 position = STUtilities.GetFurthestPositionScrapSpawn(transform.position, SawTapes.sawEscape);
         saw = LFCObjectsManager.SpawnObjectForServer(SawTapes.sawEscape.spawnPrefab, position) as SawEscape;
@@ -131,23 +131,23 @@ public class EscapeTape : SawTape
     public void InitializeSawClientRpc(NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
-
         saw = networkObject.gameObject.GetComponentInChildren<GrabbableObject>() as SawEscape;
-        if (saw == null) return;
     }
 
     public override bool DoGameForServer(int iterator)
     {
         if (players.All(p => p.isPlayerDead) || sawHasBeenUsed) return false;
 
-        SpawnHazards(iterator);
-        if (iterator % 30 != 0) return true;
+        SpawnHazardsForServer(iterator);
+        if (iterator % 20 != 0) return true;
 
-        ShowAuraSawClientRpc((int)players.FirstOrDefault(p => !p.isPlayerDead).playerClientId);
+        List<PlayerControllerB> livingPlayers = players.Where(p => !p.isPlayerDead).ToList();
+        ShowAuraSawClientRpc((int)livingPlayers[Random.Range(0, livingPlayers.Count)].playerClientId);
+
         return true;
     }
 
-    public void SpawnHazards(int iterator)
+    public void SpawnHazardsForServer(int iterator)
     {
         if (iterator % 5 != 0) return;
 
@@ -164,12 +164,19 @@ public class EscapeTape : SawTape
     public IEnumerator SpawnHazardCoroutine(EscapeHazard escapeHazard, GameObject hazard, Vector3 position)
     {
         Vector3 spawnPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 8f);
-        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}BluePortalParticle", spawnPosition, Quaternion.Euler(-90, 0, 0));
+        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.bluePortalParticle.name}", spawnPosition, Quaternion.Euler(-90, 0, 0));
 
         yield return new WaitForSecondsRealtime(2f);
 
         GameObject hazardInstance = SawGameSTManager.SpawnHazard(hazard, spawnPosition, escapeHazard.SpawnFacingAwayFromWall, escapeHazard.SpawnFacingWall, escapeHazard.SpawnWithBackToWall, escapeHazard.SpawnWithBackFlushAgainstWall);
-        if (hazardInstance != null) _ = hazards.Add(hazardInstance);
+        if (hazardInstance != null) InitializeHazardClientRpc(hazardInstance.GetComponent<NetworkObject>());
+    }
+
+    [ClientRpc]
+    public void InitializeHazardClientRpc(NetworkObjectReference obj)
+    {
+        if (!obj.TryGet(out NetworkObject networkObject)) return;
+        _ = hazards.Add(networkObject.gameObject);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -195,11 +202,11 @@ public class EscapeTape : SawTape
     {
         _ = base.ExecutePreEndGameActionForServer();
 
-        chains.ToList().ForEach(c => Destroy(c.gameObject));
-        hazards.ToList().ForEach(SawGameSTManager.DespawnHazard);
-        LFCObjectsManager.DestroyObjectOfTypeForServer(saw);
+        chains.Where(c => c != null).ToList().ForEach(c => Destroy(c.gameObject));
+        hazards.Where(h => h != null).ToList().ForEach(SawGameSTManager.DespawnHazard);
         if (players.All(p => p.isPlayerDead) || !sawHasBeenUsed)
         {
+            LFCObjectsManager.DestroyObjectOfTypeForServer(saw);
             foreach (PlayerControllerB player in players)
             {
                 if (player.isPlayerDead) continue;
@@ -212,7 +219,7 @@ public class EscapeTape : SawTape
 
     public override void OnDestroy()
     {
-        chains.ToList().ForEach(c => Destroy(c?.gameObject));
+        chains.Where(c => c != null).ToList().ForEach(c => Destroy(c.gameObject));
         base.OnDestroy();
     }
 }

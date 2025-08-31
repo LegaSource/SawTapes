@@ -1,8 +1,12 @@
 ﻿using GameNetcodeStuff;
+using LegaFusionCore.Behaviours.Shaders;
 using LegaFusionCore.Managers;
 using LegaFusionCore.Managers.NetworkManagers;
+using LegaFusionCore.Registries;
+using SawTapes.Behaviours.Items;
 using SawTapes.Files;
 using SawTapes.Managers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -35,7 +39,7 @@ public class HuntingTape : SawTape
         base.ExecutePostGasActionsForClient(player);
 
         SpawnReverseBearTrapServerRpc((int)player.playerClientId);
-        SpawnMonsterEyeServerRpc(player.gameplayCamera.transform.position + player.gameplayCamera.transform.forward, (int)player.playerClientId);
+        SpawnBillyHuntingServerRpc(player.gameplayCamera.transform.position + player.gameplayCamera.transform.forward, (int)player.playerClientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -47,7 +51,7 @@ public class HuntingTape : SawTape
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SpawnMonsterEyeServerRpc(Vector3 position, int playerId)
+    public void SpawnBillyHuntingServerRpc(Vector3 position, int playerId)
     {
         GrabbableObject grabbableObject = LFCObjectsManager.SpawnObjectForServer(SawTapes.billyPuppetHunting.spawnPrefab, position);
         LFCNetworkManager.Instance.ForceGrabObjectClientRpc(grabbableObject.GetComponent<NetworkObject>(), playerId);
@@ -81,6 +85,13 @@ public class HuntingTape : SawTape
             : null;
 
         NetworkObject networkObject = EnemySTManager.SpawnEnemyForServer(enemyType, spawnPosition);
+        AffectEnemyClientRpc(networkObject);
+    }
+
+    [ClientRpc]
+    public void AffectEnemyClientRpc(NetworkObjectReference obj)
+    {
+        if (!obj.TryGet(out NetworkObject networkObject)) return;
         spawnedEnemies.Add(networkObject);
     }
 
@@ -92,16 +103,26 @@ public class HuntingTape : SawTape
             showAuraCoroutine = null;
         }
 
-        List<EnemyAI> enemies = [];
-        foreach (NetworkObject spawnedEnemy in spawnedEnemies)
-        {
-            if (spawnedEnemy == null || !spawnedEnemy.IsSpawned) continue;
-            EnemyAI enemyAI = spawnedEnemy.GetComponentInChildren<EnemyAI>();
-            if (enemyAI != null) enemies.Add(enemyAI);
-        }
-        if (enemies.Count == 0) return;
+        GameObject[] enemies = spawnedEnemies
+            .Where(e => e != null && e.IsSpawned && e.GetComponentInChildren<EnemyAI>() != null)
+            .Select(e => e.gameObject)
+            .ToArray();
 
-        showAuraCoroutine = StartCoroutine(SawGameSTManager.ShowAuraForHuntCoroutine(enemies.ToArray(), duration));
+        showAuraCoroutine = StartCoroutine(ShowAuraCoroutine(enemies, duration));
+    }
+
+    public static IEnumerator ShowAuraCoroutine(GameObject[] enemies, float duration)
+    {
+        GameObject[] enemiesObjects = enemies.Select(e => e.gameObject).ToArray();
+        if (enemiesObjects.Length > 0) CustomPassManager.SetupAuraForObjects(enemiesObjects, LegaFusionCore.LegaFusionCore.wallhackShader, SawTapes.modName, Color.red);
+
+        GameObject[] objects = LFCSpawnRegistry.GetAllAs<SawKeyHunting>().Select(s => s.gameObject).ToArray();
+        if (objects.Length > 0) CustomPassManager.SetupAuraForObjects(objects, LegaFusionCore.LegaFusionCore.wallhackShader, SawTapes.modName, Color.yellow);
+
+        yield return new WaitForSeconds(duration);
+
+        if (enemiesObjects.Length > 0) CustomPassManager.RemoveAuraFromObjects(enemiesObjects, SawTapes.modName);
+        if (objects.Length > 0) CustomPassManager.RemoveAuraFromObjects(objects, SawTapes.modName);
     }
 
     public override bool DoGameForServer(int iterator)
@@ -111,13 +132,13 @@ public class HuntingTape : SawTape
     {
         _ = base.ExecutePreEndGameActionForServer();
 
-        bool hasLivingPlayer = false;
+        PlayerControllerB activePlayer = null;
         foreach (PlayerControllerB player in players)
         {
             if (!playerRBTs.TryGetValue(player, out RBTrapHunting rbt)) continue;
             if (!player.isPlayerDead && rbt.isReleased)
             {
-                hasLivingPlayer = true;
+                if (activePlayer == null) activePlayer = player;
                 continue;
             }
 
@@ -130,6 +151,14 @@ public class HuntingTape : SawTape
         LFCObjectsManager.DestroyObjectsOfTypeAllForServer<SawKeyHunting>();
         LFCObjectsManager.DestroyObjectsOfTypeAllForServer<BillyPuppetHunting>();
 
-        return !hasLivingPlayer;
+        // Si joueur en vie faire apparaître la récompense sur le premier récupéré et retourner faux à game over
+        if (activePlayer != null)
+        {
+            Vector3 position = activePlayer.gameplayCamera.transform.position + activePlayer.gameplayCamera.transform.forward;
+            BillyPuppetHM billy = LFCObjectsManager.SpawnObjectForServer(SawTapes.billyPuppetHM.spawnPrefab, position) as BillyPuppetHM;
+            billy.InitializeForServer();
+            return false;
+        }
+        return true;
     }
 }

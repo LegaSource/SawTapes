@@ -49,16 +49,9 @@ public class ChainEscape : NetworkBehaviour
     {
         if (player1 == null || player2 == null) return;
 
-        if (player1.isPlayerDead)
+        if (player1.isPlayerDead || player2.isPlayerDead)
         {
-            attach1?.SetParent(player2?.playerGlobalHead);
-            player1 = null;
-            return;
-        }
-        if (player2.isPlayerDead)
-        {
-            attach2?.SetParent(player1?.playerGlobalHead);
-            player2 = null;
+            Destroy(gameObject);
             return;
         }
 
@@ -94,9 +87,9 @@ public class ChainEscape : NetworkBehaviour
 
     public IEnumerator SlowDownPlayerCoroutine()
     {
-        LFCStatRegistry.AddModifier("Speed", $"{SawTapes.modName}ChainEscape", -0.5f);
+        LFCStatRegistry.AddModifier(LegaFusionCore.Constants.STAT_SPEED, $"{SawTapes.modName}ChainEscape", -0.5f);
         yield return new WaitForSeconds(1f);
-        LFCStatRegistry.RemoveModifier("Speed", $"{SawTapes.modName}ChainEscape");
+        LFCStatRegistry.RemoveModifier(LegaFusionCore.Constants.STAT_SPEED, $"{SawTapes.modName}ChainEscape");
         slowDownCoroutine = null;
     }
 

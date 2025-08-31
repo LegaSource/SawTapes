@@ -1,5 +1,6 @@
 ﻿using LegaFusionCore.Utilities;
 using SawTapes.Behaviours.Enemies;
+using SawTapes.Files;
 using SawTapes.Managers;
 using SawTapes.Patches;
 using System.Collections;
@@ -12,10 +13,14 @@ namespace SawTapes.Behaviours.Bathroom.Enemies;
 
 public class BillyBathroom : BillyBike
 {
-    public bool isMoving = false;
+    public bool isMoving = true;
+    public Coroutine doGameCoroutine;
 
-    public void StartFollowingPlayer()
-        => isMoving = true;
+    public override void Start()
+    {
+        base.Start();
+        subtitlesBilly = SubtitleFile.billyBathroomSubtitles;
+    }
 
     public override void Update()
     {
@@ -77,11 +82,11 @@ public class BillyBathroom : BillyBike
         LFCUtilities.Shuffle(enabledIndexes);
         SawTapes.bathroom.currentSpotIndex = enabledIndexes.First();
 
-        _ = StartCoroutine(StartGameCoroutine());
+        doGameCoroutine = StartCoroutine(DoGameCoroutine());
         _ = HUDManager.Instance.StartCoroutine(HUDManagerPatch.StartChronoCoroutine(ConfigManager.bathroomDuration.Value));
     }
 
-    public IEnumerator StartGameCoroutine()
+    public IEnumerator DoGameCoroutine()
     {
         int timePassed = 0;
         while (timePassed < ConfigManager.bathroomDuration.Value)

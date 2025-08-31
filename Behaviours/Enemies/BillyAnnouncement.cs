@@ -1,5 +1,6 @@
 ﻿using LegaFusionCore.Managers;
-using SawTapes.Behaviours.Billy;
+using SawTapes.Behaviours.Items;
+using SawTapes.Files;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -7,13 +8,16 @@ namespace SawTapes.Behaviours.Enemies;
 
 public class BillyAnnouncement : BillyBike
 {
-    public bool isMoving;
+    public bool isMoving = true;
 
     public BillyPuppet billyPuppet;
     public int billyValue = 0;
 
-    public void StartFollowingPlayer()
-        => isMoving = true;
+    public override void Start()
+    {
+        base.Start();
+        subtitlesBilly = SubtitleFile.billyAnnouncementSubtitles;
+    }
 
     public override void Update()
     {

@@ -3,6 +3,7 @@ using GameNetcodeStuff;
 using LegaFusionCore.Behaviours.Shaders;
 using LegaFusionCore.Managers;
 using LegaFusionCore.Managers.NetworkManagers;
+using LegaFusionCore.Utilities;
 using SawTapes.Behaviours.Enemies;
 using SawTapes.Files.Values;
 using SawTapes.Managers;
@@ -182,7 +183,7 @@ public class SawTape : PhysicsProp
     [ServerRpc(RequireOwnership = false)]
     public void SpawnShovelServerRpc(Vector3 position, int playerId)
     {
-        GameObject gameObject = STUtilities.GetPrefabFromNameForServer(Constants.SHOVEL);
+        GameObject gameObject = LFCUtilities.GetPrefabFromName(Constants.SHOVEL);
         GrabbableObject grabbableObject = LFCObjectsManager.SpawnObjectForServer(gameObject, position);
         _ = shovels.Add(grabbableObject as Shovel);
 
@@ -298,6 +299,11 @@ public class SawTape : PhysicsProp
         while (timePassed < gameDuration)
         {
             if (!DoGameForServer(timePassed)) break;
+            if (StartOfRound.Instance.shipIsLeaving)
+            {
+                players.ToList().ForEach(p => LFCNetworkManager.Instance.KillPlayerClientRpc((int)p.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown));
+                break;
+            }
             yield return new WaitForSecondsRealtime(1f);
             timePassed++;
         }
@@ -308,12 +314,11 @@ public class SawTape : PhysicsProp
 
     public virtual void EndGameForServer()
     {
-        PlayerControllerB player = players.FirstOrDefault(p => !p.isPlayerDead);
         bool isGameOver = ExecutePreEndGameActionForServer();
         EndGameClientRpc();
 
+        PlayerControllerB player = players.FirstOrDefault(p => !p.isPlayerDead);
         if (player == null || isGameOver) return;
-
         _ = StartCoroutine(EndGameForServerCoroutine(player));
     }
 
@@ -330,7 +335,7 @@ public class SawTape : PhysicsProp
         {
             if (player != GameNetworkManager.Instance.localPlayerController) continue;
 
-            sawTheme.Stop();
+            Destroy(sawTheme.gameObject);
             if (!HUDManagerPatch.chronoText.text.IsNullOrWhiteSpace()) HUDManagerPatch.isChronoEnded = true;
             player.DropAllHeldItemsAndSync();
         }
@@ -382,7 +387,6 @@ public class SawTape : PhysicsProp
         {
             billy.targetPlayer = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
             billy.billyValue = billyValue;
-            if (IsServer) billy.StartFollowingPlayer();
         }
     }
 }

@@ -1,10 +1,13 @@
-﻿using SawTapes.Behaviours.Enemies;
+﻿using GameNetcodeStuff;
+using LegaFusionCore.Managers;
+using SawTapes.Behaviours.Enemies;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace SawTapes.Behaviours.Billy;
+namespace SawTapes.Behaviours.Items;
 
-public class BillyPuppet : PhysicsProp
+public class BillyPuppet : PhysicsProp, IHittable
 {
     public BillyAnnouncement billy;
     public AudioSource billyLaugh;
@@ -43,5 +46,29 @@ public class BillyPuppet : PhysicsProp
             billy.thisNetworkObject.Despawn();
             billy = null;
         }
+    }
+
+    public bool Hit(int force, Vector3 hitDirection, PlayerControllerB playerWhoHit = null, bool playHitSFX = false, int hitID = -1)
+    {
+        SpawnBillyPieceServerRpc();
+        return true;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnBillyPieceServerRpc()
+    {
+        List<GameObject> billyPieces = [SawTapes.billyHead.spawnPrefab, SawTapes.billyBody.spawnPrefab];
+        GrabbableObject billyPiece = LFCObjectsManager.SpawnObjectForServer(billyPieces[new System.Random().Next(billyPieces.Count)], transform.position);
+        InitializeBillyPieceClientRpc(billyPiece.GetComponent<NetworkObject>(), Random.Range(20, 50));
+    }
+
+    [ClientRpc]
+    public void InitializeBillyPieceClientRpc(NetworkObjectReference obj, int value)
+    {
+        if (!obj.TryGet(out NetworkObject networkObject)) return;
+
+        GrabbableObject billyPiece = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
+        billyPiece.SetScrapValue(value);
+        DestroyObjectInHand(playerHeldBy);
     }
 }

@@ -18,8 +18,8 @@ public class BillyPuppetHunting : PhysicsProp
         if (!buttonDown || onCooldown || playerHeldBy == null) return;
         if (SawTapes.sawTape == null || SawTapes.sawTape is not HuntingTape huntingTape) return;
 
-        StartChronoServerRpc(ConfigManager.eyeCooldownHunting.Value);
-        huntingTape.ShowAura(ConfigManager.eyeAuraDurationHunting.Value);
+        StartChronoServerRpc(ConfigManager.huntingItemCooldown.Value);
+        huntingTape.ShowAura(ConfigManager.huntingItemAuraDuration.Value);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -50,7 +50,7 @@ public class BillyPuppetHunting : PhysicsProp
 
     public override void SetControlTipsForItem()
     {
-        if (playerHeldBy == null || isPocketed || playerHeldBy != GameNetworkManager.Instance.localPlayerController) return;
+        if (playerHeldBy == null || playerHeldBy != GameNetworkManager.Instance.localPlayerController) return;
 
         string toolTip = onCooldown ? $"[On Cooldown : {currentTimeLeft}]" : "";
         HUDManager.Instance.ChangeControlTipMultiple(itemProperties.toolTips.Concat([toolTip]).ToArray(), holdingItem: true, itemProperties);

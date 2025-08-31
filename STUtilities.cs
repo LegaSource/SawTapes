@@ -2,7 +2,6 @@
 using LegaFusionCore.Registries;
 using SawTapes.Managers;
 using System.Linq;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,25 +12,8 @@ public class STUtilities
     public static bool IsEligiblePlayer(PlayerControllerB player)
         => player.isPlayerControlled
             && !player.isPlayerDead
+            && (SawTapes.bathroom == null || (SawTapes.bathroom != null && SawTapes.bathroom.player != player))
             && (string.IsNullOrEmpty(ConfigManager.excludedPlayers.Value) || !ConfigManager.excludedPlayers.Value.Contains(player.playerUsername));
-
-    public static GameObject GetPrefabFromNameForServer(string name)
-    {
-        GameObject item = null;
-        foreach (NetworkPrefabsList networkPrefabList in NetworkManager.Singleton.NetworkConfig.Prefabs.NetworkPrefabsLists ?? Enumerable.Empty<NetworkPrefabsList>())
-        {
-            foreach (NetworkPrefab networkPrefab in networkPrefabList.PrefabList ?? Enumerable.Empty<NetworkPrefab>())
-            {
-                GrabbableObject grabbableObject = networkPrefab.Prefab.GetComponent<GrabbableObject>();
-                if (grabbableObject == null || grabbableObject.itemProperties == null) continue;
-                if (!grabbableObject.itemProperties.itemName.Equals(name)) continue;
-
-                item = networkPrefab.Prefab;
-                if (item != null) break;
-            }
-        }
-        return item;
-    }
 
     public static Transform FindMainEntrancePoint()
         => LFCSpawnRegistry.GetAllAs<EntranceTeleport>().FirstOrDefault(e => e.entranceId == 0 && !e.isEntranceToBuilding)?.entrancePoint;

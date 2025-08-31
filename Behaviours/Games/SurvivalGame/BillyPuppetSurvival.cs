@@ -27,7 +27,7 @@ public class BillyPuppetSurvival : PhysicsProp
 
     public void ShowAuraTargetedEnemy()
     {
-        if (Physics.Raycast(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), out RaycastHit hit, ConfigManager.eyeDistanceSurvival.Value, 524288, QueryTriggerInteraction.Collide))
+        if (Physics.Raycast(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), out RaycastHit hit, ConfigManager.survivalItemDistance.Value, 524288, QueryTriggerInteraction.Collide))
         {
             EnemyAICollisionDetect enemyCollision = hit.collider.GetComponent<EnemyAICollisionDetect>();
             if (enemyCollision == null || enemyCollision.mainScript == null) return;
@@ -52,7 +52,7 @@ public class BillyPuppetSurvival : PhysicsProp
             .FirstOrDefault();
         if (player == null || player == playerHeldBy) return;
 
-        StartChronoServerRpc(ConfigManager.eyeCooldownSurvival.Value);
+        StartChronoServerRpc(ConfigManager.survivalItemCooldown.Value);
         survivalTape.TeleportEnemyServerRpc(aimedEnemy.thisNetworkObject, player.transform.position);
         RemoveAuraFromEnemy();
     }
@@ -85,7 +85,7 @@ public class BillyPuppetSurvival : PhysicsProp
 
     public override void SetControlTipsForItem()
     {
-        if (playerHeldBy == null || isPocketed || playerHeldBy != GameNetworkManager.Instance.localPlayerController) return;
+        if (playerHeldBy == null || playerHeldBy != GameNetworkManager.Instance.localPlayerController) return;
 
         string toolTip = onCooldown ? $"[On Cooldown : {currentTimeLeft}]" : "";
         HUDManager.Instance.ChangeControlTipMultiple(itemProperties.toolTips.Concat([toolTip]).ToArray(), holdingItem: true, itemProperties);

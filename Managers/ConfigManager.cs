@@ -13,14 +13,6 @@ public class ConfigManager
     public static ConfigEntry<bool> isSubtitles;
     public static ConfigEntry<float> chronoPosX;
     public static ConfigEntry<float> chronoPosY;
-    // ITEMS
-    public static ConfigEntry<float> eyeAuraDurationHunting;
-    public static ConfigEntry<int> eyeCooldownHunting;
-    public static ConfigEntry<float> eyeDistanceSurvival;
-    public static ConfigEntry<int> eyeCooldownSurvival;
-    public static ConfigEntry<int> reverseBearTrapValue;
-    public static ConfigEntry<int> sawValue;
-    public static ConfigEntry<int> sawMaxUse;
     // SURVIVAL GAME
     public static ConfigEntry<int> survivalRarity;
     public static ConfigEntry<int> survivalMinPlayers;
@@ -29,6 +21,8 @@ public class ConfigManager
     public static ConfigEntry<int> survivalBillyValue;
     public static ConfigEntry<string> survivalEnemies;
     public static ConfigEntry<string> survivalInteriorExclusions;
+    public static ConfigEntry<float> survivalItemDistance;
+    public static ConfigEntry<int> survivalItemCooldown;
     // HUNTING GAME
     public static ConfigEntry<int> huntingRarity;
     public static ConfigEntry<int> huntingMinPlayers;
@@ -37,6 +31,8 @@ public class ConfigManager
     public static ConfigEntry<int> huntingBillyValue;
     public static ConfigEntry<string> huntingEnemies;
     public static ConfigEntry<string> huntingInteriorExclusions;
+    public static ConfigEntry<float> huntingItemAuraDuration;
+    public static ConfigEntry<int> huntingItemCooldown;
     // ESCAPE GAME
     public static ConfigEntry<int> escapeRarity;
     public static ConfigEntry<int> escapeMinPlayers;
@@ -50,7 +46,6 @@ public class ConfigManager
     public static ConfigEntry<int> explosiveMinPlayers;
     public static ConfigEntry<int> explosiveMaxPlayers;
     public static ConfigEntry<int> explosiveDuration;
-    public static ConfigEntry<int> explosiveExtraDuration;
     public static ConfigEntry<int> explosiveBillyValue;
     public static ConfigEntry<float> explosiveAura;
     public static ConfigEntry<string> explosiveInteriorExclusions;
@@ -59,6 +54,16 @@ public class ConfigManager
     public static ConfigEntry<float> bathroomPosY;
     public static ConfigEntry<int> bathroomDuration;
     public static ConfigEntry<int> bathroomCooldown;
+    // BLEEDING CHAINS
+    public static ConfigEntry<int> bleedingChainsCooldown;
+    // FINAL DETONATION
+    public static ConfigEntry<int> finalDetonationCooldown;
+    public static ConfigEntry<string> finalDetonationEnemiesExclusions;
+    // HUNTER'S MARK
+    public static ConfigEntry<int> hunterMarkCooldown;
+    public static ConfigEntry<string> hunterMarkEnemiesExclusions;
+    // SPRINT BURST
+    public static ConfigEntry<int> sprintBurstCooldown;
 
     // Encapsulation des paramètres qui pourraient être modifiés
     public static int SurvivalRarity => survivalRarity.Value;
@@ -77,14 +82,6 @@ public class ConfigManager
         isSubtitles = SawTapes.configFile.Bind(Constants.HUD, "Enable subtitles", false, "Is subtitles enabled?");
         chronoPosX = SawTapes.configFile.Bind(Constants.HUD, "Chrono pos X", 106f, "X position of chrono on interface.");
         chronoPosY = SawTapes.configFile.Bind(Constants.HUD, "Chrono pos Y", -50f, "Y position of chrono on interface.");
-        // ITEMS
-        eyeAuraDurationHunting = SawTapes.configFile.Bind(Constants.MONSTER_EYE, $"Aura duration - {Constants.HUNTING_GAME}", 5f, $"Duration for which the enemy's aura is visible through walls for the {Constants.HUNTING_GAME}");
-        eyeCooldownHunting = SawTapes.configFile.Bind(Constants.MONSTER_EYE, $"Cooldown - {Constants.HUNTING_GAME}", 20, $"Cooldown for the {Constants.HUNTING_GAME}");
-        eyeDistanceSurvival = SawTapes.configFile.Bind(Constants.MONSTER_EYE, $"Activation range - {Constants.SURVIVAL_GAME}", 10f, $"Maximum distance between player and enemy for activation for the {Constants.SURVIVAL_GAME}");
-        eyeCooldownSurvival = SawTapes.configFile.Bind(Constants.MONSTER_EYE, $"Cooldown - {Constants.SURVIVAL_GAME}", 20, $"Cooldown for the {Constants.SURVIVAL_GAME}");
-        reverseBearTrapValue = SawTapes.configFile.Bind(Constants.REVERSE_BEAR_TRAP, $"{Constants.REVERSE_BEAR_TRAP} value", 30, $"{Constants.REVERSE_BEAR_TRAP} value");
-        sawValue = SawTapes.configFile.Bind(Constants.SAW, $"{Constants.SAW} value", 60, $"{Constants.SAW} value");
-        sawMaxUse = SawTapes.configFile.Bind(Constants.SAW, $"{Constants.SAW} max use", 3, $"Maximum number of uses before the {Constants.SAW} breaks");
         // SURVIVAL GAME
         survivalRarity = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Rarity", 20, $"Default probability of the {Constants.SURVIVAL_GAME} mini-game appearing");
         survivalMinPlayers = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Min players", 2, $"Minimum number of players for {Constants.SURVIVAL_GAME} - Set to -1 to limit it to the number of connected players who can participate");
@@ -93,6 +90,8 @@ public class ConfigManager
         survivalBillyValue = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Billy value", 120, $"Billy value for the {Constants.SURVIVAL_GAME}");
         survivalEnemies = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Enemies list", "Blob,Crawler,Bunker Spider,Flowerman,Puffer,Hoarding bug,Spring,Clay Surgeon,Masked,Nutcracker,Butler", $"List of creatures that will be selected by the {Constants.SURVIVAL_GAME}.\nYou can add enemies by separating them with a comma.");
         survivalInteriorExclusions = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, "Interiors exclusion list", "", $"List of interiors in which the {Constants.SURVIVAL_GAME} will not appear.");
+        survivalItemDistance = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, $"Item activation range", 10f, $"Maximum distance between player and enemy to activate the item in the {Constants.SURVIVAL_GAME}");
+        survivalItemCooldown = SawTapes.configFile.Bind(Constants.SURVIVAL_GAME, $"Item cooldown", 20, $"Cooldown for the item in the {Constants.SURVIVAL_GAME}");
         // HUNTING GAME
         huntingRarity = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Rarity", 20, $"Default probability of the {Constants.HUNTING_GAME} mini-game appearing");
         huntingMinPlayers = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Min players", 2, $"Minimum number of players for {Constants.HUNTING_GAME} - Set to -1 to limit it to the number of connected players who can participate");
@@ -101,6 +100,8 @@ public class ConfigManager
         huntingBillyValue = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Billy value", 90, $"Billy value for the {Constants.HUNTING_GAME}");
         huntingEnemies = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Enemies list", "Crawler,Bunker Spider,Flowerman,Hoarding bug,Masked,Nutcracker,Butler", $"List of creatures that will be selected by the {Constants.HUNTING_GAME}.\nYou can add enemies by separating them with a comma.");
         huntingInteriorExclusions = SawTapes.configFile.Bind(Constants.HUNTING_GAME, "Interiors exclusion list", "", $"List of interiors in which the {Constants.HUNTING_GAME} will not appear.");
+        huntingItemAuraDuration = SawTapes.configFile.Bind(Constants.HUNTING_GAME, $"Item aura duration", 5f, $"Duration for which the enemy's aura, given by the item, is visible through walls for the {Constants.HUNTING_GAME}");
+        huntingItemCooldown = SawTapes.configFile.Bind(Constants.HUNTING_GAME, $"Item cooldown", 20, $"Cooldown for the item in the {Constants.HUNTING_GAME}");
         // ESCAPE GAME
         escapeRarity = SawTapes.configFile.Bind(Constants.ESCAPE_GAME, "Rarity", 20, $"Default probability of the {Constants.ESCAPE_GAME} mini-game appearing");
         escapeMinPlayers = SawTapes.configFile.Bind(Constants.ESCAPE_GAME, "Min players", 2, $"Minimum number of players for {Constants.ESCAPE_GAME} - Set to -1 to limit it to the number of connected players who can participate");
@@ -114,7 +115,6 @@ public class ConfigManager
         explosiveMinPlayers = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Min players", 2, $"Minimum number of players for {Constants.EXPLOSIVE_GAME} - Set to -1 to limit it to the number of connected players who can participate");
         explosiveMaxPlayers = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Max players", -1, $"Maximum number of players for {Constants.EXPLOSIVE_GAME} - Set to -1 to limit it to the number of connected players who can participate");
         explosiveDuration = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Duration", 150, $"Duration of the {Constants.EXPLOSIVE_GAME}");
-        explosiveExtraDuration = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Extra duration", 90, $"Extra duration added to the basic one for the second part of the {Constants.EXPLOSIVE_GAME}");
         explosiveBillyValue = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Billy value", 60, $"Billy value for the {Constants.EXPLOSIVE_GAME}");
         explosiveAura = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Aura duration", 30f, "Duration for which the Hoarding bug's aura is visible through walls");
         explosiveInteriorExclusions = SawTapes.configFile.Bind(Constants.EXPLOSIVE_GAME, "Interiors exclusion list", "", $"List of interiors in which the {Constants.EXPLOSIVE_GAME} will not appear.");
@@ -122,6 +122,16 @@ public class ConfigManager
         bathroomPosX = SawTapes.configFile.Bind(Constants.JIGSAW_JUDGEMENT, "Position X", -700f, $"Position X of the Bathroom");
         bathroomPosY = SawTapes.configFile.Bind(Constants.JIGSAW_JUDGEMENT, "Position Y", -200f, $"Position Y of the Bathroom");
         bathroomDuration = SawTapes.configFile.Bind(Constants.JIGSAW_JUDGEMENT, "Duration", 60, $"Duration of the {Constants.JIGSAW_JUDGEMENT}");
-        bathroomCooldown = SawTapes.configFile.Bind(Constants.JIGSAW_JUDGEMENT, "Cooldown", 600, $"Duration of the {Constants.JIGSAW_JUDGEMENT}");
+        bathroomCooldown = SawTapes.configFile.Bind(Constants.JIGSAW_JUDGEMENT, "Cooldown", 600, $"Cooldown duration of the {Constants.JIGSAW_JUDGEMENT}");
+        // BLEEDING CHAINS
+        bleedingChainsCooldown = SawTapes.configFile.Bind(Constants.BLEEDING_CHAINS, "Cooldown", 45, $"Cooldown duration of the {Constants.BLEEDING_CHAINS}");
+        // FINAL DETONATION
+        finalDetonationCooldown = SawTapes.configFile.Bind(Constants.FINAL_DETONATION, "Cooldown", 600, $"Cooldown duration of the {Constants.FINAL_DETONATION}");
+        finalDetonationEnemiesExclusions = SawTapes.configFile.Bind(Constants.FINAL_DETONATION, "Enemies exclusion list", "Doctor's Corpse", $"List of creatures that will not be impacted by the {Constants.FINAL_DETONATION} addon.\nYou can add enemies by separating them with a comma.");
+        // HUNTER'S MARK
+        hunterMarkCooldown = SawTapes.configFile.Bind(Constants.HUNTER_MARK, "Cooldown", 180, $"Cooldown duration of the {Constants.HUNTER_MARK}");
+        hunterMarkEnemiesExclusions = SawTapes.configFile.Bind(Constants.HUNTER_MARK, "Enemies exclusion list", "Doctor's Brain,Billy", $"List of creatures that will not be impacted by the {Constants.HUNTER_MARK} addon.\nYou can add enemies by separating them with a comma.");
+        // SPRINT BURST
+        sprintBurstCooldown = SawTapes.configFile.Bind(Constants.SPRINT_BURST, "Cooldown", 45, $"Cooldown duration of the {Constants.SPRINT_BURST}");
     }
 }

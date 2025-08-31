@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using LegaFusionCore.Registries;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ namespace SawTapes.Behaviours.Items.Addons.Scripts;
 public class BCScript : NetworkBehaviour
 {
     public EnemyAI enemy;
+    public int playerWhoHit;
 
     public Transform portal1;
     public Transform portal2;
@@ -22,7 +24,7 @@ public class BCScript : NetworkBehaviour
 
     private void Start()
     {
-        Vector3 position = enemy.GetComponentInChildren<SkinnedMeshRenderer>()?.bounds.center ?? enemy.transform.position;
+        Vector3 position = enemy.GetComponentInChildren<BoxCollider>()?.bounds.center ?? enemy.transform.position;
         enemyAttach1.position = position;
         enemyAttach2.position = position;
         enemyAttach3.position = position;
@@ -40,10 +42,13 @@ public class BCScript : NetworkBehaviour
 
     public IEnumerator AttachToEnemyCoroutine()
     {
-        yield return new WaitForSecondsRealtime(0.75f);
+        GameObject audioObject = Instantiate(SawTapes.bleedingChainsAudio, transform.position, Quaternion.identity);
+        audioObject.GetComponent<AudioSource>()?.Play();
+
+        yield return new WaitForSecondsRealtime(1f);
 
         float timer = 0f;
-        while (timer < 0.5f)
+        while (timer < 0.75f)
         {
             portal1.position += portal1.forward * 4f * Time.deltaTime;
             portal2.position += portal2.forward * 4f * Time.deltaTime;
@@ -53,6 +58,7 @@ public class BCScript : NetworkBehaviour
             yield return null;
         }
 
+        LFCStatusEffectRegistry.ApplyStatus(enemy.gameObject, LFCStatusEffectRegistry.StatusEffectType.BLEEDING, playerWhoHit, 10, 100);
         SpawnParticle();
         Destroy(gameObject);
     }

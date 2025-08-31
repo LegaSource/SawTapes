@@ -12,6 +12,7 @@ internal class HUDManagerPatch
     public static TextMeshProUGUI chronoText;
     public static TextMeshProUGUI subtitleText;
 
+    public static bool isPlayingGame = false;
     public static bool isChronoEnded = false;
     public static int remainedTime;
     public static bool isFlashFilterUsed = false;
@@ -68,7 +69,9 @@ internal class HUDManagerPatch
 
     public static IEnumerator StartChronoCoroutine(int seconds)
     {
+        isPlayingGame = true;
         remainedTime = seconds;
+
         while (!IsChronoEnded(remainedTime))
         {
             remainedTime--;
@@ -85,8 +88,9 @@ internal class HUDManagerPatch
 
         if (GameNetworkManager.Instance.localPlayerController.isPlayerDead || isChronoEnded || (minutes == 0 && seconds == 0))
         {
-            chronoText.text = "";
+            isPlayingGame = false;
             isChronoEnded = false;
+            chronoText.text = "";
             return true;
         }
 

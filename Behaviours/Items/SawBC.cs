@@ -1,7 +1,6 @@
 ﻿using GameNetcodeStuff;
 using LegaFusionCore.Utilities;
 using SawTapes.Behaviours.Items.Addons;
-using SawTapes.Managers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,22 +21,16 @@ public class SawBC : PhysicsProp
     public int sawMask = 1084754248;
     public float timeAtLastDamageDealt;
 
-    public override void Start()
+    public void InitializeForServer()
     {
-        base.Start();
-        if (IsServer || IsHost)
-        {
-            InitializeSawForServer();
-        }
+        int value = UnityEngine.Random.Range(20, 50);
+        InitializeClientRpc(value);
     }
 
-    public void InitializeSawForServer()
-        => InitializeSawClientRpc();
-
     [ClientRpc]
-    public void InitializeSawClientRpc()
+    public void InitializeClientRpc(int value)
     {
-        SetScrapValue(ConfigManager.sawValue.Value);
+        SetScrapValue(value);
         LFCUtilities.SetAddonComponent<BleedingChains>(this, Constants.BLEEDING_CHAINS);
     }
 

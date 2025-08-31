@@ -29,8 +29,8 @@ public class SawEscape : PhysicsProp
     public void ActivateForEscapeGameServerRpc()
     {
         Vector3 position = playerHeldBy.gameplayCamera.transform.position + playerHeldBy.gameplayCamera.transform.forward;
-        SawBC saw = LFCObjectsManager.SpawnObjectForServer(SawTapes.sawEscape.spawnPrefab, position) as SawBC;
-        saw.InitializeSawForServer();
+        SawBC saw = LFCObjectsManager.SpawnObjectForServer(SawTapes.sawBC.spawnPrefab, position) as SawBC;
+        saw.InitializeForServer();
 
         ActivateForEscapeGameClientRpc();
     }

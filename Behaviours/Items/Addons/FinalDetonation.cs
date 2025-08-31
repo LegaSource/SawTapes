@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SawTapes.Behaviours.Items.Addons;
 
-public class BleedingChains : AddonComponent
+public class FinalDetonation : AddonComponent
 {
     public override void ActivateAddonAbility()
     {
@@ -19,8 +19,11 @@ public class BleedingChains : AddonComponent
             EnemyAICollisionDetect enemyCollision = hit.collider.GetComponent<EnemyAICollisionDetect>();
             if (enemyCollision == null || enemyCollision.mainScript.isEnemyDead || !player.HasLineOfSightToPosition(enemyCollision.transform.position, 70f, 15)) continue;
 
-            StartCooldown(ConfigManager.bleedingChainsCooldown.Value);
-            SawTapesNetworkManager.Instance.SpawnBleedingChainsServerRpc(enemyCollision.mainScript.thisNetworkObject, (int)player.playerClientId);
+            EnemyType enemyType = enemyCollision.mainScript.enemyType;
+            if (enemyType == null || ConfigManager.finalDetonationEnemiesExclusions.Value.Contains(enemyType.enemyName)) continue;
+
+            StartCooldown(ConfigManager.finalDetonationCooldown.Value);
+            SawTapesNetworkManager.Instance.SpawnFinalDetonationServerRpc(enemyCollision.mainScript.thisNetworkObject, (int)player.playerClientId);
             break;
         }
     }

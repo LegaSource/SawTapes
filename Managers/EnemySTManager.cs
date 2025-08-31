@@ -34,7 +34,7 @@ public class EnemySTManager
         EnemyAI enemy = spawnedEnemy?.GetComponentInChildren<EnemyAI>();
         if (enemy == null || enemy.isEnemyDead) return;
 
-        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}SmokeParticle", spawnedEnemy.transform.position, Quaternion.Euler(-90, 0, 0));
+        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.smokeParticle.name}", spawnedEnemy.transform.position, Quaternion.Euler(-90, 0, 0));
         if (enemy is NutcrackerEnemyAI nutcrackerEnemyAI && nutcrackerEnemyAI.gun != null)
             LFCNetworkManager.Instance.DestroyObjectClientRpc(nutcrackerEnemyAI.gun.GetComponent<NetworkObject>());
         spawnedEnemy.Despawn();

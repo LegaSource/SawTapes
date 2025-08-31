@@ -1,8 +1,7 @@
 ﻿using GameNetcodeStuff;
 using LegaFusionCore.Behaviours.Shaders;
-using SawTapes.Managers;
-using SawTapes.Patches;
-using System.Collections;
+using LegaFusionCore.Managers;
+using SawTapes.Behaviours.Items;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,9 +9,6 @@ namespace SawTapes.Behaviours.Games.ExplosiveGame;
 
 public class SawBoxExplosive : NetworkBehaviour
 {
-    public bool isBombContained = false;
-    public double lastInteraction = 0d;
-
     public InteractTrigger boxTrigger;
 
     public void Update()
@@ -35,115 +31,40 @@ public class SawBoxExplosive : NetworkBehaviour
         SawBombExplosive sawBomb = explosiveTape.sawBomb;
         if (sawBomb == null) return;
 
-        if (!isBombContained)
-        {
-            bool hasSawBomb = false;
-
-            for (int i = 0; i < player.ItemSlots.Length; i++)
-            {
-                GrabbableObject grabbableObject = player.ItemSlots[i];
-                if (grabbableObject == null || grabbableObject != sawBomb) continue;
-                hasSawBomb = true;
-            }
-
-            if (hasSawBomb) BombContainmentServerRpc((int)player.playerClientId, explosiveTape.GetComponent<NetworkObject>());
-            return;
-        }
-
-        double elapsedTime = NetworkManager.ServerTime.Time - lastInteraction;
-        if (elapsedTime <= 20d)
-        {
-            EndGameServerRpc(sawBomb.GetComponent<NetworkObject>(), true);
-            return;
-        }
-
-        SawKeyExplosive sawKey = null;
         for (int i = 0; i < player.ItemSlots.Length; i++)
         {
             GrabbableObject grabbableObject = player.ItemSlots[i];
-            if (grabbableObject == null || grabbableObject is not SawKeyExplosive) continue;
+            if (grabbableObject == null || grabbableObject != sawBomb) continue;
 
-            sawKey = grabbableObject as SawKeyExplosive;
+            EndGameServerRpc(sawBomb.GetComponent<NetworkObject>());
         }
-
-        if (sawKey != null)
-        {
-            EndGameServerRpc(sawBomb.GetComponent<NetworkObject>(), false);
-            return;
-        }
-
-        HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_IMP_END_EXPLOSIVE);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void BombContainmentServerRpc(int playerId, NetworkObjectReference obj)
+    public void EndGameServerRpc(NetworkObjectReference obj)
     {
-        if (!obj.TryGet(out NetworkObject networkObject)) return;
+        EndGameClientRpc(obj);
 
-        ExplosiveTape explosiveTape = networkObject.gameObject.GetComponentInChildren<GrabbableObject>() as ExplosiveTape;
-        if (explosiveTape == null) return;
-
-        explosiveTape.PrepareDefusing(StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>());
-        BombContainmentClientRpc(obj);
+        BillyPuppetFD billy = LFCObjectsManager.SpawnObjectForServer(SawTapes.billyPuppetFD.spawnPrefab, transform.position + (Vector3.up * 0.5f)) as BillyPuppetFD;
+        billy.InitializeForServer();
     }
 
     [ClientRpc]
-    public void BombContainmentClientRpc(NetworkObjectReference obj)
-    {
-        if (!obj.TryGet(out NetworkObject networkObject)) return;
-
-        SawBombExplosive sawBomb = networkObject.gameObject.GetComponentInChildren<ExplosiveTape>()?.sawBomb;
-        if (sawBomb == null) return;
-
-        if (sawBomb.tickingCoroutine != null)
-        {
-            sawBomb.StopCoroutine(sawBomb.tickingCoroutine);
-            sawBomb.tickingCoroutine = null;
-        }
-
-        sawBomb.bombAudio.Stop();
-        _ = StartCoroutine(BombContainmentCoroutine(sawBomb));
-
-        HUDManagerPatch.remainedTime += ConfigManager.explosiveExtraDuration.Value;
-
-        isBombContained = true;
-        lastInteraction = NetworkManager.ServerTime.Time;
-        HUDManager.Instance.DisplayTip(Constants.INFORMATION, Constants.MESSAGE_INFO_FIND_KEY_EXPLOSIVE);
-    }
-
-    public IEnumerator BombContainmentCoroutine(SawBombExplosive sawBomb)
-    {
-        sawBomb.isContained = true;
-
-        PlayerControllerB player = sawBomb.playerHeldBy;
-        if (player != null && player == GameNetworkManager.Instance.localPlayerController) player.DropAllHeldItemsAndSync();
-
-        yield return new WaitForSeconds(0.2f);
-
-        sawBomb.EnableItemMeshes(false);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void EndGameServerRpc(NetworkObjectReference obj, bool destroy)
-        => EndGameClientRpc(obj, destroy);
-
-    [ClientRpc]
-    public void EndGameClientRpc(NetworkObjectReference obj, bool destroy)
+    public void EndGameClientRpc(NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
 
         SawBombExplosive sawBomb = networkObject.gameObject.GetComponentInChildren<GrabbableObject>() as SawBombExplosive;
         if (sawBomb == null) return;
 
-        sawBomb.hasBeenUsedForExplosiveGame = true;
+        sawBomb.hasBeenDestroyed = true;
+        sawBomb.DestroyObjectInHand(sawBomb.playerHeldBy);
+        sawBomb.bombAudio.Stop();
 
-        if (destroy)
+        if (sawBomb.tickingCoroutine != null)
         {
-            sawBomb.DestroyObjectInHand(sawBomb.playerHeldBy);
-            return;
+            sawBomb.StopCoroutine(sawBomb.tickingCoroutine);
+            sawBomb.tickingCoroutine = null;
         }
-        sawBomb.isContained = false;
-        sawBomb.hasBeenDefused = true;
-        sawBomb.EnableItemMeshes(true);
     }
 }

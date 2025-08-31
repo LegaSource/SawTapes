@@ -2,6 +2,7 @@
 using GameNetcodeStuff;
 using LegaFusionCore.Managers;
 using LegaFusionCore.Managers.NetworkManagers;
+using LegaFusionCore.Registries;
 using SawTapes.Behaviours.Bathroom.Enemies;
 using SawTapes.Managers;
 using SawTapes.Patches;
@@ -54,11 +55,11 @@ public class Bathroom : NetworkBehaviour
     [ClientRpc]
     public void SetUpChainClientRpc()
     {
-        ChainBathroom bathroomChain = GetComponentInChildren<ChainBathroom>();
-        bathroomChain.player = player;
+        ChainBathroom chainBathroom = GetComponentInChildren<ChainBathroom>();
+        chainBathroom.player = player;
 
-        bathroomChain.ConfigureAttach();
-        bathroomChain.SetupCollisionIgnore();
+        chainBathroom.ConfigureAttach();
+        chainBathroom.SetupCollisionIgnore();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -74,11 +75,7 @@ public class Bathroom : NetworkBehaviour
         if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
 
         billy = networkObject.gameObject.GetComponentInChildren<BillyBathroom>();
-        if (billy != null)
-        {
-            billy.targetPlayer = player;
-            if (IsServer) billy.StartFollowingPlayer();
-        }
+        if (billy != null) billy.targetPlayer = player;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -130,7 +127,7 @@ public class Bathroom : NetworkBehaviour
     {
         if (hasUsedKey || hasUsedSaw)
         {
-            //if (hasUsedSaw) Debuff vitesse
+            if (hasUsedSaw) LFCStatRegistry.AddModifier(LegaFusionCore.Constants.STAT_SPEED, $"{SawTapes.modName}JigsawJudgement", -0.5f);
             LFCNetworkManager.Instance.TeleportPlayerServerRpc((int)player.playerClientId, savedPosition, false, false, true);
         }
         else
@@ -138,7 +135,32 @@ public class Bathroom : NetworkBehaviour
             LFCNetworkManager.Instance.KillPlayerServerRpc((int)player.playerClientId, Vector3.zero, false, (int)CauseOfDeath.Unknown);
         }
         if (!HUDManagerPatch.chronoText.text.IsNullOrWhiteSpace()) HUDManagerPatch.isChronoEnded = true;
-        LFCNetworkManager.Instance.DestroyObjectServerRpc(billy.gameObject);
-        Destroy(gameObject);
+
+        if (billy.doGameCoroutine != null)
+        {
+            billy.StopCoroutine(billy.doGameCoroutine);
+            billy.doGameCoroutine = null;
+        }
+
+        if (SawTapes.puzzleBoardInterface != null)
+        {
+            OpenPuzzleBoard(false);
+            Destroy(SawTapes.puzzleBoardInterface.gameObject);
+            SawTapes.puzzleBoardInterface = null;
+        }
+
+        EndOfGameServerRpc();
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void EndOfGameServerRpc()
+    {
+        billy.thisNetworkObject.Despawn();
+        Destroy(gameObject);
+        EndOfGameClientRpc();
+    }
+
+    [ClientRpc]
+    public void EndOfGameClientRpc()
+        => SawTapes.bathroom = null;
 }

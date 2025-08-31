@@ -23,12 +23,11 @@ internal class PlayerControllerBPatch
     [HarmonyPrefix]
     private static bool PreKillPlayer(ref PlayerControllerB __instance)
     {
-        if (StartOfRound.Instance.shipIsLeaving || __instance != GameNetworkManager.Instance.localPlayerController || SawTapes.bathroom != null) return true;
+        if (StartOfRound.Instance.shipIsLeaving || HUDManagerPatch.isPlayingGame || __instance != GameNetworkManager.Instance.localPlayerController || SawTapes.bathroom != null) return true;
 
         JigsawJudgement jigsawJudgement = LFCUtilities.GetAddonComponent<JigsawJudgement>(__instance);
         if (jigsawJudgement != null && !jigsawJudgement.onCooldown)
         {
-            __instance.DropAllHeldItemsAndSync();
             jigsawJudgement.ActivateAddonAbility();
             return false;
         }

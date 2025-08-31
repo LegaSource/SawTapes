@@ -14,7 +14,8 @@ public class SubtitleFile
     public static HashSet<SubtitleMapping> huntingGameSubtitles;
     public static HashSet<SubtitleMapping> escapeGameSubtitles;
     public static HashSet<SubtitleMapping> explosiveGameSubtitles;
-    public static HashSet<SubtitleMapping> billySubtitles;
+    public static HashSet<SubtitleMapping> billyAnnouncementSubtitles;
+    public static HashSet<SubtitleMapping> billyBathroomSubtitles;
 
     public static string Get()
         => "{\n" +
@@ -90,7 +91,7 @@ public class SubtitleFile
             "  \"escape_game\": [\n" +
             "    {\n" +
             "      \"timestamp\": 0,\n" +
-            "      // Hello workers.\n" +
+            "      // Hello workers\n" +
             "      \"text\": \"Bonjour travailleurs\"\n" +
             "    },\n" +
             "    {\n" +
@@ -132,7 +133,7 @@ public class SubtitleFile
             "  \"explosive_game\": [\n" +
             "    {\n" +
             "      \"timestamp\": 0,\n" +
-            "      // Hello workers.\n" +
+            "      // Hello workers\n" +
             "      \"text\": \"Bonjour travailleurs\"\n" +
             "    },\n" +
             "    {\n" +
@@ -197,6 +198,38 @@ public class SubtitleFile
             "      // But remember... life is made of choices\n" +
             "      \"text\": \"Mais rappelez-vous… la vie est faite de choix\"\n" +
             "    }\n" +
+            "  ],\n" +
+            "  \"billy_bathroom\": [\n" +
+            "    {\n" +
+            "      \"timestamp\": 0,\n" +
+            "      // Hello worker\n" +
+            "      \"text\": \"Bonjour travailleur\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"timestamp\": 1.1,\n" +
+            "      // You have survived many trials\n" +
+            "      \"text\": \"Tu as survécu à de nombreuses épreuves\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"timestamp\": 3.13,\n" +
+            "      // You may believe this grants you respite… but today, a new opportunity lies before you\n" +
+            "      \"text\": \"Tu crois peut-être que cela t’offre un répit… mais aujourd’hui, c’est une nouvelle opportunité qui s’offre à toi\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"timestamp\": 8.78,\n" +
+            "      // In this room hides the object that will set you free\n" +
+            "      \"text\": \"Dans cette pièce se cache ce dont tu as besoin pour te libérer\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"timestamp\": 12.08,\n" +
+            "      // Yet another path stands open to you: the blade before you offers immediate freedom… at the cost of your flesh\n" +
+            "      \"text\": \"Mais une autre possibilité s'offre à toi, la lame devant toi peut t’offrir la liberté immédiate… au prix de ta chair\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"timestamp\": 19.08,\n" +
+            "      // The choice is yours\n" +
+            "      \"text\": \"Fais ton choix\"\n" +
+            "    }\n" +
             "  ]\n" +
             "}";
 
@@ -227,12 +260,13 @@ public class SubtitleFile
         huntingGameSubtitles = LoadHuntingGameSubtitles();
         escapeGameSubtitles = LoadEscapeGameSubtitles();
         explosiveGameSubtitles = LoadExplosiveGameSubtitles();
-        billySubtitles = LoadBillyAnnouncementSubtitles();
+        billyAnnouncementSubtitles = LoadBillyAnnouncementSubtitles();
+        billyBathroomSubtitles = LoadBillyBathroomSubtitles();
     }
 
     public static bool ValidateJsonStructure(JObject parsedJson)
     {
-        List<string> expectedKeys = ["survival_game", "hunting_game", "escape_game", "explosive_game", "billy_announcement"];
+        List<string> expectedKeys = ["survival_game", "hunting_game", "escape_game", "explosive_game", "billy_announcement", "billy_bathroom"];
         foreach (string key in expectedKeys)
         {
             if (parsedJson[key] == null)
@@ -287,5 +321,11 @@ public class SubtitleFile
     {
         string json = File.ReadAllText(FilePath);
         return JObject.Parse(json)["billy_announcement"].ToObject<HashSet<SubtitleMapping>>();
+    }
+
+    public static HashSet<SubtitleMapping> LoadBillyBathroomSubtitles()
+    {
+        string json = File.ReadAllText(FilePath);
+        return JObject.Parse(json)["billy_bathroom"].ToObject<HashSet<SubtitleMapping>>();
     }
 }

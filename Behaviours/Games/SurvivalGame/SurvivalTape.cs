@@ -1,6 +1,7 @@
 ﻿using GameNetcodeStuff;
 using LegaFusionCore.Managers;
 using LegaFusionCore.Managers.NetworkManagers;
+using SawTapes.Behaviours.Items;
 using SawTapes.Files;
 using SawTapes.Managers;
 using System.Collections;
@@ -32,11 +33,11 @@ public class SurvivalTape : SawTape
     public override void ExecutePostGasActionsForClient(PlayerControllerB player)
     {
         base.ExecutePostGasActionsForClient(player);
-        SpawnMonsterEyeServerRpc(player.gameplayCamera.transform.position + player.gameplayCamera.transform.forward, (int)player.playerClientId);
+        SpawnBillySurvivalServerRpc(player.gameplayCamera.transform.position + player.gameplayCamera.transform.forward, (int)player.playerClientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SpawnMonsterEyeServerRpc(Vector3 position, int playerId)
+    public void SpawnBillySurvivalServerRpc(Vector3 position, int playerId)
     {
         GrabbableObject grabbableObject = LFCObjectsManager.SpawnObjectForServer(SawTapes.billyPuppetSurvival.spawnPrefab, position);
         LFCNetworkManager.Instance.ForceGrabObjectClientRpc(grabbableObject.GetComponent<NetworkObject>(), playerId);
@@ -76,12 +77,29 @@ public class SurvivalTape : SawTape
     public IEnumerator SpawnEnemyCoroutine(EnemyType enemyType, Vector3 position)
     {
         Vector3 spawnPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5f);
-        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}BluePortalParticle", spawnPosition, Quaternion.Euler(-90, 0, 0));
+        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.bluePortalParticle.name}", spawnPosition, Quaternion.Euler(-90, 0, 0));
 
         yield return new WaitForSecondsRealtime(2f);
 
         NetworkObject networkObject = EnemySTManager.SpawnEnemyForServer(enemyType, spawnPosition);
         spawnedEnemies.Add(networkObject);
+    }
+
+    public void SetEnemiesTargets()
+    {
+        foreach (NetworkObject spawnedEnemy in spawnedEnemies)
+        {
+            if (spawnedEnemy == null) continue;
+
+            EnemyAI enemy = spawnedEnemy.GetComponentInChildren<EnemyAI>();
+            if (enemy?.thisNetworkObject == null || !enemy.thisNetworkObject.IsSpawned) continue;
+            if (enemy.isEnemyDead) continue;
+
+            PlayerControllerB closestPlayer = players.OrderBy(p => Vector3.Distance(p.transform.position, enemy.transform.position)).FirstOrDefault();
+            if (closestPlayer == null) continue;
+
+            enemy.SetMovingTowardsTargetPlayer(closestPlayer);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -98,7 +116,7 @@ public class SurvivalTape : SawTape
     public IEnumerator TeleportEnemyCoroutine(EnemyAI enemy, Vector3 position)
     {
         Vector3 endPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5f);
-        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}RedPortalParticle", endPosition, Quaternion.Euler(-90, 0, 0));
+        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.redPortalParticle.name}", endPosition, Quaternion.Euler(-90, 0, 0));
 
         yield return new WaitForSecondsRealtime(2f);
 
@@ -120,23 +138,6 @@ public class SurvivalTape : SawTape
         enemy.SyncPositionToClients();
     }
 
-    public void SetEnemiesTargets()
-    {
-        foreach (NetworkObject spawnedEnemy in spawnedEnemies)
-        {
-            if (spawnedEnemy == null) continue;
-
-            EnemyAI enemy = spawnedEnemy.GetComponentInChildren<EnemyAI>();
-            if (enemy?.thisNetworkObject == null || !enemy.thisNetworkObject.IsSpawned) continue;
-            if (enemy.isEnemyDead) continue;
-
-            PlayerControllerB closestPlayer = players.OrderBy(p => Vector3.Distance(p.transform.position, enemy.transform.position)).FirstOrDefault();
-            if (closestPlayer == null) continue;
-
-            enemy.SetMovingTowardsTargetPlayer(closestPlayer);
-        }
-    }
-
     public override bool ExecutePreEndGameActionForServer()
     {
         _ = base.ExecutePreEndGameActionForServer();
@@ -144,6 +145,15 @@ public class SurvivalTape : SawTape
         EnemySTManager.DespawnEnemiesForServer(spawnedEnemies);
         LFCObjectsManager.DestroyObjectsOfTypeAllForServer<BillyPuppetSurvival>();
 
-        return players.All(p => p.isPlayerDead);
+        PlayerControllerB player = players.FirstOrDefault(p => !p.isPlayerDead);
+        // Si joueur en vie faire apparaître la récompense sur le premier récupéré et retourner faux à game over
+        if (player != null)
+        {
+            Vector3 position = player.gameplayCamera.transform.position + player.gameplayCamera.transform.forward;
+            BillyPuppetSB billy = LFCObjectsManager.SpawnObjectForServer(SawTapes.billyPuppetSB.spawnPrefab, position) as BillyPuppetSB;
+            billy.InitializeForServer();
+            return false;
+        }
+        return true;
     }
 }
