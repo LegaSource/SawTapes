@@ -9,7 +9,7 @@ using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace SawTapes.Behaviours.Bathroom.Enemies;
+namespace SawTapes.Behaviours.Bathroom;
 
 public class BillyBathroom : BillyBike
 {

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using LegaFusionCore.Managers;
+using SawTapes.Managers;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -60,7 +62,7 @@ public class BillyFD : BillyBike
         yield return new WaitUntil(() => billyAudio.isPlaying);
         yield return new WaitUntil(() => !billyAudio.isPlaying);
 
-        Landmine.SpawnExplosion(transform.position + Vector3.up, spawnExplosionEffect: true, 15f, 15f);
+        Landmine.SpawnExplosion(transform.position + Vector3.up, spawnExplosionEffect: true, 12f, 12f);
 
         if (IsServer)
         {
@@ -69,7 +71,12 @@ public class BillyFD : BillyBike
             foreach (Collider hitCollider in Physics.OverlapSphere(transform.position, 15f, 524288, QueryTriggerInteraction.Collide))
             {
                 EnemyAI enemy = hitCollider.GetComponent<EnemyAICollisionDetect>()?.mainScript;
-                if (enemy != null && !enemy.isEnemyDead) enemy.KillEnemyOnOwnerClient(true);
+                if (enemy == null || enemy.isEnemyDead) continue;
+
+                EnemyType enemyType = enemy.enemyType;
+                if (enemyType == null || ConfigManager.finalDetonationEnemiesExclusions.Value.Contains(enemyType.enemyName)) continue;
+
+                enemy.KillEnemyOnOwnerClient(!LFCEnemyManager.CanDie(enemy));
             }
 
             yield return new WaitForSeconds(0.2f);

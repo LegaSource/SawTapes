@@ -127,7 +127,7 @@ public class ConfigManager
         bleedingChainsCooldown = SawTapes.configFile.Bind(Constants.BLEEDING_CHAINS, "Cooldown", 45, $"Cooldown duration of the {Constants.BLEEDING_CHAINS}");
         // FINAL DETONATION
         finalDetonationCooldown = SawTapes.configFile.Bind(Constants.FINAL_DETONATION, "Cooldown", 600, $"Cooldown duration of the {Constants.FINAL_DETONATION}");
-        finalDetonationEnemiesExclusions = SawTapes.configFile.Bind(Constants.FINAL_DETONATION, "Enemies exclusion list", "Doctor's Corpse", $"List of creatures that will not be impacted by the {Constants.FINAL_DETONATION} addon.\nYou can add enemies by separating them with a comma.");
+        finalDetonationEnemiesExclusions = SawTapes.configFile.Bind(Constants.FINAL_DETONATION, "Enemies exclusion list", "Doctor's Corpse", $"List of invulnerable creatures that will not be impacted by the {Constants.FINAL_DETONATION} addon.\nYou can add enemies by separating them with a comma.");
         // HUNTER'S MARK
         hunterMarkCooldown = SawTapes.configFile.Bind(Constants.HUNTER_MARK, "Cooldown", 180, $"Cooldown duration of the {Constants.HUNTER_MARK}");
         hunterMarkEnemiesExclusions = SawTapes.configFile.Bind(Constants.HUNTER_MARK, "Enemies exclusion list", "Doctor's Brain,Billy", $"List of creatures that will not be impacted by the {Constants.HUNTER_MARK} addon.\nYou can add enemies by separating them with a comma.");

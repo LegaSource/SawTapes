@@ -1,7 +1,7 @@
 ﻿using LegaFusionCore.Managers.NetworkManagers;
 using Unity.Netcode;
 
-namespace SawTapes.Behaviours.Bathroom.Items;
+namespace SawTapes.Behaviours.Bathroom;
 
 public class SawKeyBathroom : PhysicsProp
 {

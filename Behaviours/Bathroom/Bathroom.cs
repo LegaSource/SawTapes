@@ -3,7 +3,6 @@ using GameNetcodeStuff;
 using LegaFusionCore.Managers;
 using LegaFusionCore.Managers.NetworkManagers;
 using LegaFusionCore.Registries;
-using SawTapes.Behaviours.Bathroom.Enemies;
 using SawTapes.Managers;
 using SawTapes.Patches;
 using System.Linq;
@@ -20,7 +19,6 @@ public class Bathroom : NetworkBehaviour
     public NavMeshSurface navMeshSurface;
     public AudioSource sawTheme;
 
-    public Vector3 savedPosition;
     public Transform spawnPosition;
     public Transform billyPosition;
     public Transform sawPosition;
@@ -38,8 +36,6 @@ public class Bathroom : NetworkBehaviour
 
         SawTapes.bathroom = networkObject.gameObject.GetComponentInChildren<Bathroom>();
         player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
-
-        savedPosition = player.transform.position;
         GetComponentsInChildren<InteractTrigger>().ToList().ForEach(t => t.interactable = false);
 
         if (player == GameNetworkManager.Instance.localPlayerController)
@@ -128,7 +124,7 @@ public class Bathroom : NetworkBehaviour
         if (hasUsedKey || hasUsedSaw)
         {
             if (hasUsedSaw) LFCStatRegistry.AddModifier(LegaFusionCore.Constants.STAT_SPEED, $"{SawTapes.modName}JigsawJudgement", -0.5f);
-            LFCNetworkManager.Instance.TeleportPlayerServerRpc((int)player.playerClientId, savedPosition, false, false, true);
+            LFCNetworkManager.Instance.TeleportPlayerServerRpc((int)player.playerClientId, STUtilities.FindMainEntrancePoint().position, false, false, true);
         }
         else
         {

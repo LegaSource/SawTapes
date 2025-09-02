@@ -2,7 +2,7 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace SawTapes.Behaviours.Bathroom.UI;
+namespace SawTapes.Behaviours.Bathroom;
 
 public class PuzzlePieceController : MonoBehaviour, IPointerClickHandler
 {

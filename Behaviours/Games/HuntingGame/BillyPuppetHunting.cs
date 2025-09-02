@@ -10,6 +10,15 @@ public class BillyPuppetHunting : PhysicsProp
 {
     public bool onCooldown = false;
     public int currentTimeLeft;
+    public AudioSource billyLaugh;
+
+    public override void Start()
+    {
+        base.Start();
+
+        if (billyLaugh == null) billyLaugh = GetComponent<AudioSource>();
+        if (billyLaugh == null) SawTapes.mls.LogError("billyLaugh is not assigned and could not be found.");
+    }
 
     public override void ItemActivate(bool used, bool buttonDown = true)
     {
@@ -18,6 +27,7 @@ public class BillyPuppetHunting : PhysicsProp
         if (!buttonDown || onCooldown || playerHeldBy == null) return;
         if (SawTapes.sawTape == null || SawTapes.sawTape is not HuntingTape huntingTape) return;
 
+        billyLaugh.Play();
         StartChronoServerRpc(ConfigManager.huntingItemCooldown.Value);
         huntingTape.ShowAura(ConfigManager.huntingItemAuraDuration.Value);
     }

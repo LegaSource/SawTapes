@@ -4,7 +4,6 @@ using BepInEx.Logging;
 using HarmonyLib;
 using LethalLib.Modules;
 using SawTapes.Behaviours.Bathroom;
-using SawTapes.Behaviours.Bathroom.Items;
 using SawTapes.Behaviours.Games;
 using SawTapes.Behaviours.Games.EscapeGame;
 using SawTapes.Behaviours.Games.ExplosiveGame;

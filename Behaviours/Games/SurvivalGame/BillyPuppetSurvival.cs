@@ -12,7 +12,17 @@ public class BillyPuppetSurvival : PhysicsProp
 {
     public bool onCooldown = false;
     public int currentTimeLeft;
+
+    public AudioSource billyLaugh;
     public EnemyAI aimedEnemy;
+
+    public override void Start()
+    {
+        base.Start();
+
+        if (billyLaugh == null) billyLaugh = GetComponent<AudioSource>();
+        if (billyLaugh == null) SawTapes.mls.LogError("billyLaugh is not assigned and could not be found.");
+    }
 
     public override void Update()
     {
@@ -52,6 +62,7 @@ public class BillyPuppetSurvival : PhysicsProp
             .FirstOrDefault();
         if (player == null || player == playerHeldBy) return;
 
+        billyLaugh.Play();
         StartChronoServerRpc(ConfigManager.survivalItemCooldown.Value);
         survivalTape.TeleportEnemyServerRpc(aimedEnemy.thisNetworkObject, player.transform.position);
         RemoveAuraFromEnemy();
