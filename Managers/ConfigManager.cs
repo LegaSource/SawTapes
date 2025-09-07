@@ -7,6 +7,7 @@ public class ConfigManager
     // GLOBAL
     public static ConfigEntry<int> rarityIncrement;
     public static ConfigEntry<bool> isSawTheme;
+    public static ConfigEntry<float> sawThemeVolume;
     public static ConfigEntry<float> gassingDistance;
     public static ConfigEntry<string> excludedPlayers;
     // HUD
@@ -76,6 +77,7 @@ public class ConfigManager
         // GLOBAL
         rarityIncrement = SawTapes.configFile.Bind(Constants.GLOBAL, "Rarity increment", 15, "By how much does the chance of a Saw game appearing increase with each round if it hasn't appeared?");
         isSawTheme = SawTapes.configFile.Bind(Constants.GLOBAL, "Enable Saw theme", true, "Is Saw theme enabled?");
+        sawThemeVolume = SawTapes.configFile.Bind(Constants.GLOBAL, "Saw theme volume", 1f, "Saw theme volume (between 0 and 1)");
         gassingDistance = SawTapes.configFile.Bind(Constants.GLOBAL, "Gassing distance", 30f, "Maximum distance between the player and the tape before he is gassed");
         excludedPlayers = SawTapes.configFile.Bind(Constants.GLOBAL, "Excluded players", "", "List of players who cannot be selected for mini-games");
         // HUD

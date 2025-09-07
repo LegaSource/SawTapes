@@ -256,6 +256,7 @@ public class SawTape : PhysicsProp
         PlayerControllerB player = GameNetworkManager.Instance.localPlayerController;
         if (!players.Contains(player)) return;
 
+        sawTheme.volume = ConfigManager.sawThemeVolume.Value;
         sawTheme.Play();
         sawTheme.gameObject.transform.SetParent(player.transform);
     }

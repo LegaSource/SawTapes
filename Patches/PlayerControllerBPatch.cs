@@ -1,6 +1,7 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
 using LegaFusionCore.Utilities;
+using SawTapes.Behaviours.Games.ExplosiveGame;
 using SawTapes.Behaviours.Items.Addons;
 using System.Collections;
 
@@ -17,6 +18,22 @@ internal class PlayerControllerBPatch
         isTargetable = false;
         while (__result.MoveNext()) yield return __result.Current;
         isTargetable = true;
+    }
+
+    [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.Discard_performed))]
+    [HarmonyPrefix]
+    private static bool PreDiscardPerformed(ref PlayerControllerB __instance)
+    {
+        if (!__instance.IsOwner || !__instance.isPlayerControlled || (__instance.IsServer && !__instance.isHostPlayerObject) || __instance.currentlyHeldObjectServer == null) return true;
+
+        if (__instance.currentlyHeldObjectServer is SawBombExplosive sawBomb)
+        {
+            sawBomb.RemoveAuraFromPlayer();
+            if (!sawBomb.isTransferred && !sawBomb.hasBeenDestroyed && !sawBomb.deactivated) sawBomb.SpawnExplosionServerRpc();
+            return false;
+        }
+
+        return true;
     }
 
     [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.KillPlayer))]

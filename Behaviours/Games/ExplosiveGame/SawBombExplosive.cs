@@ -46,6 +46,10 @@ public class SawBombExplosive : PhysicsProp
         SpawnExplosion();
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnExplosionServerRpc()
+        => SpawnExplosionClientRpc();
+
     [ClientRpc]
     public void SpawnExplosionClientRpc()
         => SpawnExplosion();
@@ -154,9 +158,7 @@ public class SawBombExplosive : PhysicsProp
     public override void DiscardItem()
     {
         base.DiscardItem();
-
         RemoveAuraFromPlayer();
-        if (!isTransferred && !hasBeenDestroyed && !deactivated) SpawnExplosion();
     }
 
     public void RemoveAuraFromPlayer()

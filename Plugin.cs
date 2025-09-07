@@ -123,7 +123,7 @@ public class SawTapes : BaseUnityPlugin
         [
             new SawTapeValue(typeof(SurvivalTape), bundle.LoadAsset<Item>("Assets/SawTape/SurvivalTapeItem.asset"), ConfigManager.SurvivalRarity, ConfigManager.survivalMinPlayers.Value, ConfigManager.survivalMaxPlayers.Value, ConfigManager.survivalInteriorExclusions.Value),
             new SawTapeValue(typeof(HuntingTape), bundle.LoadAsset<Item>("Assets/SawTape/HuntingTapeItem.asset"), ConfigManager.HuntingRarity, ConfigManager.huntingMinPlayers.Value, ConfigManager.huntingMaxPlayers.Value, ConfigManager.huntingInteriorExclusions.Value),
-            new SawTapeValue(typeof(EscapeTape), bundle.LoadAsset<Item>("Assets/SawTape/EscapeTapeItem.asset"), ConfigManager.EscapeRarity, 2, 2, ConfigManager.escapeInteriorExclusions.Value),
+            new SawTapeValue(typeof(EscapeTape), bundle.LoadAsset<Item>("Assets/SawTape/EscapeTapeItem.asset"), ConfigManager.EscapeRarity, ConfigManager.escapeMinPlayers.Value, ConfigManager.escapeMaxPlayers.Value, ConfigManager.escapeInteriorExclusions.Value),
             new SawTapeValue(typeof(ExplosiveTape), bundle.LoadAsset<Item>("Assets/SawTape/ExplosiveTapeItem.asset"), ConfigManager.ExplosiveRarity, ConfigManager.explosiveMinPlayers.Value, ConfigManager.explosiveMaxPlayers.Value, ConfigManager.explosiveInteriorExclusions.Value)
         ];
         foreach (SawTapeValue sawTapeValue in sawTapeValues) _ = RegisterItem(sawTapeValue.Type, sawTapeValue.Item);
