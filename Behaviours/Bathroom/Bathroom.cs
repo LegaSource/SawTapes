@@ -75,8 +75,7 @@ public class Bathroom : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SpawnSawServerRpc()
-        => LFCObjectsManager.SpawnObjectForServer(SawTapes.sawBathroom.spawnPrefab, sawPosition.position);
+    public void SpawnSawServerRpc() => LFCObjectsManager.SpawnObjectForServer(SawTapes.sawBathroom.spawnPrefab, sawPosition.position);
 
     public void KeySpotInteraction()
     {
@@ -157,6 +156,5 @@ public class Bathroom : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void EndOfGameClientRpc()
-        => SawTapes.bathroom = null;
+    public void EndOfGameClientRpc() => SawTapes.bathroom = null;
 }

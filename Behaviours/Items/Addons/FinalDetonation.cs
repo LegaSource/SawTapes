@@ -1,30 +1,36 @@
 ﻿using GameNetcodeStuff;
 using LegaFusionCore.Behaviours.Addons;
 using SawTapes.Managers;
-using UnityEngine;
+using Unity.Netcode;
 
 namespace SawTapes.Behaviours.Items.Addons;
 
 public class FinalDetonation : AddonComponent
 {
+    public EnemyAI aimedEnemy;
+    public PlayerControllerB aimedPlayer;
+
+    public void Update()
+    {
+        if (onCooldown || !grabbableObject.isHeld || grabbableObject.isPocketed || grabbableObject.playerHeldBy == null || grabbableObject.playerHeldBy != GameNetworkManager.Instance.localPlayerController)
+        {
+            if (aimedEnemy != null) STUtilities.RemoveAuraFromEnemy($"{SawTapes.modName}FD", ref aimedEnemy);
+            if (aimedPlayer != null) STUtilities.RemoveAuraFromPlayer($"{SawTapes.modName}FD", ref aimedPlayer);
+            return;
+        }
+        STUtilities.ShowAuraAimedEnemy(grabbableObject.playerHeldBy, $"{SawTapes.modName}FD", 10f, ref aimedEnemy);
+        if (aimedEnemy == null) STUtilities.ShowAuraAimedPlayer(grabbableObject.playerHeldBy, $"{SawTapes.modName}FD", 10f, ref aimedPlayer);
+    }
+
     public override void ActivateAddonAbility()
     {
-        if (onCooldown) return;
+        if (onCooldown || (aimedEnemy == null && aimedPlayer == null)) return;
 
         PlayerControllerB player = GetComponentInParent<GrabbableObject>()?.playerHeldBy;
         if (player == null) return;
 
-        foreach (RaycastHit hit in Physics.RaycastAll(player.gameplayCamera.transform.position, player.gameplayCamera.transform.forward, 10f, 524288, QueryTriggerInteraction.Collide))
-        {
-            EnemyAICollisionDetect enemyCollision = hit.collider.GetComponent<EnemyAICollisionDetect>();
-            if (enemyCollision == null || enemyCollision.mainScript.isEnemyDead || !player.HasLineOfSightToPosition(enemyCollision.transform.position, 70f, 15)) continue;
-
-            EnemyType enemyType = enemyCollision.mainScript.enemyType;
-            if (enemyType == null || ConfigManager.finalDetonationEnemiesExclusions.Value.Contains(enemyType.enemyName)) continue;
-
-            StartCooldown(ConfigManager.finalDetonationCooldown.Value);
-            SawTapesNetworkManager.Instance.SpawnFinalDetonationServerRpc(enemyCollision.mainScript.thisNetworkObject, (int)player.playerClientId);
-            break;
-        }
+        NetworkObject entityObj = aimedEnemy != null ? aimedEnemy.thisNetworkObject : aimedPlayer.GetComponent<NetworkObject>();
+        StartCooldown(ConfigManager.finalDetonationCooldown.Value);
+        SawTapesNetworkManager.Instance.SpawnFinalDetonationServerRpc(entityObj, (int)player.playerClientId);
     }
 }

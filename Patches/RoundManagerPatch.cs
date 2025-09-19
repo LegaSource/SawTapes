@@ -13,8 +13,7 @@ internal class RoundManagerPatch
 {
     [HarmonyPatch(typeof(RoundManager), nameof(RoundManager.SpawnScrapInLevel))]
     [HarmonyPostfix]
-    private static void SpawnItems()
-        => AddNewItems();
+    private static void SpawnItems() => AddNewItems();
 
     public static void AddNewItems()
     {

@@ -78,12 +78,10 @@ public class ChainEscape : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void PullPlayerServerRpc(int playerId, Vector3 force)
-        => PullPlayerClientRpc(playerId, force);
+    public void PullPlayerServerRpc(int playerId, Vector3 force) => PullPlayerClientRpc(playerId, force);
 
     [ClientRpc]
-    public void PullPlayerClientRpc(int playerId, Vector3 force)
-        => StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>().thisController.Move(force);
+    public void PullPlayerClientRpc(int playerId, Vector3 force) => StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>().thisController.Move(force);
 
     public IEnumerator SlowDownPlayerCoroutine()
     {
@@ -113,6 +111,7 @@ public class ChainEscape : NetworkBehaviour
         if (slowDownCoroutine != null)
         {
             StopCoroutine(slowDownCoroutine);
+            LFCStatRegistry.RemoveModifier(LegaFusionCore.Constants.STAT_SPEED, $"{SawTapes.modName}ChainEscape");
             slowDownCoroutine = null;
         }
 

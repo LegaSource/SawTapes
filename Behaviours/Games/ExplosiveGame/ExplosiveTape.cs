@@ -75,8 +75,7 @@ public class ExplosiveTape : SawTape
         sawBox = networkObject.gameObject.GetComponentInChildren<SawBoxExplosive>();
     }
 
-    public override bool DoGameForServer(int iterator)
-        => !(players.All(p => p.isPlayerDead) || sawBomb.hasBeenDestroyed);
+    public override bool DoGameForServer(int iterator) => !(players.All(p => p.isPlayerDead) || sawBomb.hasBeenDestroyed);
 
     public override bool ExecutePreEndGameActionForServer()
     {

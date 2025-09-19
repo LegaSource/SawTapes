@@ -1,4 +1,7 @@
-﻿using LegaFusionCore.Managers;
+﻿using GameNetcodeStuff;
+using LegaFusionCore.Managers;
+using LegaFusionCore.Utilities;
+using SawTapes.Behaviours.Items.Addons;
 using SawTapes.Managers;
 using System.Collections;
 using Unity.Netcode;
@@ -6,10 +9,11 @@ using UnityEngine;
 
 namespace SawTapes.Behaviours.Enemies;
 
-public class BillyFD : BillyBike
+public class BillyFD : BillyBike, IHittable
 {
     public bool isMoving = true;
-    public EnemyAI targetedEnemy;
+    public PlayerControllerB player;
+    public GameObject targetedEntity;
 
     public AudioSource billyAudio;
     public AudioClip tickingSound;
@@ -88,13 +92,27 @@ public class BillyFD : BillyBike
     public override void Update()
     {
         base.Update();
-        if (isMoving && targetedEnemy != null) MoveTowardsEnemy();
+        if (isMoving && targetedEntity != null) MoveTowardsEntity();
     }
 
-    public void MoveTowardsEnemy()
+    public void MoveTowardsEntity()
     {
         PlayMovementSound();
         creatureAnimator?.SetBool("isMoving", true);
-        _ = SetDestinationToPosition(targetedEnemy.transform.position);
+        _ = SetDestinationToPosition(targetedEntity.transform.position);
+    }
+
+    public bool Hit(int force, Vector3 hitDirection, PlayerControllerB playerWhoHit = null, bool playHitSFX = false, int hitID = -1)
+    {
+        if (playerWhoHit == null || playerWhoHit != player) return true;
+
+        FinalDetonation finalDetonation = LFCUtilities.GetAddonComponent<FinalDetonation>(player);
+        if (finalDetonation != null)
+        {
+            finalDetonation.StopCooldown();
+            EnemySTManager.DespawnEnemy(thisNetworkObject);
+        }
+
+        return true;
     }
 }

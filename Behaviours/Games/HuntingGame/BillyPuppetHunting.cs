@@ -33,8 +33,7 @@ public class BillyPuppetHunting : PhysicsProp
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void StartChronoServerRpc(int cooldown)
-        => StartChronoClientRpc(cooldown);
+    public void StartChronoServerRpc(int cooldown) => StartChronoClientRpc(cooldown);
 
     [ClientRpc]
     public void StartChronoClientRpc(int cooldown)

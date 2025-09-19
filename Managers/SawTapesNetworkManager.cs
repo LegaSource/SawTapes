@@ -11,8 +11,7 @@ public class SawTapesNetworkManager : NetworkBehaviour
 {
     public static SawTapesNetworkManager Instance;
 
-    public void Awake()
-        => Instance = this;
+    public void Awake() => Instance = this;
 
     [ServerRpc(RequireOwnership = false)]
     public void SpawnBathroomServerRpc(int playerId)
@@ -25,41 +24,43 @@ public class SawTapesNetworkManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SpawnBleedingChainsServerRpc(NetworkObjectReference enemyObject, int playerId)
-        => SpawnBleedingChainsClientRpc(enemyObject, playerId);
+    public void SpawnBleedingChainsServerRpc(NetworkObjectReference entityObj, int playerId) => SpawnBleedingChainsClientRpc(entityObj, playerId);
 
     [ClientRpc]
-    public void SpawnBleedingChainsClientRpc(NetworkObjectReference enemyObject, int playerId)
+    public void SpawnBleedingChainsClientRpc(NetworkObjectReference entityObj, int playerId)
     {
-        if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
+        if (!entityObj.TryGet(out NetworkObject networkObject)) return;
 
-        EnemyAI enemy = networkObject.gameObject.GetComponentInChildren<EnemyAI>();
-        Vector3 position = enemy.GetComponentInChildren<BoxCollider>()?.bounds.center ?? enemy.transform.position;
-        GameObject bleedingChainsObj = Instantiate(SawTapes.bleedingChainsObj, position, enemy.transform.rotation, enemy.transform);
+        GameObject entity = networkObject.gameObject;
+        Vector3 position = entity.GetComponentInChildren<BoxCollider>()?.bounds.center ?? entity.transform.position;
+        GameObject bleedingChainsObj = Instantiate(SawTapes.bleedingChainsObj, position, entity.transform.rotation, entity.transform);
         BCScript bCScript = bleedingChainsObj.GetComponent<BCScript>();
-        bCScript.enemy = enemy;
+        bCScript.entity = entity;
         bCScript.playerWhoHit = playerId;
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SpawnFinalDetonationServerRpc(NetworkObjectReference enemyObject, int playerId)
+    public void SpawnFinalDetonationServerRpc(NetworkObjectReference entityObj, int playerId)
     {
         PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
         Vector3 position = player.gameplayCamera.transform.position + player.gameplayCamera.transform.forward;
         position = RoundManager.Instance.GetNavMeshPosition(position, sampleRadius: 2f);
 
-        NetworkObject billyObject = EnemySTManager.SpawnEnemyForServer(SawTapes.billyFDEnemy, position);
-        SpawnFinalDetonationClientRpc(billyObject, enemyObject);
+        NetworkObject billyObj = EnemySTManager.SpawnEnemyForServer(SawTapes.billyFDEnemy, position);
+        SpawnFinalDetonationClientRpc(billyObj, entityObj, playerId);
     }
 
     [ClientRpc]
-    public void SpawnFinalDetonationClientRpc(NetworkObjectReference billyObject, NetworkObjectReference enemyObject)
+    public void SpawnFinalDetonationClientRpc(NetworkObjectReference billyObj, NetworkObjectReference entityObj, int playerId)
     {
-        if (!billyObject.TryGet(out NetworkObject networkBillyObj) || !enemyObject.TryGet(out NetworkObject networkEnemyObject)) return;
+        if (!billyObj.TryGet(out NetworkObject networkBillyObj) || !entityObj.TryGet(out NetworkObject networkEntityObject)) return;
 
         BillyFD billy = networkBillyObj.gameObject.GetComponentInChildren<EnemyAI>() as BillyFD;
-        EnemyAI enemy = networkEnemyObject.gameObject.GetComponentInChildren<EnemyAI>();
-        if (billy != null && enemy != null) billy.targetedEnemy = enemy;
+        if (billy != null && networkEntityObject.gameObject != null)
+        {
+            billy.player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
+            billy.targetedEntity = networkEntityObject.gameObject;
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]

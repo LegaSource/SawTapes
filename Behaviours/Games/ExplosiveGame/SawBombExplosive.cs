@@ -1,6 +1,7 @@
 ﻿using GameNetcodeStuff;
 using LegaFusionCore.Behaviours.Shaders;
 using LegaFusionCore.Managers;
+using LegaFusionCore.Utilities;
 using System;
 using System.Collections;
 using Unity.Netcode;
@@ -47,12 +48,10 @@ public class SawBombExplosive : PhysicsProp
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SpawnExplosionServerRpc()
-        => SpawnExplosionClientRpc();
+    public void SpawnExplosionServerRpc() => SpawnExplosionClientRpc();
 
     [ClientRpc]
-    public void SpawnExplosionClientRpc()
-        => SpawnExplosion();
+    public void SpawnExplosionClientRpc() => SpawnExplosion();
 
     public void SpawnExplosion()
     {
@@ -107,8 +106,7 @@ public class SawBombExplosive : PhysicsProp
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void TransferBombServerRpc(int holdingPlayerId, int targetedPlayerId)
-        => TransferBombClientRpc(holdingPlayerId, targetedPlayerId);
+    public void TransferBombServerRpc(int holdingPlayerId, int targetedPlayerId) => TransferBombClientRpc(holdingPlayerId, targetedPlayerId);
 
     [ClientRpc]
     public void TransferBombClientRpc(int holdingPlayerId, int targetedPlayerId)
@@ -141,7 +139,7 @@ public class SawBombExplosive : PhysicsProp
             LFCObjectsManager.ForceGrabObject(this, targetedPlayer);
         }
 
-        if (localPlayer.IsHost || localPlayer.IsServer) StartTickingForServer();
+        if (LFCUtilities.IsServer) StartTickingForServer();
         isTransferred = false;
 
         yield return new WaitForSeconds(3.8f);

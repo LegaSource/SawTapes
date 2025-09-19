@@ -59,8 +59,7 @@ public class BillyBathroom : BillyBike
         creatureAnimator?.SetBool("isMoving", false);
     }
 
-    public override void ExecutePostDialogueForServer()
-        => StartGameClientRpc();
+    public override void ExecutePostDialogueForServer() => StartGameClientRpc();
 
     [ClientRpc]
     public void StartGameClientRpc()

@@ -106,8 +106,7 @@ public class PuzzlePieceController : MonoBehaviour, IPointerClickHandler
         CheckVictory();
     }
 
-    private void Highlight(bool on)
-        => img.color = on ? Color.yellow : baseColor;
+    private void Highlight(bool on) => img.color = on ? Color.yellow : baseColor;
 
     private void CheckVictory()
     {

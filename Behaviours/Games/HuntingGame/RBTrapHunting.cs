@@ -20,8 +20,7 @@ public class RBTrapHunting : PhysicsProp
         SetCarriedState(true);
     }
 
-    public void SetCarriedState(bool isCarried)
-        => scanNodeCollider.enabled = !isCarried;
+    public void SetCarriedState(bool isCarried) => scanNodeCollider.enabled = !isCarried;
 
     [ClientRpc]
     public void InitializeReverseBearTrapClientRpc(int playerId)

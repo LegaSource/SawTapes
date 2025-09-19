@@ -1,6 +1,6 @@
-﻿using GameNetcodeStuff;
-using HarmonyLib;
+﻿using HarmonyLib;
 using LegaFusionCore.Managers;
+using LegaFusionCore.Utilities;
 using SawTapes.Behaviours.Games.HuntingGame;
 
 namespace SawTapes.Patches;
@@ -11,8 +11,7 @@ internal class EnemyAIPatch
     [HarmonyPostfix]
     private static void KillEnemy(ref EnemyAI __instance)
     {
-        PlayerControllerB player = GameNetworkManager.Instance.localPlayerController;
-        if (!player.IsHost && !player.IsServer) return;
+        if (!LFCUtilities.IsServer) return;
         if (SawTapes.sawTape == null || SawTapes.sawTape is not HuntingTape huntingTape) return;
         if (!huntingTape.spawnedEnemies.Contains(__instance.thisNetworkObject)) return;
 

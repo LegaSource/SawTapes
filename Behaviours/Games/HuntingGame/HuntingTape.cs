@@ -125,8 +125,7 @@ public class HuntingTape : SawTape
         if (objects.Length > 0) CustomPassManager.RemoveAuraFromObjects(objects, SawTapes.modName);
     }
 
-    public override bool DoGameForServer(int iterator)
-        => !players.All(p => p.isPlayerDead || (playerRBTs.TryGetValue(p, out RBTrapHunting rbt) && rbt.isReleased));
+    public override bool DoGameForServer(int iterator) => !players.All(p => p.isPlayerDead || (playerRBTs.TryGetValue(p, out RBTrapHunting rbt) && rbt.isReleased));
 
     public override bool ExecutePreEndGameActionForServer()
     {

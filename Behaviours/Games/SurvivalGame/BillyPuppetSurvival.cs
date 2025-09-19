@@ -1,5 +1,4 @@
 ﻿using GameNetcodeStuff;
-using LegaFusionCore.Behaviours.Shaders;
 using SawTapes.Managers;
 using System.Collections;
 using System.Linq;
@@ -32,22 +31,7 @@ public class BillyPuppetSurvival : PhysicsProp
         if (playerHeldBy != GameNetworkManager.Instance.localPlayerController) return;
         if (SawTapes.sawTape == null || SawTapes.sawTape is not SurvivalTape) return;
 
-        ShowAuraTargetedEnemy();
-    }
-
-    public void ShowAuraTargetedEnemy()
-    {
-        if (Physics.Raycast(new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward), out RaycastHit hit, ConfigManager.survivalItemDistance.Value, 524288, QueryTriggerInteraction.Collide))
-        {
-            EnemyAICollisionDetect enemyCollision = hit.collider.GetComponent<EnemyAICollisionDetect>();
-            if (enemyCollision == null || enemyCollision.mainScript == null) return;
-
-            if (aimedEnemy != null && aimedEnemy != enemyCollision.mainScript) RemoveAuraFromEnemy();
-            aimedEnemy = enemyCollision.mainScript;
-            CustomPassManager.SetupAuraForObjects([enemyCollision.mainScript.gameObject], LegaFusionCore.LegaFusionCore.transparentShader, SawTapes.modName, Color.red);
-            return;
-        }
-        RemoveAuraFromEnemy();
+        STUtilities.ShowAuraAimedEnemy(playerHeldBy, SawTapes.modName, ConfigManager.survivalItemDistance.Value, ref aimedEnemy);
     }
 
     public override void ItemActivate(bool used, bool buttonDown = true)
@@ -65,12 +49,11 @@ public class BillyPuppetSurvival : PhysicsProp
         billyLaugh.Play();
         StartChronoServerRpc(ConfigManager.survivalItemCooldown.Value);
         survivalTape.TeleportEnemyServerRpc(aimedEnemy.thisNetworkObject, player.transform.position);
-        RemoveAuraFromEnemy();
+        STUtilities.RemoveAuraFromEnemy(SawTapes.modName, ref aimedEnemy);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void StartChronoServerRpc(int cooldown)
-        => StartChronoClientRpc(cooldown);
+    public void StartChronoServerRpc(int cooldown) => StartChronoClientRpc(cooldown);
 
     [ClientRpc]
     public void StartChronoClientRpc(int cooldown)
@@ -105,20 +88,12 @@ public class BillyPuppetSurvival : PhysicsProp
     public override void PocketItem()
     {
         base.PocketItem();
-        RemoveAuraFromEnemy();
+        STUtilities.RemoveAuraFromEnemy(SawTapes.modName, ref aimedEnemy);
     }
 
     public override void DiscardItem()
     {
         base.DiscardItem();
-        RemoveAuraFromEnemy();
-    }
-
-    public void RemoveAuraFromEnemy()
-    {
-        if (aimedEnemy == null) return;
-
-        CustomPassManager.RemoveAuraFromObjects([aimedEnemy.gameObject], SawTapes.modName);
-        aimedEnemy = null;
+        STUtilities.RemoveAuraFromEnemy(SawTapes.modName, ref aimedEnemy);
     }
 }

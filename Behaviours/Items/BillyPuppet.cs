@@ -1,5 +1,6 @@
 ﻿using GameNetcodeStuff;
 using LegaFusionCore.Managers;
+using LegaFusionCore.Utilities;
 using SawTapes.Behaviours.Enemies;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -29,19 +30,17 @@ public class BillyPuppet : PhysicsProp, IHittable
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void BillyLaughServerRpc()
-        => BillyLaughClientRpc();
+    private void BillyLaughServerRpc() => BillyLaughClientRpc();
 
     [ClientRpc]
-    private void BillyLaughClientRpc()
-        => billyLaugh.Play();
+    private void BillyLaughClientRpc() => billyLaugh.Play();
 
     public override void GrabItem()
     {
         base.GrabItem();
 
         EnableItemMeshes(true);
-        if ((IsHost || IsServer) && billy?.thisNetworkObject != null && billy.thisNetworkObject.IsSpawned)
+        if (LFCUtilities.IsServer && billy?.thisNetworkObject != null && billy.thisNetworkObject.IsSpawned)
         {
             billy.thisNetworkObject.Despawn();
             billy = null;

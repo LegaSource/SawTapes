@@ -116,8 +116,7 @@ public class SawBC : PhysicsProp
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void HitSawServerRpc(int hitSurfaceID)
-        => HitSawClientRpc(hitSurfaceID);
+    public void HitSawServerRpc(int hitSurfaceID) => HitSawClientRpc(hitSurfaceID);
 
     [ClientRpc]
     public void HitSawClientRpc(int hitSurfaceID)

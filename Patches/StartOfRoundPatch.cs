@@ -40,11 +40,9 @@ internal class StartOfRoundPatch
 
     [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.ShipLeave))]
     [HarmonyPostfix]
-    public static void EndRound()
-        => LFCStatRegistry.RemoveModifier(LegaFusionCore.Constants.STAT_SPEED, $"{SawTapes.modName}JigsawJudgement");
+    public static void EndRound() => LFCStatRegistry.RemoveModifier(LegaFusionCore.Constants.STAT_SPEED, $"{SawTapes.modName}JigsawJudgement");
 
     [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.OnDisable))]
     [HarmonyPostfix]
-    public static void OnDisable()
-        => SawTapesNetworkManager.Instance = null;
+    public static void OnDisable() => SawTapesNetworkManager.Instance = null;
 }

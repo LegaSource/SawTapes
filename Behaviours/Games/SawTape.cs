@@ -53,9 +53,8 @@ public class SawTape : PhysicsProp
         delayTimer -= Time.deltaTime;
         if (delayTimer > 0f) return;
 
-        PlayerControllerB localPlayer = GameNetworkManager.Instance?.localPlayerController;
-        if (localPlayer == null) return;
-        if (!localPlayer.IsHost && !localPlayer.IsServer) return;
+        if (GameNetworkManager.Instance?.localPlayerController == null) return;
+        if (!LFCUtilities.IsServer) return;
 
         PlayerControllerB player = StartOfRound.Instance.allPlayerScripts
             .FirstOrDefault(p => STUtilities.IsEligiblePlayer(p) && Vector3.Distance(p.transform.position, transform.position) <= ConfigManager.gassingDistance.Value);
@@ -218,8 +217,7 @@ public class SawTape : PhysicsProp
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void PlayRecordingServerRpc()
-        => PlayRecordingClientRpc();
+    public void PlayRecordingServerRpc() => PlayRecordingClientRpc();
 
     [ClientRpc]
     public void PlayRecordingClientRpc()
@@ -245,8 +243,7 @@ public class SawTape : PhysicsProp
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void PlaySawThemeServerRpc()
-        => PlaySawThemeClientRpc();
+    public void PlaySawThemeServerRpc() => PlaySawThemeClientRpc();
 
     [ClientRpc]
     public void PlaySawThemeClientRpc()
@@ -280,8 +277,7 @@ public class SawTape : PhysicsProp
     public virtual void ExecuteStartGameActionsForServer() { }
 
     [ClientRpc]
-    public void StartGameClientRpc()
-        => ExecuteStartGameActionsForAllClients();
+    public void StartGameClientRpc() => ExecuteStartGameActionsForAllClients();
 
     public virtual void ExecuteStartGameActionsForAllClients()
     {

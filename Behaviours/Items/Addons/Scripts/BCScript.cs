@@ -1,4 +1,5 @@
 ﻿using LegaFusionCore.Registries;
+using LegaFusionCore.Utilities;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -7,7 +8,7 @@ namespace SawTapes.Behaviours.Items.Addons.Scripts;
 
 public class BCScript : NetworkBehaviour
 {
-    public EnemyAI enemy;
+    public GameObject entity;
     public int playerWhoHit;
 
     public Transform portal1;
@@ -18,20 +19,21 @@ public class BCScript : NetworkBehaviour
     public Transform portalAttach2;
     public Transform portalAttach3;
 
-    public Transform enemyAttach1;
-    public Transform enemyAttach2;
-    public Transform enemyAttach3;
+    public Transform entityAttach1;
+    public Transform entityAttach2;
+    public Transform entityAttach3;
 
     private void Start()
     {
-        Vector3 position = enemy.GetComponentInChildren<BoxCollider>()?.bounds.center ?? enemy.transform.position;
-        enemyAttach1.position = position;
-        enemyAttach2.position = position;
-        enemyAttach3.position = position;
+        Vector3 position = entity.GetComponentInChildren<BoxCollider>()?.bounds.center ?? entity.transform.position;
 
-        enemyAttach1.SetParent(enemy.transform);
-        enemyAttach2.SetParent(enemy.transform);
-        enemyAttach3.SetParent(enemy.transform);
+        entityAttach1.position = position;
+        entityAttach2.position = position;
+        entityAttach3.position = position;
+
+        entityAttach1.SetParent(entity.transform);
+        entityAttach2.SetParent(entity.transform);
+        entityAttach3.SetParent(entity.transform);
 
         portalAttach1.SetParent(portal1);
         portalAttach2.SetParent(portal2);
@@ -58,7 +60,8 @@ public class BCScript : NetworkBehaviour
             yield return null;
         }
 
-        LFCStatusEffectRegistry.ApplyStatus(enemy.gameObject, LFCStatusEffectRegistry.StatusEffectType.BLEEDING, playerWhoHit, 10, 100);
+        int totalDamage = LFCUtilities.GetSafeComponent<EnemyAI>(entity) != null ? 100 : 10;
+        LFCStatusEffectRegistry.ApplyStatus(entity, LFCStatusEffectRegistry.StatusEffectType.BLEEDING, playerWhoHit, 10, totalDamage);
         SpawnParticle();
         Destroy(gameObject);
     }

@@ -99,6 +99,5 @@ internal class HUDManagerPatch
 
     [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.SetScreenFilters))]
     [HarmonyPrefix]
-    private static bool UpdateScreenFilters()
-        => !isFlashFilterUsed;
+    private static bool UpdateScreenFilters() => !isFlashFilterUsed;
 }

@@ -33,8 +33,7 @@ public class SawKeyHunting : PhysicsProp
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void ReleaseFromReverseBearTrapServerRpc(NetworkObjectReference obj, Vector3 position)
-        => ReleaseFromReverseBearTrapClientRpc(obj, position);
+    public void ReleaseFromReverseBearTrapServerRpc(NetworkObjectReference obj, Vector3 position) => ReleaseFromReverseBearTrapClientRpc(obj, position);
 
     [ClientRpc]
     public void ReleaseFromReverseBearTrapClientRpc(NetworkObjectReference obj, Vector3 position)
