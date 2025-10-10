@@ -84,7 +84,7 @@ public class SawBombExplosive : PhysicsProp
         {
             PlayerControllerB targetedPlayer = hit.collider.GetComponent<PlayerControllerB>();
             if (targetedPlayer == null || targetedPlayer == playerHeldBy) continue;
-            if (SawTapes.sawTape == null || !SawTapes.sawTape.players.Contains(targetedPlayer)) continue;
+            if (SawTapes.sawTape == null || SawTapes.sawTape.players == null || !SawTapes.sawTape.players.Contains(targetedPlayer)) continue;
 
             if (aimedPlayer != null && aimedPlayer != targetedPlayer) RemoveAuraFromPlayer();
             aimedPlayer = targetedPlayer;

@@ -37,7 +37,7 @@ public class ExplosiveTape : SawTape
 
     public void SpawnSawBomb()
     {
-        PlayerControllerB player = players.FirstOrDefault();
+        PlayerControllerB player = players?.FirstOrDefault();
         if (player == null) return;
 
         sawBomb = LFCObjectsManager.SpawnObjectForServer(SawTapes.sawBombExplosive.spawnPrefab, player.transform.position) as SawBombExplosive;
@@ -75,7 +75,7 @@ public class ExplosiveTape : SawTape
         sawBox = networkObject.gameObject.GetComponentInChildren<SawBoxExplosive>();
     }
 
-    public override bool DoGameForServer(int iterator) => !(players.All(p => p.isPlayerDead) || sawBomb.hasBeenDestroyed);
+    public override bool DoGameForServer(int iterator) => !(players == null || players.Count == 0 || sawBomb.hasBeenDestroyed);
 
     public override bool ExecutePreEndGameActionForServer()
     {
@@ -84,6 +84,6 @@ public class ExplosiveTape : SawTape
         if (!sawBomb.hasBeenDestroyed) sawBomb.SpawnExplosionEveryoneRpc();
         SawGameSTManager.DespawnHazard(sawBox.gameObject);
 
-        return players.All(p => p.isPlayerDead);
+        return players == null || players.Count == 0;
     }
 }

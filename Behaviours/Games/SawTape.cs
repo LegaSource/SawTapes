@@ -128,7 +128,7 @@ public class SawTape : PhysicsProp
     [Rpc(SendTo.Everyone, RequireOwnership = false)]
     public void ApplyGasEveryoneRpc()
     {
-        if (!players.Contains(GameNetworkManager.Instance.localPlayerController)) return;
+        if (players == null || !players.Contains(GameNetworkManager.Instance.localPlayerController)) return;
         _ = StartCoroutine(ApplyGasCoroutine());
     }
 
@@ -191,7 +191,7 @@ public class SawTape : PhysicsProp
 
     public virtual void ExecutePostGasActionsForServer()
     {
-        PlayerControllerB player = players.FirstOrDefault();
+        PlayerControllerB player = players?.FirstOrDefault();
         if (player == null) return;
 
         LFCNetworkManager.Instance.ForceGrabObjectEveryoneRpc(GetComponent<NetworkObject>(), (int)player.playerClientId);
@@ -206,7 +206,7 @@ public class SawTape : PhysicsProp
         PlayRecordingEveryoneRpc();
 
         if (isGameStarted) return;
-        if (!players.Contains(playerHeldBy))
+        if (players == null || !players.Contains(playerHeldBy))
         {
             HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_TESTED_PLAYER);
             return;
@@ -245,7 +245,7 @@ public class SawTape : PhysicsProp
         if (!ConfigManager.isSawTheme.Value || sawTheme.isPlaying) return;
 
         PlayerControllerB player = GameNetworkManager.Instance.localPlayerController;
-        if (!players.Contains(player)) return;
+        if (players == null || !players.Contains(player)) return;
 
         sawTheme.volume = ConfigManager.sawThemeVolume.Value;
         sawTheme.Play();
@@ -280,7 +280,7 @@ public class SawTape : PhysicsProp
 
         if (player.IsHost || player.IsServer) _ = StartCoroutine(StartGameCoroutine());
 
-        if (!players.Contains(player)) return;
+        if (players == null || !players.Contains(player)) return;
         _ = HUDManager.Instance.StartCoroutine(HUDManagerPatch.StartChronoCoroutine(gameDuration));
     }
 
@@ -290,7 +290,7 @@ public class SawTape : PhysicsProp
         while (timePassed < gameDuration)
         {
             if (!DoGameForServer(timePassed)) break;
-            if (StartOfRound.Instance.shipIsLeaving)
+            if (StartOfRound.Instance.shipIsLeaving && players != null && players.Count > 0)
             {
                 players.ToList().ForEach(p => LFCNetworkManager.Instance.KillPlayerEveryoneRpc((int)p.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown));
                 break;
@@ -308,8 +308,12 @@ public class SawTape : PhysicsProp
         bool isGameOver = ExecutePreEndGameActionForServer();
         EndGameEveryoneRpc();
 
-        PlayerControllerB player = players.FirstOrDefault(p => !p.isPlayerDead);
-        if (player == null || isGameOver) return;
+        PlayerControllerB player = players?.FirstOrDefault(p => !p.isPlayerDead);
+        if (player == null || isGameOver)
+        {
+            LFCObjectsManager.DestroyObjectOfTypeForServer(this);
+            return;
+        }
         _ = StartCoroutine(EndGameForServerCoroutine(player));
     }
 
@@ -322,16 +326,17 @@ public class SawTape : PhysicsProp
     [Rpc(SendTo.Everyone, RequireOwnership = false)]
     public void EndGameEveryoneRpc()
     {
+        Destroy(sawTheme.gameObject);
+        CustomPassManager.RemoveAuraByTag(SawTapes.modName);
+
+        if (players == null || players.Count == 0) return;
+
         foreach (PlayerControllerB player in players)
         {
             if (player != GameNetworkManager.Instance.localPlayerController) continue;
-
-            Destroy(sawTheme.gameObject);
             if (!HUDManagerPatch.chronoText.text.IsNullOrWhiteSpace()) HUDManagerPatch.isChronoEnded = true;
             player.DropAllHeldItemsAndSync();
         }
-
-        CustomPassManager.RemoveAuraByTag(SawTapes.modName);
     }
 
     public IEnumerator EndGameForServerCoroutine(PlayerControllerB player)

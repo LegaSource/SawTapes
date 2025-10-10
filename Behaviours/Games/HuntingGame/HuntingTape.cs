@@ -65,6 +65,8 @@ public class HuntingTape : SawTape
 
     public void SpawnEnemies()
     {
+        if (players == null || players.Count == 0) return;
+
         Vector3[] spawnPositions = STUtilities.GetFurthestPositions(transform.position, playersAmount);
         int index = 0;
         foreach (PlayerControllerB player in players)
@@ -125,11 +127,18 @@ public class HuntingTape : SawTape
         if (objects.Length > 0) CustomPassManager.RemoveAuraFromObjects(objects, SawTapes.modName);
     }
 
-    public override bool DoGameForServer(int iterator) => !players.All(p => p.isPlayerDead || (playerRBTs.TryGetValue(p, out RBTrapHunting rbt) && rbt.isReleased));
+    public override bool DoGameForServer(int iterator)
+        => players != null && players.Count > 0 && players.Any(p => !playerRBTs.TryGetValue(p, out RBTrapHunting rbt) || !rbt.isReleased);
 
     public override bool ExecutePreEndGameActionForServer()
     {
         _ = base.ExecutePreEndGameActionForServer();
+
+        EnemySTManager.DespawnEnemiesForServer(spawnedEnemies);
+        LFCObjectsManager.DestroyObjectsOfTypeAllForServer<SawKeyHunting>();
+        LFCObjectsManager.DestroyObjectsOfTypeAllForServer<BillyPuppetHunting>();
+
+        if (players == null || players.Count == 0) return true;
 
         PlayerControllerB activePlayer = null;
         foreach (PlayerControllerB player in players)
@@ -141,14 +150,9 @@ public class HuntingTape : SawTape
                 continue;
             }
 
-            LFCObjectsManager.DestroyObjectOfTypeForServer(rbt);
-
             if (player.isPlayerDead) continue;
             LFCNetworkManager.Instance.KillPlayerEveryoneRpc((int)player.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown);
         }
-        EnemySTManager.DespawnEnemiesForServer(spawnedEnemies);
-        LFCObjectsManager.DestroyObjectsOfTypeAllForServer<SawKeyHunting>();
-        LFCObjectsManager.DestroyObjectsOfTypeAllForServer<BillyPuppetHunting>();
 
         // Si joueur en vie faire apparaître la récompense sur le premier récupéré et retourner faux à game over
         if (activePlayer != null)

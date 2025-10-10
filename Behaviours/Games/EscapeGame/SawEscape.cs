@@ -11,7 +11,7 @@ public class SawEscape : PhysicsProp
     {
         if (playerHeldBy == null || playerHeldBy != GameNetworkManager.Instance.localPlayerController) return;
         if (SawTapes.sawTape == null || SawTapes.sawTape is not EscapeTape escapeTape) return;
-        if (escapeTape.players.Contains(playerHeldBy)) return;
+        if (escapeTape.players == null || escapeTape.players.Contains(playerHeldBy)) return;
 
         HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_SAW);
     }

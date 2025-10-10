@@ -1,9 +1,12 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
+using LegaFusionCore.Managers;
 using LegaFusionCore.Utilities;
 using SawTapes.Behaviours.Games.ExplosiveGame;
+using SawTapes.Behaviours.Games.HuntingGame;
 using SawTapes.Behaviours.Items.Addons;
 using System.Collections;
+using System.Linq;
 
 namespace SawTapes.Patches;
 
@@ -49,5 +52,26 @@ internal class PlayerControllerBPatch
             return false;
         }
         return true;
+    }
+
+    [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.KillPlayerServerRpc))]
+    [HarmonyPrefix]
+    private static void KillPlayerForServer(int playerId)
+    {
+        if (SawTapes.sawTape?.players == null || SawTapes.sawTape is not HuntingTape huntingTape) return;
+
+        PlayerControllerB player = SawTapes.sawTape.players.FirstOrDefault(p => p == null || (int)p.playerClientId == playerId);
+        if (player != null && huntingTape.playerRBTs.TryGetValue(player, out RBTrapHunting rBTrapHunting))
+            LFCObjectsManager.DestroyObjectOfTypeForServer(rBTrapHunting);
+    }
+
+    [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.KillPlayerClientRpc))]
+    [HarmonyPrefix]
+    private static void KillPlayerForEveryone(int playerId)
+    {
+        if (SawTapes.sawTape?.players == null) return;
+
+        _ = SawTapes.sawTape.players.RemoveWhere(p => p == null || (int)p.playerClientId == playerId);
+        SawTapes.sawTape.sawTheme.transform.SetParent(null);
     }
 }

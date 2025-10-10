@@ -47,7 +47,7 @@ public class SurvivalTape : SawTape
     {
         _ = base.DoGameForServer(iterator);
 
-        if (players.All(p => p.isPlayerDead)) return false;
+        if (players == null || players.Count == 0) return false;
 
         SpawnEnemies(iterator);
         SetEnemiesTargets();
@@ -57,8 +57,8 @@ public class SurvivalTape : SawTape
 
     public void SpawnEnemies(int iterator)
     {
-        if (iterator % 10 != 0) return;
-        if (gameDuration - iterator <= 10f) return;
+        if (iterator % 10 != 0 || gameDuration - iterator <= 10f) return;
+        if (players == null || players.Count == 0) return;
 
         foreach (PlayerControllerB player in players)
         {
@@ -95,7 +95,7 @@ public class SurvivalTape : SawTape
             if (enemy?.thisNetworkObject == null || !enemy.thisNetworkObject.IsSpawned) continue;
             if (enemy.isEnemyDead) continue;
 
-            PlayerControllerB closestPlayer = players.OrderBy(p => Vector3.Distance(p.transform.position, enemy.transform.position)).FirstOrDefault();
+            PlayerControllerB closestPlayer = players?.OrderBy(p => Vector3.Distance(p.transform.position, enemy.transform.position)).FirstOrDefault();
             if (closestPlayer == null) continue;
 
             enemy.SetMovingTowardsTargetPlayer(closestPlayer);
@@ -145,7 +145,7 @@ public class SurvivalTape : SawTape
         EnemySTManager.DespawnEnemiesForServer(spawnedEnemies);
         LFCObjectsManager.DestroyObjectsOfTypeAllForServer<BillyPuppetSurvival>();
 
-        PlayerControllerB player = players.FirstOrDefault(p => !p.isPlayerDead);
+        PlayerControllerB player = players?.FirstOrDefault(p => !p.isPlayerDead);
         // Si joueur en vie faire apparaître la récompense sur le premier récupéré et retourner faux à game over
         if (player != null)
         {

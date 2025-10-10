@@ -94,10 +94,14 @@ public class EscapeTape : SawTape
 
     public IEnumerator SetUpChainsCouroutine()
     {
-        Transform entrancePoint = STUtilities.FindMainEntrancePoint();
-        yield return new WaitUntil(() => this.players.All(p => Vector3.Distance(p.transform.position, entrancePoint.position) < 5f));
+        if (this.players == null || this.players.Count == 0) yield break;
 
-        List<PlayerControllerB> players = this.players.ToList();
+        Transform entrancePoint = STUtilities.FindMainEntrancePoint();
+        yield return new WaitUntil(() => this.players.Count > 0 && this.players.All(p => p != null && Vector3.Distance(p.transform.position, entrancePoint.position) < 5f));
+
+        List<PlayerControllerB> players = this.players.Where(p => p != null).ToList();
+        if (players.Count < 2) yield break;
+
         for (int i = 0; i < players.Count - 1; i++)
         {
             PlayerControllerB player1 = players[i];
@@ -136,12 +140,12 @@ public class EscapeTape : SawTape
 
     public override bool DoGameForServer(int iterator)
     {
-        if (players.All(p => p.isPlayerDead) || sawHasBeenUsed) return false;
+        if (players == null || players.Count == 0 || sawHasBeenUsed) return false;
 
         SpawnHazardsForServer(iterator);
         if (iterator % 20 != 0) return true;
 
-        List<PlayerControllerB> livingPlayers = players.Where(p => !p.isPlayerDead).ToList();
+        List<PlayerControllerB> livingPlayers = players.Where(p => p != null).ToList();
         ShowAuraSawEveryoneRpc((int)livingPlayers[Random.Range(0, livingPlayers.Count)].playerClientId);
 
         return true;
@@ -149,7 +153,7 @@ public class EscapeTape : SawTape
 
     public void SpawnHazardsForServer(int iterator)
     {
-        if (iterator % 5 != 0) return;
+        if (players == null || iterator % 5 != 0) return;
 
         foreach (PlayerControllerB player in players)
         {
@@ -189,6 +193,8 @@ public class EscapeTape : SawTape
     [Rpc(SendTo.Everyone, RequireOwnership = false)]
     public void ShowAuraSawEveryoneRpc(int playerId)
     {
+        if (players == null || players.Count == 0) return;
+
         PlayerControllerB localPlayer = GameNetworkManager.Instance.localPlayerController;
         if (!players.Contains(localPlayer)) return;
         CustomPassManager.RemoveAuraFromObjects([saw.gameObject], SawTapes.modName);
@@ -204,9 +210,11 @@ public class EscapeTape : SawTape
 
         chains.Where(c => c != null).ToList().ForEach(c => Destroy(c.gameObject));
         hazards.Where(h => h != null).ToList().ForEach(SawGameSTManager.DespawnHazard);
-        if (players.All(p => p.isPlayerDead) || !sawHasBeenUsed)
+        if (players == null || players.Count == 0 || !sawHasBeenUsed)
         {
             LFCObjectsManager.DestroyObjectOfTypeForServer(saw);
+            if (players == null) return true;
+
             foreach (PlayerControllerB player in players)
             {
                 if (player.isPlayerDead) continue;

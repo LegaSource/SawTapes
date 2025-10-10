@@ -8,8 +8,8 @@ public class SawKeyHunting : PhysicsProp
 {
     public override void GrabItem()
     {
-        if (playerHeldBy == null || playerHeldBy != GameNetworkManager.Instance.localPlayerController || SawTapes.sawTape == null) return;
-        if (SawTapes.sawTape.players.Contains(playerHeldBy)) return;
+        if (playerHeldBy == null || playerHeldBy != GameNetworkManager.Instance.localPlayerController) return;
+        if (SawTapes.sawTape?.players == null || SawTapes.sawTape.players.Contains(playerHeldBy)) return;
 
         HUDManager.Instance.DisplayTip(Constants.IMPOSSIBLE_ACTION, Constants.MESSAGE_IMPAC_KEY);
     }

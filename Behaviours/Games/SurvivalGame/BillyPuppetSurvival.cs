@@ -41,7 +41,7 @@ public class BillyPuppetSurvival : PhysicsProp
         if (!buttonDown || onCooldown || playerHeldBy == null) return;
         if (SawTapes.sawTape == null || SawTapes.sawTape is not SurvivalTape survivalTape || aimedEnemy == null) return;
 
-        PlayerControllerB player = survivalTape.players.Where(p => p != playerHeldBy && !p.isPlayerDead)
+        PlayerControllerB player = survivalTape.players?.Where(p => p != null && p != playerHeldBy)
             .OrderByDescending(p => Vector3.Distance(playerHeldBy.transform.position, p.transform.position))
             .FirstOrDefault();
         if (player == null || player == playerHeldBy) return;
