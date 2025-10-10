@@ -13,21 +13,18 @@ public class SawTapesNetworkManager : NetworkBehaviour
 
     public void Awake() => Instance = this;
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnBathroomServerRpc(int playerId)
     {
         GameObject bathroomObj = Instantiate(SawTapes.bathroomObj, (Vector3.up * ConfigManager.bathroomPosY.Value) + (Vector3.right * ConfigManager.bathroomPosX.Value), Quaternion.identity);
         bathroomObj.GetComponent<NetworkObject>().Spawn();
 
         SawTapes.bathroom = bathroomObj.GetComponent<Bathroom>();
-        SawTapes.bathroom.InitializeBathroomClientRpc(playerId, bathroomObj.GetComponent<NetworkObject>());
+        SawTapes.bathroom.InitializeBathroomEveryoneRpc(playerId, bathroomObj.GetComponent<NetworkObject>());
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void SpawnBleedingChainsServerRpc(NetworkObjectReference entityObj, int playerId) => SpawnBleedingChainsClientRpc(entityObj, playerId);
-
-    [ClientRpc]
-    public void SpawnBleedingChainsClientRpc(NetworkObjectReference entityObj, int playerId)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void SpawnBleedingChainsEveryoneRpc(NetworkObjectReference entityObj, int playerId)
     {
         if (!entityObj.TryGet(out NetworkObject networkObject)) return;
 
@@ -39,7 +36,7 @@ public class SawTapesNetworkManager : NetworkBehaviour
         bCScript.playerWhoHit = playerId;
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnFinalDetonationServerRpc(NetworkObjectReference entityObj, int playerId)
     {
         PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
@@ -47,11 +44,11 @@ public class SawTapesNetworkManager : NetworkBehaviour
         position = RoundManager.Instance.GetNavMeshPosition(position, sampleRadius: 2f);
 
         NetworkObject billyObj = EnemySTManager.SpawnEnemyForServer(SawTapes.billyFDEnemy, position);
-        SpawnFinalDetonationClientRpc(billyObj, entityObj, playerId);
+        SpawnFinalDetonationEveryoneRpc(billyObj, entityObj, playerId);
     }
 
-    [ClientRpc]
-    public void SpawnFinalDetonationClientRpc(NetworkObjectReference billyObj, NetworkObjectReference entityObj, int playerId)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void SpawnFinalDetonationEveryoneRpc(NetworkObjectReference billyObj, NetworkObjectReference entityObj, int playerId)
     {
         if (!billyObj.TryGet(out NetworkObject networkBillyObj) || !entityObj.TryGet(out NetworkObject networkEntityObject)) return;
 
@@ -63,7 +60,7 @@ public class SawTapesNetworkManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnHunterMarkServerRpc(int playerId)
     {
         PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();

@@ -27,26 +27,26 @@ public class BillyAnnouncement : BillyBike
 
     public void MoveTowardsPlayer()
     {
-        StartMovingClientRpc();
+        StartMovingEveryoneRpc();
         if (Vector3.Distance(targetPlayer.transform.position, transform.position) <= 4f)
         {
             isMoving = false;
 
-            StopMovingClientRpc();
+            StopMovingEveryoneRpc();
             _ = StartCoroutine(BillyDialogueCoroutine());
         }
     }
 
-    [ClientRpc]
-    public void StartMovingClientRpc()
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void StartMovingEveryoneRpc()
     {
         PlayMovementSound();
         creatureAnimator?.SetBool("isMoving", true);
         SetMovingTowardsTargetPlayer(targetPlayer);
     }
 
-    [ClientRpc]
-    public void StopMovingClientRpc()
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void StopMovingEveryoneRpc()
     {
         moveTowardsDestination = false;
         movingTowardsTargetPlayer = false;
@@ -62,11 +62,11 @@ public class BillyAnnouncement : BillyBike
 
         Vector3 position = transform.position;
         billyPuppet = LFCObjectsManager.SpawnObjectForServer(SawTapes.billyPuppet.spawnPrefab, position) as BillyPuppet;
-        SpawnBillyClientRpc(billyPuppet.GetComponent<NetworkObject>());
+        SpawnBillyEveryoneRpc(billyPuppet.GetComponent<NetworkObject>());
     }
 
-    [ClientRpc]
-    public void SpawnBillyClientRpc(NetworkObjectReference obj)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void SpawnBillyEveryoneRpc(NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
 

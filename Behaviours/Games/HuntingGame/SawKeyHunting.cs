@@ -28,15 +28,12 @@ public class SawKeyHunting : PhysicsProp
         }
 
         Vector3 position = playerHeldBy.gameplayCamera.transform.position + playerHeldBy.gameplayCamera.transform.forward;
-        ReleaseFromReverseBearTrapServerRpc(rbt.GetComponent<NetworkObject>(), position);
-        LFCNetworkManager.Instance.DestroyObjectServerRpc(GetComponent<NetworkObject>());
+        ReleaseFromReverseBearTrapEveryoneRpc(rbt.GetComponent<NetworkObject>(), position);
+        LFCNetworkManager.Instance.DestroyObjectEveryoneRpc(GetComponent<NetworkObject>());
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void ReleaseFromReverseBearTrapServerRpc(NetworkObjectReference obj, Vector3 position) => ReleaseFromReverseBearTrapClientRpc(obj, position);
-
-    [ClientRpc]
-    public void ReleaseFromReverseBearTrapClientRpc(NetworkObjectReference obj, Vector3 position)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void ReleaseFromReverseBearTrapEveryoneRpc(NetworkObjectReference obj, Vector3 position)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
 

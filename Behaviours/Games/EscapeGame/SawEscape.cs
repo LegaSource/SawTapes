@@ -25,18 +25,18 @@ public class SawEscape : PhysicsProp
         ActivateForEscapeGameServerRpc();
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void ActivateForEscapeGameServerRpc()
     {
         Vector3 position = playerHeldBy.gameplayCamera.transform.position + playerHeldBy.gameplayCamera.transform.forward;
         SawBC saw = LFCObjectsManager.SpawnObjectForServer(SawTapes.sawBC.spawnPrefab, position) as SawBC;
         saw.InitializeForServer();
 
-        ActivateForEscapeGameClientRpc();
+        ActivateForEscapeGameEveryoneRpc();
     }
 
-    [ClientRpc]
-    public void ActivateForEscapeGameClientRpc()
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void ActivateForEscapeGameEveryoneRpc()
     {
         DestroyObjectInHand(playerHeldBy);
 

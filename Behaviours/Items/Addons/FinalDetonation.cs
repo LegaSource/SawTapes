@@ -24,7 +24,7 @@ public class FinalDetonation : AddonComponent
 
     public override void ActivateAddonAbility()
     {
-        if (onCooldown || (aimedEnemy == null && aimedPlayer == null)) return;
+        if (onCooldown || !StartOfRound.Instance.shipHasLanded || (aimedEnemy == null && aimedPlayer == null)) return;
 
         PlayerControllerB player = GetComponentInParent<GrabbableObject>()?.playerHeldBy;
         if (player == null) return;

@@ -28,15 +28,12 @@ public class BillyPuppetHunting : PhysicsProp
         if (SawTapes.sawTape == null || SawTapes.sawTape is not HuntingTape huntingTape) return;
 
         billyLaugh.Play();
-        StartChronoServerRpc(ConfigManager.huntingItemCooldown.Value);
+        StartChronoEveryoneRpc(ConfigManager.huntingItemCooldown.Value);
         huntingTape.ShowAura(ConfigManager.huntingItemAuraDuration.Value);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void StartChronoServerRpc(int cooldown) => StartChronoClientRpc(cooldown);
-
-    [ClientRpc]
-    public void StartChronoClientRpc(int cooldown)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void StartChronoEveryoneRpc(int cooldown)
     {
         onCooldown = true;
         currentTimeLeft = cooldown;

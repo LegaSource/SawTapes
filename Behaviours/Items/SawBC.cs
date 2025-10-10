@@ -24,11 +24,11 @@ public class SawBC : PhysicsProp
     public void InitializeForServer()
     {
         int value = UnityEngine.Random.Range(20, 50);
-        InitializeClientRpc(value);
+        InitializeEveryoneRpc(value);
     }
 
-    [ClientRpc]
-    public void InitializeClientRpc(int value)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void InitializeEveryoneRpc(int value)
     {
         SetScrapValue(value);
         LFCUtilities.SetAddonComponent<BleedingChains>(this, Constants.BLEEDING_CHAINS);
@@ -111,15 +111,12 @@ public class SawBC : PhysicsProp
                 sawAudio.PlayOneShot(StartOfRound.Instance.footstepSurfaces[footstepSurfaceIndex].hitSurfaceSFX);
                 WalkieTalkie.TransmitOneShotAudio(sawAudio, StartOfRound.Instance.footstepSurfaces[footstepSurfaceIndex].hitSurfaceSFX);
             }
-            HitSawServerRpc(footstepSurfaceIndex);
+            HitSawEveryoneRpc(footstepSurfaceIndex);
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void HitSawServerRpc(int hitSurfaceID) => HitSawClientRpc(hitSurfaceID);
-
-    [ClientRpc]
-    public void HitSawClientRpc(int hitSurfaceID)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void HitSawEveryoneRpc(int hitSurfaceID)
     {
         if (IsOwner) return;
 

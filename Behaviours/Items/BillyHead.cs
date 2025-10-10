@@ -45,7 +45,7 @@ public class BillyHead : PhysicsProp
         RemoveAuraFromBody();
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnBillyServerRpc(NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
@@ -56,8 +56,8 @@ public class BillyHead : PhysicsProp
         BillyPuppetJJ billy = LFCObjectsManager.SpawnObjectForServer(SawTapes.billyPuppetJJ.spawnPrefab, position) as BillyPuppetJJ;
         billy.InitializeForServer();
 
-        LFCNetworkManager.Instance.DestroyObjectClientRpc(networkObject);
-        LFCNetworkManager.Instance.DestroyObjectClientRpc(GetComponent<NetworkObject>());
+        LFCNetworkManager.Instance.DestroyObjectEveryoneRpc(networkObject);
+        LFCNetworkManager.Instance.DestroyObjectEveryoneRpc(GetComponent<NetworkObject>());
     }
 
     public override void PocketItem()

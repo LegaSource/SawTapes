@@ -29,12 +29,12 @@ public class BillyFD : BillyBike, IHittable
         {
             int randomDuration = new System.Random().Next(10, 15);
             int startTime = (int)(tickingSound.length - randomDuration);
-            StartTickingClientRpc(startTime);
+            StartTickingEveryoneRpc(startTime);
         }
     }
 
-    [ClientRpc]
-    public void StartTickingClientRpc(int startTime)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void StartTickingEveryoneRpc(int startTime)
     {
         if (tickingCoroutine != null) return;
         tickingCoroutine = StartCoroutine(StartTickingCoroutine(startTime));

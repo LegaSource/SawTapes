@@ -24,13 +24,13 @@ public class BleedingChains : AddonComponent
 
     public override void ActivateAddonAbility()
     {
-        if (onCooldown || (aimedEnemy == null && aimedPlayer == null)) return;
+        if (onCooldown || !StartOfRound.Instance.shipHasLanded || (aimedEnemy == null && aimedPlayer == null)) return;
 
         PlayerControllerB player = GetComponentInParent<GrabbableObject>()?.playerHeldBy;
         if (player == null) return;
 
         NetworkObject entityObj = aimedEnemy != null ? aimedEnemy.thisNetworkObject : aimedPlayer.GetComponent<NetworkObject>();
         StartCooldown(ConfigManager.bleedingChainsCooldown.Value);
-        SawTapesNetworkManager.Instance.SpawnBleedingChainsServerRpc(entityObj, (int)player.playerClientId);
+        SawTapesNetworkManager.Instance.SpawnBleedingChainsEveryoneRpc(entityObj, (int)player.playerClientId);
     }
 }

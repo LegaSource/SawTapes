@@ -107,13 +107,13 @@ public class SawTape : PhysicsProp
             }
             _ = players.Add(player);
         }
-        AffectPlayersClientRpc(players.Select(p => (int)p.playerClientId).ToArray());
-        ApplyGasClientRpc();
+        AffectPlayersEveryoneRpc(players.Select(p => (int)p.playerClientId).ToArray());
+        ApplyGasEveryoneRpc();
         ExecutePostGasActionsForServer();
     }
 
-    [ClientRpc]
-    public void AffectPlayersClientRpc(int[] playerIds)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void AffectPlayersEveryoneRpc(int[] playerIds)
     {
         SawTapes.sawTape = this;
 
@@ -125,8 +125,8 @@ public class SawTape : PhysicsProp
         }
     }
 
-    [ClientRpc]
-    public void ApplyGasClientRpc()
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void ApplyGasEveryoneRpc()
     {
         if (!players.Contains(GameNetworkManager.Instance.localPlayerController)) return;
         _ = StartCoroutine(ApplyGasCoroutine());
@@ -174,19 +174,19 @@ public class SawTape : PhysicsProp
     public virtual void ExecutePostGasActionsForClient(PlayerControllerB player)
     {
         Transform entrancePoint = STUtilities.FindMainEntrancePoint();
-        LFCNetworkManager.Instance.TeleportPlayerServerRpc((int)player.playerClientId, entrancePoint.position, false, false, true, true, entrancePoint.eulerAngles.y, true);
+        LFCNetworkManager.Instance.TeleportPlayerEveryoneRpc((int)player.playerClientId, entrancePoint.position, false, false, true, true, entrancePoint.eulerAngles.y, true);
         ApplyGasEffects(false);
         if (spawnShovel) SpawnShovelServerRpc(player.gameplayCamera.transform.position + player.gameplayCamera.transform.forward, (int)player.playerClientId);
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnShovelServerRpc(Vector3 position, int playerId)
     {
         GameObject gameObject = LFCUtilities.GetPrefabFromName(Constants.SHOVEL);
         GrabbableObject grabbableObject = LFCObjectsManager.SpawnObjectForServer(gameObject, position);
         _ = shovels.Add(grabbableObject as Shovel);
 
-        LFCNetworkManager.Instance.ForceGrabObjectClientRpc(grabbableObject.GetComponent<NetworkObject>(), playerId);
+        LFCNetworkManager.Instance.ForceGrabObjectEveryoneRpc(grabbableObject.GetComponent<NetworkObject>(), playerId);
     }
 
     public virtual void ExecutePostGasActionsForServer()
@@ -194,7 +194,7 @@ public class SawTape : PhysicsProp
         PlayerControllerB player = players.FirstOrDefault();
         if (player == null) return;
 
-        LFCNetworkManager.Instance.ForceGrabObjectClientRpc(GetComponent<NetworkObject>(), (int)player.playerClientId);
+        LFCNetworkManager.Instance.ForceGrabObjectEveryoneRpc(GetComponent<NetworkObject>(), (int)player.playerClientId);
     }
 
     public override void ItemActivate(bool used, bool buttonDown = true)
@@ -203,7 +203,7 @@ public class SawTape : PhysicsProp
 
         if (!buttonDown || playerHeldBy == null || sawRecording.isPlaying) return;
 
-        PlayRecordingServerRpc();
+        PlayRecordingEveryoneRpc();
 
         if (isGameStarted) return;
         if (!players.Contains(playerHeldBy))
@@ -212,15 +212,12 @@ public class SawTape : PhysicsProp
             return;
         }
 
-        PlaySawThemeServerRpc();
+        PlaySawThemeEveryoneRpc();
         _ = StartCoroutine(BeginSawGameCoroutine());
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void PlayRecordingServerRpc() => PlayRecordingClientRpc();
-
-    [ClientRpc]
-    public void PlayRecordingClientRpc()
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void PlayRecordingEveryoneRpc()
     {
         sawRecording.Play();
         if (ConfigManager.isSubtitles.Value) _ = StartCoroutine(ShowSubtitles());
@@ -242,11 +239,8 @@ public class SawTape : PhysicsProp
         HUDManagerPatch.subtitleText.text = "";
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void PlaySawThemeServerRpc() => PlaySawThemeClientRpc();
-
-    [ClientRpc]
-    public void PlaySawThemeClientRpc()
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void PlaySawThemeEveryoneRpc()
     {
         if (!ConfigManager.isSawTheme.Value || sawTheme.isPlaying) return;
 
@@ -267,19 +261,19 @@ public class SawTape : PhysicsProp
         BeginSawGameServerRpc();
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void BeginSawGameServerRpc()
     {
         ExecuteStartGameActionsForServer();
-        StartGameClientRpc();
+        StartGameEveryoneRpc();
     }
 
     public virtual void ExecuteStartGameActionsForServer() { }
 
-    [ClientRpc]
-    public void StartGameClientRpc() => ExecuteStartGameActionsForAllClients();
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void StartGameEveryoneRpc() => ExecuteStartGameActionsForEveryone();
 
-    public virtual void ExecuteStartGameActionsForAllClients()
+    public virtual void ExecuteStartGameActionsForEveryone()
     {
         isGameStarted = true;
         PlayerControllerB player = GameNetworkManager.Instance.localPlayerController;
@@ -298,7 +292,7 @@ public class SawTape : PhysicsProp
             if (!DoGameForServer(timePassed)) break;
             if (StartOfRound.Instance.shipIsLeaving)
             {
-                players.ToList().ForEach(p => LFCNetworkManager.Instance.KillPlayerClientRpc((int)p.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown));
+                players.ToList().ForEach(p => LFCNetworkManager.Instance.KillPlayerEveryoneRpc((int)p.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown));
                 break;
             }
             yield return new WaitForSecondsRealtime(1f);
@@ -312,7 +306,7 @@ public class SawTape : PhysicsProp
     public virtual void EndGameForServer()
     {
         bool isGameOver = ExecutePreEndGameActionForServer();
-        EndGameClientRpc();
+        EndGameEveryoneRpc();
 
         PlayerControllerB player = players.FirstOrDefault(p => !p.isPlayerDead);
         if (player == null || isGameOver) return;
@@ -325,8 +319,8 @@ public class SawTape : PhysicsProp
         return true;
     }
 
-    [ClientRpc]
-    public void EndGameClientRpc()
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void EndGameEveryoneRpc()
     {
         foreach (PlayerControllerB player in players)
         {
@@ -371,11 +365,11 @@ public class SawTape : PhysicsProp
         }
 
         NetworkObject networkObject = EnemySTManager.SpawnEnemyForServer(SawTapes.billyAnnouncementEnemy, spawnPosition);
-        SpawnBillyClientRpc(networkObject, (int)player.playerClientId, billyValue);
+        SpawnBillyEveryoneRpc(networkObject, (int)player.playerClientId, billyValue);
     }
 
-    [ClientRpc]
-    public void SpawnBillyClientRpc(NetworkObjectReference enemyObject, int playerId, int billyValue)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void SpawnBillyEveryoneRpc(NetworkObjectReference enemyObject, int playerId, int billyValue)
     {
         if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
 

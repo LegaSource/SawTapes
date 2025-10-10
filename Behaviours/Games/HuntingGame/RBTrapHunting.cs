@@ -22,8 +22,8 @@ public class RBTrapHunting : PhysicsProp
 
     public void SetCarriedState(bool isCarried) => scanNodeCollider.enabled = !isCarried;
 
-    [ClientRpc]
-    public void InitializeReverseBearTrapClientRpc(int playerId)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void InitializeReverseBearTrapEveryoneRpc(int playerId)
     {
         PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
         grabbable = false;

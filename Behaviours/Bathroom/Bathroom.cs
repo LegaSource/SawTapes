@@ -29,8 +29,8 @@ public class Bathroom : NetworkBehaviour
     public int currentSpotIndex = 0;
     public bool isRightSpot = false;
 
-    [ClientRpc]
-    public void InitializeBathroomClientRpc(int playerId, NetworkObjectReference obj)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void InitializeBathroomEveryoneRpc(int playerId, NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
 
@@ -40,33 +40,26 @@ public class Bathroom : NetworkBehaviour
 
         if (player == GameNetworkManager.Instance.localPlayerController)
         {
-            LFCNetworkManager.Instance.TeleportPlayerServerRpc((int)player.playerClientId, spawnPosition.position, false, false, true, withSpawnAnimation: true);
+            LFCNetworkManager.Instance.TeleportPlayerEveryoneRpc((int)player.playerClientId, spawnPosition.position, false, false, true, withSpawnAnimation: true);
             SpawnBillyServerRpc();
             SpawnSawServerRpc();
         }
 
-        SetUpChainClientRpc();
-    }
-
-    [ClientRpc]
-    public void SetUpChainClientRpc()
-    {
         ChainBathroom chainBathroom = GetComponentInChildren<ChainBathroom>();
         chainBathroom.player = player;
-
         chainBathroom.ConfigureAttach();
         chainBathroom.SetupCollisionIgnore();
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnBillyServerRpc()
     {
         NetworkObject networkObject = EnemySTManager.SpawnEnemyForServer(SawTapes.billyBathroomEnemy, billyPosition.position);
-        SpawnBillyClientRpc(networkObject);
+        SpawnBillyEveryoneRpc(networkObject);
     }
 
-    [ClientRpc]
-    public void SpawnBillyClientRpc(NetworkObjectReference enemyObject)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void SpawnBillyEveryoneRpc(NetworkObjectReference enemyObject)
     {
         if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
 
@@ -74,7 +67,7 @@ public class Bathroom : NetworkBehaviour
         if (billy != null) billy.targetPlayer = player;
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnSawServerRpc() => LFCObjectsManager.SpawnObjectForServer(SawTapes.sawBathroom.spawnPrefab, sawPosition.position);
 
     public void KeySpotInteraction()
@@ -111,11 +104,11 @@ public class Bathroom : NetworkBehaviour
         Cursor.visible = enable;
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnSawKeyServerRpc()
     {
         GrabbableObject grabbableObject = LFCObjectsManager.SpawnObjectForServer(SawTapes.sawKeyBathroom.spawnPrefab, player.transform.position);
-        LFCNetworkManager.Instance.ForceGrabObjectClientRpc(grabbableObject.GetComponent<NetworkObject>(), (int)player.playerClientId);
+        LFCNetworkManager.Instance.ForceGrabObjectEveryoneRpc(grabbableObject.GetComponent<NetworkObject>(), (int)player.playerClientId);
     }
 
     public void EndOfGame()
@@ -123,11 +116,11 @@ public class Bathroom : NetworkBehaviour
         if (hasUsedKey || hasUsedSaw)
         {
             if (hasUsedSaw) LFCStatRegistry.AddModifier(LegaFusionCore.Constants.STAT_SPEED, $"{SawTapes.modName}JigsawJudgement", -0.5f);
-            LFCNetworkManager.Instance.TeleportPlayerServerRpc((int)player.playerClientId, STUtilities.FindMainEntrancePoint().position, false, false, true);
+            LFCNetworkManager.Instance.TeleportPlayerEveryoneRpc((int)player.playerClientId, STUtilities.FindMainEntrancePoint().position, false, false, true);
         }
         else
         {
-            LFCNetworkManager.Instance.KillPlayerServerRpc((int)player.playerClientId, Vector3.zero, false, (int)CauseOfDeath.Unknown);
+            LFCNetworkManager.Instance.KillPlayerEveryoneRpc((int)player.playerClientId, Vector3.zero, false, (int)CauseOfDeath.Unknown);
         }
         if (!HUDManagerPatch.chronoText.text.IsNullOrWhiteSpace()) HUDManagerPatch.isChronoEnded = true;
 
@@ -147,14 +140,14 @@ public class Bathroom : NetworkBehaviour
         EndOfGameServerRpc();
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void EndOfGameServerRpc()
     {
         billy.thisNetworkObject.Despawn();
         Destroy(gameObject);
-        EndOfGameClientRpc();
+        EndOfGameEveryoneRpc();
     }
 
-    [ClientRpc]
-    public void EndOfGameClientRpc() => SawTapes.bathroom = null;
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void EndOfGameEveryoneRpc() => SawTapes.bathroom = null;
 }

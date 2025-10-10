@@ -47,16 +47,13 @@ public class BillyPuppetSurvival : PhysicsProp
         if (player == null || player == playerHeldBy) return;
 
         billyLaugh.Play();
-        StartChronoServerRpc(ConfigManager.survivalItemCooldown.Value);
+        StartChronoEveryoneRpc(ConfigManager.survivalItemCooldown.Value);
         survivalTape.TeleportEnemyServerRpc(aimedEnemy.thisNetworkObject, player.transform.position);
         STUtilities.RemoveAuraFromEnemy(SawTapes.modName, ref aimedEnemy);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void StartChronoServerRpc(int cooldown) => StartChronoClientRpc(cooldown);
-
-    [ClientRpc]
-    public void StartChronoClientRpc(int cooldown)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void StartChronoEveryoneRpc(int cooldown)
     {
         onCooldown = true;
         currentTimeLeft = cooldown;

@@ -8,7 +8,7 @@ public class HunterMark : AddonComponent
 {
     public override void ActivateAddonAbility()
     {
-        if (onCooldown) return;
+        if (onCooldown || !StartOfRound.Instance.shipHasLanded) return;
 
         PlayerControllerB player = GetComponentInParent<GrabbableObject>()?.playerHeldBy;
         if (player == null) return;

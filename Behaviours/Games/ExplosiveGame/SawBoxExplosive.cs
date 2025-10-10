@@ -40,17 +40,17 @@ public class SawBoxExplosive : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void EndGameServerRpc(NetworkObjectReference obj)
     {
-        EndGameClientRpc(obj);
+        EndGameEveryoneRpc(obj);
 
         BillyPuppetFD billy = LFCObjectsManager.SpawnObjectForServer(SawTapes.billyPuppetFD.spawnPrefab, transform.position + (Vector3.up * 0.5f)) as BillyPuppetFD;
         billy.InitializeForServer();
     }
 
-    [ClientRpc]
-    public void EndGameClientRpc(NetworkObjectReference obj)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void EndGameEveryoneRpc(NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
 

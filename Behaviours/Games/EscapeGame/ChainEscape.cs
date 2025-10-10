@@ -15,8 +15,8 @@ public class ChainEscape : NetworkBehaviour
 
     public Coroutine slowDownCoroutine;
 
-    [ClientRpc]
-    public void SetUpChainClientRpc(int playerId1, int playerId2)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void SetUpChainEveryoneRpc(int playerId1, int playerId2)
     {
         player1 = StartOfRound.Instance.allPlayerObjects[playerId1].GetComponent<PlayerControllerB>();
         player2 = StartOfRound.Instance.allPlayerObjects[playerId2].GetComponent<PlayerControllerB>();
@@ -71,17 +71,14 @@ public class ChainEscape : NetworkBehaviour
         // Applique une force de déplacement
         float maxForce = targetPlayer.isSprinting ? 5f : 2.5f;
         Vector3 force = direction.normalized * Mathf.Min(targetPlayer.thisController.velocity.magnitude, maxForce) * 0.1f;
-        PullPlayerServerRpc((int)otherPlayer.playerClientId, force);
+        PullPlayerEveryoneRpc((int)otherPlayer.playerClientId, force);
 
         // Ralentir le joueur
         slowDownCoroutine ??= StartCoroutine(SlowDownPlayerCoroutine());
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void PullPlayerServerRpc(int playerId, Vector3 force) => PullPlayerClientRpc(playerId, force);
-
-    [ClientRpc]
-    public void PullPlayerClientRpc(int playerId, Vector3 force) => StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>().thisController.Move(force);
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void PullPlayerEveryoneRpc(int playerId, Vector3 force) => StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>().thisController.Move(force);
 
     public IEnumerator SlowDownPlayerCoroutine()
     {

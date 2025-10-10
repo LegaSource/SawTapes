@@ -58,7 +58,7 @@ public class SawGameSTManager
     {
         if (hazard == null || hazard.transform == null) return;
 
-        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.smokeParticle.name}", hazard.transform.position, Quaternion.Euler(-90, 0, 0));
+        LFCNetworkManager.Instance.PlayParticleEveryoneRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.smokeParticle.name}", hazard.transform.position, Quaternion.Euler(-90, 0, 0));
         hazard.GetComponent<NetworkObject>().Despawn(destroy: true);
     }
 }

@@ -42,12 +42,12 @@ public class ExplosiveTape : SawTape
 
         sawBomb = LFCObjectsManager.SpawnObjectForServer(SawTapes.sawBombExplosive.spawnPrefab, player.transform.position) as SawBombExplosive;
         NetworkObject networkObject = sawBomb.GetComponent<NetworkObject>();
-        InitializeSawBombClientRpc(networkObject);
-        LFCNetworkManager.Instance.ForceGrabObjectClientRpc(networkObject, (int)player.playerClientId);
+        InitializeSawBombEveryoneRpc(networkObject);
+        LFCNetworkManager.Instance.ForceGrabObjectEveryoneRpc(networkObject, (int)player.playerClientId);
     }
 
-    [ClientRpc]
-    public void InitializeSawBombClientRpc(NetworkObjectReference obj)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void InitializeSawBombEveryoneRpc(NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
 
@@ -62,14 +62,14 @@ public class ExplosiveTape : SawTape
             GameObject sawBoxInstance = SawGameSTManager.SpawnHazard(SawTapes.sawBoxExplosiveObj, position, true, false, true, true);
             if (sawBoxInstance != null)
             {
-                AffectSawBoxClientRpc(sawBoxInstance.GetComponent<NetworkObject>());
+                AffectSawBoxEveryoneRpc(sawBoxInstance.GetComponent<NetworkObject>());
                 break;
             }
         }
     }
 
-    [ClientRpc]
-    public void AffectSawBoxClientRpc(NetworkObjectReference obj)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void AffectSawBoxEveryoneRpc(NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
         sawBox = networkObject.gameObject.GetComponentInChildren<SawBoxExplosive>();
@@ -81,7 +81,7 @@ public class ExplosiveTape : SawTape
     {
         _ = base.ExecutePreEndGameActionForServer();
 
-        if (!sawBomb.hasBeenDestroyed) sawBomb.SpawnExplosionClientRpc();
+        if (!sawBomb.hasBeenDestroyed) sawBomb.SpawnExplosionEveryoneRpc();
         SawGameSTManager.DespawnHazard(sawBox.gameObject);
 
         return players.All(p => p.isPlayerDead);

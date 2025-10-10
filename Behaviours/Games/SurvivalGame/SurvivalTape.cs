@@ -36,11 +36,11 @@ public class SurvivalTape : SawTape
         SpawnBillySurvivalServerRpc(player.gameplayCamera.transform.position + player.gameplayCamera.transform.forward, (int)player.playerClientId);
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnBillySurvivalServerRpc(Vector3 position, int playerId)
     {
         GrabbableObject grabbableObject = LFCObjectsManager.SpawnObjectForServer(SawTapes.billyPuppetSurvival.spawnPrefab, position);
-        LFCNetworkManager.Instance.ForceGrabObjectClientRpc(grabbableObject.GetComponent<NetworkObject>(), playerId);
+        LFCNetworkManager.Instance.ForceGrabObjectEveryoneRpc(grabbableObject.GetComponent<NetworkObject>(), playerId);
     }
 
     public override bool DoGameForServer(int iterator)
@@ -77,7 +77,7 @@ public class SurvivalTape : SawTape
     public IEnumerator SpawnEnemyCoroutine(EnemyType enemyType, Vector3 position)
     {
         Vector3 spawnPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5f);
-        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.bluePortalParticle.name}", spawnPosition, Quaternion.Euler(-90, 0, 0));
+        LFCNetworkManager.Instance.PlayParticleEveryoneRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.bluePortalParticle.name}", spawnPosition, Quaternion.Euler(-90, 0, 0));
 
         yield return new WaitForSecondsRealtime(2f);
 
@@ -102,7 +102,7 @@ public class SurvivalTape : SawTape
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void TeleportEnemyServerRpc(NetworkObjectReference enemyObject, Vector3 position)
     {
         if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
@@ -116,16 +116,16 @@ public class SurvivalTape : SawTape
     public IEnumerator TeleportEnemyCoroutine(EnemyAI enemy, Vector3 position)
     {
         Vector3 endPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 5f);
-        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.redPortalParticle.name}", endPosition, Quaternion.Euler(-90, 0, 0));
+        LFCNetworkManager.Instance.PlayParticleEveryoneRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.redPortalParticle.name}", endPosition, Quaternion.Euler(-90, 0, 0));
 
         yield return new WaitForSecondsRealtime(2f);
 
         if (enemy == null || enemy.isEnemyDead || !enemy.IsSpawned) yield break;
-        TeleportEnemyClientRpc(enemy.thisNetworkObject, endPosition);
+        TeleportEnemyEveryoneRpc(enemy.thisNetworkObject, endPosition);
     }
 
-    [ClientRpc]
-    public void TeleportEnemyClientRpc(NetworkObjectReference enemyObject, Vector3 position)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void TeleportEnemyEveryoneRpc(NetworkObjectReference enemyObject, Vector3 position)
     {
         if (!enemyObject.TryGet(out NetworkObject networkObject)) return;
 

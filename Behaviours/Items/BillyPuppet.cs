@@ -26,14 +26,11 @@ public class BillyPuppet : PhysicsProp, IHittable
         base.ItemActivate(used, buttonDown);
 
         if (buttonDown && playerHeldBy != null)
-            BillyLaughServerRpc();
+            BillyLaughEveryoneRpc();
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void BillyLaughServerRpc() => BillyLaughClientRpc();
-
-    [ClientRpc]
-    private void BillyLaughClientRpc() => billyLaugh.Play();
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    private void BillyLaughEveryoneRpc() => billyLaugh.Play();
 
     public override void GrabItem()
     {
@@ -53,16 +50,16 @@ public class BillyPuppet : PhysicsProp, IHittable
         return true;
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnBillyPieceServerRpc()
     {
         List<GameObject> billyPieces = [SawTapes.billyHead.spawnPrefab, SawTapes.billyBody.spawnPrefab];
         GrabbableObject billyPiece = LFCObjectsManager.SpawnObjectForServer(billyPieces[new System.Random().Next(billyPieces.Count)], transform.position);
-        InitializeBillyPieceClientRpc(billyPiece.GetComponent<NetworkObject>(), Random.Range(20, 50));
+        InitializeBillyPieceEveryoneRpc(billyPiece.GetComponent<NetworkObject>(), Random.Range(20, 50));
     }
 
-    [ClientRpc]
-    public void InitializeBillyPieceClientRpc(NetworkObjectReference obj, int value)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void InitializeBillyPieceEveryoneRpc(NetworkObjectReference obj, int value)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
 

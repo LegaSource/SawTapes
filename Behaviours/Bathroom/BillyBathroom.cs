@@ -30,26 +30,26 @@ public class BillyBathroom : BillyBike
 
     public void MoveTowardsPlayer()
     {
-        StartMovingClientRpc();
+        StartMovingEveryoneRpc();
         if (Vector3.Distance(targetPlayer.transform.position, transform.position) <= 4f)
         {
             isMoving = false;
 
-            StopMovingClientRpc();
+            StopMovingEveryoneRpc();
             _ = StartCoroutine(BillyDialogueCoroutine());
         }
     }
 
-    [ClientRpc]
-    public void StartMovingClientRpc()
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void StartMovingEveryoneRpc()
     {
         PlayMovementSound();
         creatureAnimator?.SetBool("isMoving", true);
         SetMovingTowardsTargetPlayer(targetPlayer);
     }
 
-    [ClientRpc]
-    public void StopMovingClientRpc()
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void StopMovingEveryoneRpc()
     {
         moveTowardsDestination = false;
         movingTowardsTargetPlayer = false;
@@ -59,10 +59,10 @@ public class BillyBathroom : BillyBike
         creatureAnimator?.SetBool("isMoving", false);
     }
 
-    public override void ExecutePostDialogueForServer() => StartGameClientRpc();
+    public override void ExecutePostDialogueForServer() => StartGameEveryoneRpc();
 
-    [ClientRpc]
-    public void StartGameClientRpc()
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void StartGameEveryoneRpc()
     {
         SawTapes.bathroom.sawTheme.Play();
 

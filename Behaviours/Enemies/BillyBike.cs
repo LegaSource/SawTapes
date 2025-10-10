@@ -22,7 +22,7 @@ public class BillyBike : EnemyAI
 
     public IEnumerator BillyDialogueCoroutine()
     {
-        BillyAnnouncementClientRpc();
+        BillyAnnouncementEveryoneRpc();
 
         yield return new WaitUntil(() => billyRecording.isPlaying);
         yield return new WaitWhile(() => billyRecording.isPlaying);
@@ -30,8 +30,8 @@ public class BillyBike : EnemyAI
         ExecutePostDialogueForServer();
     }
 
-    [ClientRpc]
-    public void BillyAnnouncementClientRpc()
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void BillyAnnouncementEveryoneRpc()
     {
         billyRecording.Play();
         if (!ConfigManager.isSubtitles.Value) return;

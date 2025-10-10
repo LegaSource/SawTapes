@@ -29,7 +29,7 @@ internal class PlayerControllerBPatch
         if (__instance.currentlyHeldObjectServer is SawBombExplosive sawBomb)
         {
             sawBomb.RemoveAuraFromPlayer();
-            if (!sawBomb.isTransferred && !sawBomb.hasBeenDestroyed && !sawBomb.deactivated) sawBomb.SpawnExplosionServerRpc();
+            if (!sawBomb.isTransferred && !sawBomb.hasBeenDestroyed && !sawBomb.deactivated) sawBomb.SpawnExplosionEveryoneRpc();
             return false;
         }
 

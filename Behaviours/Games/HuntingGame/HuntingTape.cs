@@ -42,19 +42,19 @@ public class HuntingTape : SawTape
         SpawnBillyHuntingServerRpc(player.gameplayCamera.transform.position + player.gameplayCamera.transform.forward, (int)player.playerClientId);
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnReverseBearTrapServerRpc(int playerId)
     {
         PlayerControllerB player = StartOfRound.Instance.allPlayerObjects[playerId].GetComponent<PlayerControllerB>();
         RBTrapHunting rbt = LFCObjectsManager.SpawnObjectForServer(SawTapes.rBTrapHunting.spawnPrefab, player.gameplayCamera.transform.position, player.gameplayCamera.transform.rotation) as RBTrapHunting;
-        rbt.InitializeReverseBearTrapClientRpc((int)player.playerClientId);
+        rbt.InitializeReverseBearTrapEveryoneRpc((int)player.playerClientId);
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void SpawnBillyHuntingServerRpc(Vector3 position, int playerId)
     {
         GrabbableObject grabbableObject = LFCObjectsManager.SpawnObjectForServer(SawTapes.billyPuppetHunting.spawnPrefab, position);
-        LFCNetworkManager.Instance.ForceGrabObjectClientRpc(grabbableObject.GetComponent<NetworkObject>(), playerId);
+        LFCNetworkManager.Instance.ForceGrabObjectEveryoneRpc(grabbableObject.GetComponent<NetworkObject>(), playerId);
     }
 
     public override void ExecuteStartGameActionsForServer()
@@ -85,11 +85,11 @@ public class HuntingTape : SawTape
             : null;
 
         NetworkObject networkObject = EnemySTManager.SpawnEnemyForServer(enemyType, spawnPosition);
-        AffectEnemyClientRpc(networkObject);
+        AffectEnemyEveryoneRpc(networkObject);
     }
 
-    [ClientRpc]
-    public void AffectEnemyClientRpc(NetworkObjectReference obj)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void AffectEnemyEveryoneRpc(NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
         spawnedEnemies.Add(networkObject);
@@ -144,7 +144,7 @@ public class HuntingTape : SawTape
             LFCObjectsManager.DestroyObjectOfTypeForServer(rbt);
 
             if (player.isPlayerDead) continue;
-            LFCNetworkManager.Instance.KillPlayerClientRpc((int)player.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown);
+            LFCNetworkManager.Instance.KillPlayerEveryoneRpc((int)player.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown);
         }
         EnemySTManager.DespawnEnemiesForServer(spawnedEnemies);
         LFCObjectsManager.DestroyObjectsOfTypeAllForServer<SawKeyHunting>();

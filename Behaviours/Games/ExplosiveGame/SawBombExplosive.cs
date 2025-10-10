@@ -25,11 +25,11 @@ public class SawBombExplosive : PhysicsProp
     {
         int randomDuration = new System.Random().Next(15, 30);
         int startTime = (int)(tickingSound.length - randomDuration);
-        StartTickingClientRpc(startTime);
+        StartTickingEveryoneRpc(startTime);
     }
 
-    [ClientRpc]
-    public void StartTickingClientRpc(int startTime)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void StartTickingEveryoneRpc(int startTime)
     {
         if (tickingCoroutine != null) return;
         tickingCoroutine = StartCoroutine(StartTickingCoroutine(startTime));
@@ -47,11 +47,8 @@ public class SawBombExplosive : PhysicsProp
         SpawnExplosion();
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void SpawnExplosionServerRpc() => SpawnExplosionClientRpc();
-
-    [ClientRpc]
-    public void SpawnExplosionClientRpc() => SpawnExplosion();
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void SpawnExplosionEveryoneRpc() => SpawnExplosion();
 
     public void SpawnExplosion()
     {
@@ -102,14 +99,11 @@ public class SawBombExplosive : PhysicsProp
         base.ItemActivate(used, buttonDown);
 
         if (!buttonDown || playerHeldBy == null || transferBombCoroutine != null) return;
-        if (aimedPlayer != null) TransferBombServerRpc((int)playerHeldBy.playerClientId, (int)aimedPlayer.playerClientId);
+        if (aimedPlayer != null) TransferBombEveryoneRpc((int)playerHeldBy.playerClientId, (int)aimedPlayer.playerClientId);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void TransferBombServerRpc(int holdingPlayerId, int targetedPlayerId) => TransferBombClientRpc(holdingPlayerId, targetedPlayerId);
-
-    [ClientRpc]
-    public void TransferBombClientRpc(int holdingPlayerId, int targetedPlayerId)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void TransferBombEveryoneRpc(int holdingPlayerId, int targetedPlayerId)
     {
         PlayerControllerB holdingPlayer = StartOfRound.Instance.allPlayerObjects[holdingPlayerId].GetComponent<PlayerControllerB>();
         PlayerControllerB targetedPlayer = StartOfRound.Instance.allPlayerObjects[targetedPlayerId].GetComponent<PlayerControllerB>();

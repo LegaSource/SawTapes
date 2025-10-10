@@ -10,11 +10,11 @@ public class BillyPuppetSB : PhysicsProp
     public void InitializeForServer()
     {
         int value = Random.Range(20, 50);
-        InitializeClientRpc(value);
+        InitializeEveryoneRpc(value);
     }
 
-    [ClientRpc]
-    public void InitializeClientRpc(int value)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void InitializeEveryoneRpc(int value)
     {
         SetScrapValue(value);
         LFCUtilities.SetAddonComponent<SprintBurst>(this, Constants.SPRINT_BURST);

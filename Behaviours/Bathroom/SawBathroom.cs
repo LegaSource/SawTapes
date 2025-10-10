@@ -13,6 +13,6 @@ public class SawBathroom : PhysicsProp
 
         SawTapes.bathroom.hasUsedSaw = true;
         SawTapes.bathroom.EndOfGame();
-        LFCNetworkManager.Instance.DestroyObjectServerRpc(GetComponent<NetworkObject>());
+        LFCNetworkManager.Instance.DestroyObjectEveryoneRpc(GetComponent<NetworkObject>());
     }
 }

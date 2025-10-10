@@ -108,7 +108,7 @@ public class EscapeTape : SawTape
             gameObject.GetComponent<NetworkObject>().Spawn();
 
             ChainEscape chainEscape = gameObject.GetComponent<ChainEscape>();
-            chainEscape.SetUpChainClientRpc((int)player1.playerClientId, (int)player2.playerClientId);
+            chainEscape.SetUpChainEveryoneRpc((int)player1.playerClientId, (int)player2.playerClientId);
 
             _ = chains.Add(chainEscape);
         }
@@ -124,11 +124,11 @@ public class EscapeTape : SawTape
     {
         Vector3 position = STUtilities.GetFurthestPositionScrapSpawn(transform.position, SawTapes.sawEscape);
         saw = LFCObjectsManager.SpawnObjectForServer(SawTapes.sawEscape.spawnPrefab, position) as SawEscape;
-        InitializeSawClientRpc(saw.GetComponent<NetworkObject>());
+        InitializeSawEveryoneRpc(saw.GetComponent<NetworkObject>());
     }
 
-    [ClientRpc]
-    public void InitializeSawClientRpc(NetworkObjectReference obj)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void InitializeSawEveryoneRpc(NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
         saw = networkObject.gameObject.GetComponentInChildren<GrabbableObject>() as SawEscape;
@@ -142,7 +142,7 @@ public class EscapeTape : SawTape
         if (iterator % 20 != 0) return true;
 
         List<PlayerControllerB> livingPlayers = players.Where(p => !p.isPlayerDead).ToList();
-        ShowAuraSawClientRpc((int)livingPlayers[Random.Range(0, livingPlayers.Count)].playerClientId);
+        ShowAuraSawEveryoneRpc((int)livingPlayers[Random.Range(0, livingPlayers.Count)].playerClientId);
 
         return true;
     }
@@ -164,30 +164,30 @@ public class EscapeTape : SawTape
     public IEnumerator SpawnHazardCoroutine(EscapeHazard escapeHazard, GameObject hazard, Vector3 position)
     {
         Vector3 spawnPosition = RoundManager.Instance.GetRandomNavMeshPositionInRadius(position, 8f);
-        LFCNetworkManager.Instance.PlayParticleClientRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.bluePortalParticle.name}", spawnPosition, Quaternion.Euler(-90, 0, 0));
+        LFCNetworkManager.Instance.PlayParticleEveryoneRpc($"{LegaFusionCore.LegaFusionCore.modName}{LegaFusionCore.LegaFusionCore.bluePortalParticle.name}", spawnPosition, Quaternion.Euler(-90, 0, 0));
 
         yield return new WaitForSecondsRealtime(2f);
 
         GameObject hazardInstance = SawGameSTManager.SpawnHazard(hazard, spawnPosition, escapeHazard.SpawnFacingAwayFromWall, escapeHazard.SpawnFacingWall, escapeHazard.SpawnWithBackToWall, escapeHazard.SpawnWithBackFlushAgainstWall);
-        if (hazardInstance != null) InitializeHazardClientRpc(hazardInstance.GetComponent<NetworkObject>());
+        if (hazardInstance != null) InitializeHazardEveryoneRpc(hazardInstance.GetComponent<NetworkObject>());
     }
 
-    [ClientRpc]
-    public void InitializeHazardClientRpc(NetworkObjectReference obj)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void InitializeHazardEveryoneRpc(NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
         _ = hazards.Add(networkObject.gameObject);
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     public void DespawnHazardServerRpc(NetworkObjectReference obj)
     {
         if (!obj.TryGet(out NetworkObject networkObject)) return;
         SawGameSTManager.DespawnHazard(networkObject.gameObject);
     }
 
-    [ClientRpc]
-    public void ShowAuraSawClientRpc(int playerId)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    public void ShowAuraSawEveryoneRpc(int playerId)
     {
         PlayerControllerB localPlayer = GameNetworkManager.Instance.localPlayerController;
         if (!players.Contains(localPlayer)) return;
@@ -210,7 +210,7 @@ public class EscapeTape : SawTape
             foreach (PlayerControllerB player in players)
             {
                 if (player.isPlayerDead) continue;
-                LFCNetworkManager.Instance.KillPlayerClientRpc((int)player.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown);
+                LFCNetworkManager.Instance.KillPlayerEveryoneRpc((int)player.playerClientId, Vector3.zero, true, (int)CauseOfDeath.Unknown);
             }
             return true;
         }
